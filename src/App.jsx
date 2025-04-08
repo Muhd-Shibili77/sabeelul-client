@@ -1,35 +1,45 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react'
+import AdminDashboard from './page/Admin/AdminDashboard'
+import AdminStudents from './page/Admin/AdminStudents';
+import AdminTeachers from './page/Admin/AdminTeachers';
+import AdminPrograms from './page/Admin/AdminPrograms';
+import Home from './page/Student/Home';
+import Profile from './page/Student/Profile';
+import Performance from './page/Student/Performance';
+import Dashboard from './page/Teacher/Dashboard';
+import Grade from './page/Teacher/Grade';
+import TeacherInfo from './page/Teacher/teacherProfile';
+import StudentLogin from './page/Authentication/studentLogin';
+import TeacherLogin from './page/Authentication/teacherLogin';
+import AdminLogin from './page/Authentication/adminLogin';
+import { Route,Routes } from 'react-router-dom'
 
-function App() {
-  const [count, setCount] = useState(0)
-
+const App = () => {
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <Routes>
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/students" element={<AdminStudents />} />
+        <Route path="/admin/teachers" element={<AdminTeachers />} />
+        <Route path="/admin/programs" element={<AdminPrograms />} />
+
+
+        <Route path="/student/login" element={<StudentLogin />} />
+        <Route path="/student/dashboard" element={<Home />} />
+        <Route path="/student/profile" element={<Profile />} />
+        <Route path="/student/performance" element={<Performance />} />
+
+        <Route path="/teacher/login" element={<TeacherLogin />} />
+        <Route path="/teacher/dashboard" element={<Dashboard />} />
+        <Route path="/teacher/grade" element={<Grade />} />
+        <Route path="/teacher/profile" element={<TeacherInfo />} />
+
+
+      </Routes>
     </>
-  )
-}
+  );
+};
+
 
 export default App
