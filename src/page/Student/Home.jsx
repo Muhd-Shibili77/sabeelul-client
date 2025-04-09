@@ -53,7 +53,7 @@ const Home = () => {
 </div>
 
 {/* Attendance Card */}
-<div
+{/* <div
   className={`p-6 rounded-2xl shadow-md mb-6 max-w-md flex items-center gap-4 ${
     dashboardData.todayAttendance === 'Present' ? 'bg-green-50' : 'bg-red-50'
   } hover:shadow-lg transition`}
@@ -73,7 +73,7 @@ const Home = () => {
       {dashboardData.todayAttendance}
     </p>
   </div>
-</div>
+</div> */}
 
 {/* Summary Cards */}
 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mb-8">

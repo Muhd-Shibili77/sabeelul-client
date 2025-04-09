@@ -1,12 +1,14 @@
 import React from "react";
-
+import { useNavigate } from "react-router-dom";
 const TeacherLogin = () => {
+   const navigate = useNavigate()
   const handleLogin = (e) => {
     e.preventDefault();
     const phone = e.target.phone.value;
     const password = e.target.password.value;
     console.log("Login with", { phone, password });
     // Handle login logic here
+    navigate('/teacher/dashboard')
   };
 
   return (

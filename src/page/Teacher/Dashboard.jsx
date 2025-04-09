@@ -43,7 +43,22 @@ const Dashboard = () => {
           </p>
         </div>
 
-        {/* Class Performance Filter */}
+   
+        
+
+        {/* Teacher's Own Class Performance */}
+        <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
+             
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">
+            📘 Your Class Performance (Class Teacher of {teacherClass})
+          </h2>
+          <p className="text-lg text-blue-600 font-medium">
+            {classPerformance.find((c) => c.class === teacherClass)?.score || 0}%
+            average
+          </p>
+        </div>
+
+          {/* Class Performance Filter */}
         <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-gray-800">
@@ -75,17 +90,6 @@ const Dashboard = () => {
               </div>
             ))}
           </div>
-        </div>
-
-        {/* Teacher's Own Class Performance */}
-        <div className="bg-white rounded-2xl shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">
-            📘 Your Class Performance (Class Teacher of {teacherClass})
-          </h2>
-          <p className="text-lg text-blue-600 font-medium">
-            {classPerformance.find((c) => c.class === teacherClass)?.score || 0}%
-            average
-          </p>
         </div>
       </div>
     </div>

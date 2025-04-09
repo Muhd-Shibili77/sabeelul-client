@@ -1,12 +1,16 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const AdminLogin = () => {
+  const navigate = useNavigate()
   const handleLogin = (e) => {
     e.preventDefault();
-    const phone = e.target.phone.value;
-    const password = e.target.password.value;
-    console.log("Login with", { phone, password });
+    // const phone = e.target.phone.value;
+    // const password = e.target.password.value;
+    // console.log("Login with", { phone, password });
     // Handle login logic here
+    navigate('/admin/dashboard')
+    
   };
 
   return (
@@ -24,7 +28,7 @@ const AdminLogin = () => {
             <input
               type="email"
               name="email"
-              pattern="[0-9]{10}"
+             
               required
               placeholder="Enter your email"
               className="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[rgba(53,130,140,0.7)]"
@@ -47,6 +51,7 @@ const AdminLogin = () => {
           <button
             type="submit"
             className="w-full py-2 px-4 bg-[rgba(53,130,140,0.9)] text-white font-semibold rounded-lg hover:bg-[rgba(53,130,140,1)] transition"
+            
           >
             Login
           </button>

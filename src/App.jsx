@@ -12,12 +12,15 @@ import TeacherInfo from './page/Teacher/teacherProfile';
 import StudentLogin from './page/Authentication/studentLogin';
 import TeacherLogin from './page/Authentication/teacherLogin';
 import AdminLogin from './page/Authentication/adminLogin';
+import TempPage from './page/tempPage';
 import { Route,Routes } from 'react-router-dom'
 
 const App = () => {
   return (
     <>
       <Routes>
+        <Route path="/" element={<TempPage />} />
+
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/students" element={<AdminStudents />} />

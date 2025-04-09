@@ -30,7 +30,7 @@ const TeacherSideBar = ({ page }) => {
             <div className="flex justify-center mt-5 gap-4">
               <button
                 onClick={() => {
-                  navigate("/login"); // Adjust if needed
+                  navigate("/teacher/login"); // Adjust if needed
                   onClose();
                 }}
                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"

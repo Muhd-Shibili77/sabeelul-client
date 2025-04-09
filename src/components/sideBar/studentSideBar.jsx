@@ -26,35 +26,35 @@ const StudentSideBar = ({ page }) => {
     { name: "Logout", icon: <FaSignOutAlt />, key: "Logout" },
   ];
 
-//   const handleLogout = () => {
-//     confirmAlert({
-//       customUI: ({ onClose }) => (
-//         <div className="fixed inset-0 flex items-center justify-center z-50">
-//           <div className="bg-white rounded-lg shadow-lg p-6 w-96 text-center">
-//             <h2 className="text-xl font-semibold text-gray-800">Logout Confirmation</h2>
-//             <p className="text-gray-600 mt-2">Are you sure you want to logout?</p>
-//             <div className="flex justify-center mt-5 gap-4">
-//               <button
-//                 onClick={() => {
-//                   navigate("/login"); // Adjust route if needed
-//                   onClose();
-//                 }}
-//                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
-//               >
-//                 Yes, Logout
-//               </button>
-//               <button
-//                 onClick={onClose}
-//                 className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition"
-//               >
-//                 Cancel
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-//       ),
-//     });
-//   };
+  const handleLogout = () => {
+    confirmAlert({
+      customUI: ({ onClose }) => (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-96 text-center">
+            <h2 className="text-xl font-semibold text-gray-800">Logout Confirmation</h2>
+            <p className="text-gray-600 mt-2">Are you sure you want to logout?</p>
+            <div className="flex justify-center mt-5 gap-4">
+              <button
+                onClick={() => {
+                  navigate("/student/login"); // Adjust route if needed
+                  onClose();
+                }}
+                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+              >
+                Yes, Logout
+              </button>
+              <button
+                onClick={onClose}
+                className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      ),
+    });
+  };
 
   return (
     <>

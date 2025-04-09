@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 const StudentDetailsModal = ({ student, onClose }) => {
-  const [marks, setMarks] = useState(student?.marks || []);
+  const [marks, setMarks] = useState(Array.isArray(student?.marks) ? student.marks : []);
   const [subject, setSubject] = useState("");
   const [score, setScore] = useState("");
 
@@ -37,43 +37,10 @@ const StudentDetailsModal = ({ student, onClose }) => {
           </div>
         </div>
 
-        <h3 className="font-semibold mb-2">Marks</h3>
-        <ul className="space-y-2 mb-4">
-          {marks.map((mark, index) => (
-            <li key={index} className="flex justify-between items-center">
-              <span>{mark.subject}</span>
-              <input
-                type="number"
-                value={mark.score}
-                onChange={(e) => handleEditMark(index, e.target.value)}
-                className="w-16 border rounded px-2"
-              />
-            </li>
-          ))}
-        </ul>
+       
+      
 
-        <div className="flex gap-2 mb-4">
-          <input
-            type="text"
-            value={subject}
-            placeholder="Subject"
-            onChange={(e) => setSubject(e.target.value)}
-            className="border rounded px-2 py-1 flex-1"
-          />
-          <input
-            type="number"
-            value={score}
-            placeholder="Score"
-            onChange={(e) => setScore(e.target.value)}
-            className="border rounded px-2 py-1 w-20"
-          />
-          <button
-            onClick={handleAddMark}
-            className="bg-[rgba(53,130,140,0.9)] text-white px-3 rounded hover:bg-[rgba(53,130,140,1)]"
-          >
-            Add
-          </button>
-        </div>
+        
 
         <div className="text-right">
           <button
