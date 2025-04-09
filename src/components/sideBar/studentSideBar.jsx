@@ -12,7 +12,7 @@ import {
   FaSignOutAlt,
   FaBars,
 } from "react-icons/fa";
-import logo from "../../assets/Sabeel Black Logo.png"; // Replace with correct student logo if needed
+import logo from "../../assets/SabeelBlackLogo.png"; // Replace with correct student logo if needed
 
 const StudentSideBar = ({ page }) => {
   const navigate = useNavigate();

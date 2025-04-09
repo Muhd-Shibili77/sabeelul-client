@@ -6,7 +6,7 @@ import "react-confirm-alert/src/react-confirm-alert.css";
 import { FaThLarge, FaUserTie, FaSignOutAlt, FaBars } from "react-icons/fa";
 import { MdGrade } from "react-icons/md";
 
-import logo from "../../assets/Sabeel Black Logo.png"; // Update if you have a separate teacher logo
+import logo from "../../assets/SabeelBlackLogo.png"; // Update if you have a separate teacher logo
 
 const TeacherSideBar = ({ page }) => {
   const navigate = useNavigate();

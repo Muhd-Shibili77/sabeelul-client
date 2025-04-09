@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import logo from '../../assets/Sabeel Black Logo.png'
+import logo from '../../assets/SabeelBlackLogo.png'
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
 import { useNavigate } from "react-router";
