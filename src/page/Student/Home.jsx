@@ -1,6 +1,7 @@
-import React from 'react';
-import StudentSideBar from '../../components/sideBar/studentSideBar';
-import { FaUserTie, FaChalkboardTeacher, FaCheckCircle, FaTrophy } from "react-icons/fa";
+import React from "react";
+import StudentSideBar from "../../components/sideBar/studentSideBar";
+import { FaChalkboardTeacher, FaTrophy } from "react-icons/fa";
+
 const Home = () => {
   const dashboardData = {
     studentName: "Aliya Rahman",
@@ -20,98 +21,82 @@ const Home = () => {
     },
   };
 
+  const getLevelData = (mark) => {
+    if (mark >= 85) return { color: "bg-green-500", label: "Green" };
+    if (mark >= 70) return { color: "bg-blue-500", label: "Blue" };
+    if (mark >= 50) return { color: "bg-purple-500", label: "Purple" };
+    return { color: "bg-red-500", label: "Red" };
+  };
+
+  const level = getLevelData(dashboardData.internalMark);
+
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-gradient-to-br from-gray-100 to-[rgba(53,130,140,0.4)]">
       <StudentSideBar page="Dashboard" />
 
-      <div className="flex-1 p-6 mt-5 md:ml-12 transition-all duration-300">
-       {/* Welcome Header */}
-<h2 className="text-3xl font-bold text-gray-800 mb-8">
-   Welcome, <span className="text-[rgba(53,130,140,1)]">{dashboardData.studentName}</span>
-</h2>
+      <div className="flex-1 p-6 md:p-10">
+        {/* Welcome */}
+        <div className="mb-10">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
+            Welcome, <span className="text-cyan-700">{dashboardData.studentName}</span>
+          </h1>
+        </div>
 
-{/* Class Info & Teacher */}
-<div className="bg-white rounded-2xl shadow-md p-6 flex flex-col md:flex-row items-center justify-between max-w-4xl mb-6 hover:shadow-lg transition">
-  <div className="flex items-center gap-4">
-    <FaChalkboardTeacher className="text-[rgba(53,130,140,1)] text-3xl" />
-    <div>
-      <p className="text-sm text-gray-500">Class</p>
-      <h3 className="text-xl font-semibold text-gray-700">{dashboardData.className}</h3>
-    </div>
-  </div>
-  <div className="flex items-center gap-4 mt-4 md:mt-0">
-    <img
-      src={dashboardData.classTeacher.image}
-      alt="Class Teacher"
-      className="w-14 h-14 rounded-full border-2 border-[rgba(53,130,140,1)] object-cover"
-    />
-    <div>
-      <p className="text-sm text-gray-500">Class Teacher</p>
-      <p className="text-md font-medium text-gray-800">{dashboardData.classTeacher.name}</p>
-    </div>
-  </div>
-</div>
+        {/* Class Info & Teacher */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+          <div className="bg-white rounded-2xl shadow-md p-6 flex items-center gap-4">
+            <FaChalkboardTeacher className="text-cyan-700 text-3xl" />
+            <div>
+              <p className="text-sm text-gray-500">Class</p>
+              <h3 className="text-lg font-semibold text-gray-800">{dashboardData.className}</h3>
+            </div>
+          </div>
 
-{/* Attendance Card */}
-{/* <div
-  className={`p-6 rounded-2xl shadow-md mb-6 max-w-md flex items-center gap-4 ${
-    dashboardData.todayAttendance === 'Present' ? 'bg-green-50' : 'bg-red-50'
-  } hover:shadow-lg transition`}
->
-  <FaCheckCircle
-    className={`text-3xl ${
-      dashboardData.todayAttendance === 'Present' ? 'text-green-600' : 'text-red-600'
-    }`}
-  />
-  <div>
-    <h3 className="text-md font-semibold text-gray-600">Today’s Attendance</h3>
-    <p
-      className={`text-2xl font-bold mt-1 ${
-        dashboardData.todayAttendance === 'Present' ? 'text-green-700' : 'text-red-700'
-      }`}
-    >
-      {dashboardData.todayAttendance}
-    </p>
-  </div>
-</div> */}
+          <div className="bg-white rounded-2xl shadow-md p-6 flex items-center gap-4">
+            <img
+              src={dashboardData.classTeacher.image}
+              alt="Class Teacher"
+              className="w-14 h-14 rounded-full border-2 border-cyan-600 object-cover"
+            />
+            <div>
+              <p className="text-sm text-gray-500">Class Teacher</p>
+              <p className="text-md font-medium text-gray-800">{dashboardData.classTeacher.name}</p>
+            </div>
+          </div>
+        </div>
 
-{/* Summary Cards */}
-<div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mb-8">
-  {/* Total Attendance */}
-  <div className="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
-    <h4 className="text-sm text-gray-500 mb-1">Total Attendance</h4>
-    <p className="text-3xl font-bold text-[rgba(53,130,140,1)]">{dashboardData.totalAttendance}%</p>
-  </div>
+        {/* Score & Level */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+          <div className="bg-white rounded-2xl shadow-md p-6">
+            <p className="text-sm text-gray-500 mb-1">Your Score</p>
+            <h2 className="text-4xl font-bold text-cyan-700">{dashboardData.internalMark}</h2>
+          </div>
 
-  {/* Overall Grade */}
-  <div className="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
-    <h4 className="text-sm text-gray-500 mb-1">Overall Grade</h4>
-    <p className="text-3xl font-bold text-[rgba(53,130,140,1)]">{dashboardData.overallGrade}</p>
-  </div>
+          <div className="bg-white rounded-2xl shadow-md p-6 flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-500 mb-1">Your Level</p>
+              <h3 className="text-2xl font-semibold text-gray-800">{level.label}</h3>
+            </div>
+            <div className={`w-10 h-10 rounded-full ${level.color} border-4 border-white shadow-md`} />
+          </div>
+        </div>
 
-  {/* Internal Mark */}
-  <div className="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
-    <h4 className="text-sm text-gray-500 mb-1">Internal Mark</h4>
-    <p className="text-3xl font-bold text-[rgba(53,130,140,1)]">{dashboardData.internalMark}</p>
-  </div>
-</div>
-
-{/* Latest Achievement */}
-<div className="bg-white p-6 rounded-2xl shadow-md max-w-3xl hover:shadow-lg transition">
-  <div className="flex items-center gap-4 mb-2">
-    <FaTrophy className="text-yellow-500 text-2xl" />
-    <h3 className="text-lg font-semibold text-gray-700">Latest Achievement</h3>
-  </div>
-  <div className="flex justify-between items-center mt-2">
-    <div>
-      <p className="text-md font-medium text-gray-800">{dashboardData.latestAchievement.title}</p>
-      <p className="text-sm text-gray-500">{dashboardData.latestAchievement.date}</p>
-    </div>
-    <span className="text-[rgba(53,130,140,1)] font-bold text-lg">
-      {dashboardData.latestAchievement.score}
-    </span>
-  </div>
-</div>
+        {/* Achievement */}
+        <div className="bg-white rounded-2xl shadow-md p-6">
+          <div className="flex items-center gap-3 mb-3">
+            <FaTrophy className="text-yellow-500 text-2xl" />
+            <h3 className="text-lg font-semibold text-gray-800">Latest Achievement</h3>
+          </div>
+          <div className="flex justify-between items-center">
+            <div>
+              <p className="font-medium text-gray-700">{dashboardData.latestAchievement.title}</p>
+              <p className="text-sm text-gray-500">{dashboardData.latestAchievement.date}</p>
+            </div>
+            <span className="text-cyan-700 text-lg font-bold">
+              {dashboardData.latestAchievement.score}
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   );
