@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
+import { FiEdit } from 'react-icons/fi';
 import SideBar from '../../components/sideBar/SideBar';
 import AddTeacherModal from '../../components/modals/AddTeacherModal';
 import TeacherDetailsModal from '../../components/modals/TeacherDetailsModal';
+import EditTeacherModal from '../../components/modals/EditTeacherModal';
 
 const AdminTeachers = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedTeacher, setSelectedTeacher] = useState(null);
+  const [editingTeacher, setEditingTeacher] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -52,7 +55,7 @@ const AdminTeachers = () => {
     teacher.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const itemsPerPage = 4;
+  const itemsPerPage = 6;
   const totalPages = Math.ceil(filteredTeachers.length / itemsPerPage);
 
   const paginatedTeachers = filteredTeachers.slice(
@@ -87,18 +90,29 @@ const AdminTeachers = () => {
           {paginatedTeachers.map((teacher, index) => (
             <div
               key={index}
-              className="bg-white p-4 rounded-lg shadow-md flex items-center gap-4 cursor-pointer hover:shadow-lg transition"
-              onClick={() => setSelectedTeacher(teacher)}
+              className="bg-white p-4 rounded-lg shadow-md relative hover:shadow-lg transition cursor-pointer"
             >
-              <img
-                src={teacher.profile}
-                alt={teacher.name}
-                className="w-16 h-16 rounded-full object-cover shadow"
-              />
-              <div>
-                <h3 className="text-lg font-semibold text-[rgba(53,130,140,1)]">{teacher.name}</h3>
-                <p className="text-gray-600">Subject: {teacher.subject}</p>
-                <p className="text-gray-500">Phone: {teacher.phone}</p>
+              {/* Edit Icon */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEditingTeacher(teacher);
+                }}
+                className="absolute top-2 right-2 text-[rgba(53,130,140,1)] hover:text-[rgba(53,130,140,0.8)]"
+              >
+                <FiEdit size={18} />
+              </button>
+
+              <div onClick={() => setSelectedTeacher(teacher)} className="flex items-center gap-4">
+                <img
+                  src={teacher.profile}
+                  alt={teacher.name}
+                  className="w-16 h-16 rounded-full object-cover shadow"
+                />
+                <div>
+                  <h3 className="text-lg font-semibold text-[rgba(53,130,140,1)]">{teacher.name}</h3>
+                  <p className="text-gray-500">Phone: {teacher.phone}</p>
+                </div>
               </div>
             </div>
           ))}
@@ -132,6 +146,16 @@ const AdminTeachers = () => {
         <TeacherDetailsModal
           teacher={selectedTeacher}
           onClose={() => setSelectedTeacher(null)}
+        />
+      )}
+      {editingTeacher && (
+        <EditTeacherModal
+          teacher={editingTeacher}
+          onClose={() => setEditingTeacher(null)}
+          onUpdate={(updatedTeacher) => {
+            console.log('Teacher updated:', updatedTeacher);
+            setEditingTeacher(null);
+          }}
         />
       )}
     </div>
