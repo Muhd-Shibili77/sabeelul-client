@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import SideBar from '../../components/sideBar/SideBar';
 import AddStudentModal from '../../components/modals/AddStudentModal';
 import StudentDetailsModal from '../../components/modals/StudentDetailsModal';
+import EditStudentModal from '../../components/modals/EditStudentModal';
+
 
 const AdminStudents = () => {
   const [students, setStudents] = useState([
@@ -66,19 +68,31 @@ const AdminStudents = () => {
       },
     },
   ]);
-  
+
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedClass, setSelectedClass] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
 
-  // Mock class options
   const classOptions = ['All', 'Class 1', 'Class 2', 'Class 3'];
 
   const handleViewDetails = (student) => {
     setSelectedStudent(student);
     setShowDetailModal(true);
+  };
+
+  const handleEditStudent = (student) => {
+    setSelectedStudent(student);
+    setShowEditModal(true);
+  };
+
+  const updateStudent = (updatedStudent) => {
+    const updatedList = students.map((student) =>
+      student.id === updatedStudent.id ? updatedStudent : student
+    );
+    setStudents(updatedList);
   };
 
   const filteredStudents = students.filter((student) =>
@@ -123,60 +137,61 @@ const AdminStudents = () => {
         </div>
 
         {/* Student List Table */}
-        <div className="overflow-x-auto rounded-xl shadow-lg bg-white p-4">
-  <table className="min-w-full text-sm text-left text-gray-700">
-    <thead className="text-xs uppercase bg-gray-100 text-gray-600">
-      <tr>
-        <th className="px-6 py-3">Name</th>
-        <th className="px-6 py-3">Class</th>
-        <th className="px-6 py-3">Phone</th>
-        <th className="px-6 py-3 text-center">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {filteredStudents.length > 0 ? (
-        filteredStudents.map((student, index) => (
-          <tr
-            key={index}
-            className="bg-white border-b hover:bg-gray-50 transition-all duration-200"
-          >
-            <td className="px-6 py-4 flex items-center gap-3">
-              <img
-                src={student.profile}
-                alt={student.name}
-                className="w-10 h-10 rounded-full object-cover shadow"
-              />
-              <span className="font-medium">{student.name}</span>
-            </td>
-            <td className="px-6 py-4">{student.class}</td>
-            <td className="px-6 py-4">{student.phone}</td>
-            <td className="px-6 py-4 text-center space-x-2">
-              <button
-                onClick={() => handleViewDetails(student)}
-                className="text-blue-600 hover:text-blue-800 font-medium transition"
-              >
-                Details
-              </button>
-              <button
-                onClick={() => alert("Edit Student Coming Soon")}
-                className="text-green-600 hover:text-green-800 font-medium transition"
-              >
-                Edit
-              </button>
-            </td>
-          </tr>
-        ))
-      ) : (
-        <tr>
-          <td colSpan={4} className="text-center py-6 text-gray-500">
-            No students found.
-          </td>
-        </tr>
-      )}
-    </tbody>
-  </table>
-</div>
-
+        <div className="overflow-x-auto rounded-xl shadow-xl bg-white p-4">
+          <table className="min-w-full table-auto text-sm text-gray-800">
+            <thead className="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 uppercase text-xs tracking-wider">
+              <tr>
+                <th className="px-6 py-3 text-left">Name</th>
+                <th className="px-6 py-3 text-left">Class</th>
+                <th className="px-6 py-3 text-left">Phone</th>
+                <th className="px-6 py-3 text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredStudents.length > 0 ? (
+                filteredStudents.map((student, index) => (
+                  <tr
+                    key={index}
+                    className="border-b hover:bg-gray-50 transition"
+                  >
+                    <td className="px-6 py-4 flex items-center gap-3">
+                      <img
+                        src={student.profile}
+                        alt={student.name}
+                        className="w-10 h-10 rounded-full object-cover shadow"
+                      />
+                      <span className="font-semibold">{student.name}</span>
+                    </td>
+                    <td className="px-6 py-4">{student.class}</td>
+                    <td className="px-6 py-4">{student.phone}</td>
+                    <td className="px-6 py-4 text-center space-x-3">
+                      <button
+                        onClick={() => handleViewDetails(student)}
+                        className="text-blue-600 hover:text-blue-800 transition"
+                        title="View Details"
+                      >
+                        Details
+                      </button>
+                      <button
+                        onClick={() => handleEditStudent(student)}
+                        className="text-green-600 hover:text-green-800 transition"
+                        title="Edit Student"
+                      >
+                        Edit
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={4} className="text-center py-6 text-gray-500">
+                    No students found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
 
         {/* Pagination Placeholder */}
         <div className="flex justify-end mt-4">
@@ -194,6 +209,16 @@ const AdminStudents = () => {
             setSelectedStudent(null);
             setShowDetailModal(false);
           }}
+        />
+      )}
+      {showEditModal && (
+        <EditStudentModal
+          student={selectedStudent}
+          onClose={() => {
+            setSelectedStudent(null);
+            setShowEditModal(false);
+          }}
+          onUpdate={updateStudent}
         />
       )}
     </div>
