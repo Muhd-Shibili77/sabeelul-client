@@ -11,7 +11,7 @@ const Performance = () => {
     penaltyMarks: -5,
     creditMarks: 7,
     level: "Blue",
-    yourScore: "86.5 / 100",
+    yourScore: "286 / 500",
     activities: [
       {
         title: "Elocution Competition",

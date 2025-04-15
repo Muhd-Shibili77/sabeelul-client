@@ -3,11 +3,12 @@ import AdminDashboard from './page/Admin/AdminDashboard'
 import AdminStudents from './page/Admin/AdminStudents';
 import AdminTeachers from './page/Admin/AdminTeachers';
 import AdminPrograms from './page/Admin/AdminPrograms';
+import AdminScore from './page/Admin/AdminScore';
 import Home from './page/Student/Home';
 import Profile from './page/Student/Profile';
 import Performance from './page/Student/Performance';
-import Dashboard from './page/Teacher/Dashboard';
-import Grade from './page/Teacher/Grade';
+import Score from './page/Teacher/Score';
+
 import TeacherInfo from './page/Teacher/teacherProfile';
 import StudentLogin from './page/Authentication/studentLogin';
 import TeacherLogin from './page/Authentication/teacherLogin';
@@ -25,6 +26,7 @@ const App = () => {
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/students" element={<AdminStudents />} />
         <Route path="/admin/teachers" element={<AdminTeachers />} />
+        <Route path="/admin/score" element={<AdminScore />} />
         <Route path="/admin/programs" element={<AdminPrograms />} />
 
 
@@ -34,8 +36,8 @@ const App = () => {
         <Route path="/student/performance" element={<Performance />} />
 
         <Route path="/teacher/login" element={<TeacherLogin />} />
-        <Route path="/teacher/dashboard" element={<Dashboard />} />
-        <Route path="/teacher/grade" element={<Grade />} />
+        <Route path="/teacher/score" element={<Score />} />
+   
         <Route path="/teacher/profile" element={<TeacherInfo />} />
 
 

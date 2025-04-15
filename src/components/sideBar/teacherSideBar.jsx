@@ -14,9 +14,8 @@ const TeacherSideBar = ({ page }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const menuItems = [
-    { name: "Dashboard", route: "dashboard", icon: <FaThLarge />, key: "Dashboard" },
+    { name: "Score", route: "score", icon: <FaThLarge />, key: "Score" },
     { name: "Profile", route: "profile", icon: <FaUserTie />, key: "Profile" },
-    { name: "Grades", route: "grade", icon: <MdGrade />, key: "Grade" },
     { name: "Logout", icon: <FaSignOutAlt />, key: "Logout" },
   ];
 

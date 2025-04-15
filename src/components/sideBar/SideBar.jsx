@@ -18,6 +18,7 @@ function SideBar(props) {
     { name: "Dashboard", route:'dashboard',icon: <FaThLarge />, key: "Dashboard" },
     { name: "Students", route:'students', icon: <FaUser />, key: "Students" },
     { name: "Teachers",route:'teachers', icon: <FaUsersCog />, key: "Teachers" },
+    { name: "Score", route:'score',icon: <FaCalendarAlt />, key: "Score" },
     { name: "Programs", route:'programs',icon: <FaCalendarAlt />, key: "Programs" },
     { name: "Logout", icon: <FaSignOutAlt />, key: "Logout" }
   ];

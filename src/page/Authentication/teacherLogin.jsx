@@ -8,7 +8,7 @@ const TeacherLogin = () => {
     const password = e.target.password.value;
     console.log("Login with", { phone, password });
     // Handle login logic here
-    navigate('/teacher/dashboard')
+    navigate('/teacher/score')
   };
 
   return (

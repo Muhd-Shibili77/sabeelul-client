@@ -4,14 +4,14 @@ import { FaChalkboardTeacher, FaTrophy } from "react-icons/fa";
 
 const Home = () => {
   const dashboardData = {
-    studentName: "Aliya Rahman",
+    studentName: "",
     todayAttendance: "Present",
     totalAttendance: 92,
     overallGrade: "A",
     internalMark: 78,
     className: "Grade 10 - B",
-    classTeacher: {
-      name: "Mrs. Reena Mathews",
+    student: {
+      name: "Aliya Rahman",
       image: "https://randomuser.me/api/portraits/women/45.jpg",
     },
     latestAchievement: {
@@ -35,32 +35,27 @@ const Home = () => {
       <StudentSideBar page="Dashboard" />
 
       <div className="flex-1 p-6 md:p-10">
-        {/* Welcome */}
-        <div className="mb-10">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
-            Welcome, <span className="text-cyan-700">{dashboardData.studentName}</span>
-          </h1>
-        </div>
+        
 
         {/* Class Info & Teacher */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+        
+          <div className="bg-white rounded-2xl shadow-md p-6 flex items-center gap-4">
+            <img
+              src={dashboardData.student.image}
+              alt="Class Teacher"
+              className="w-14 h-14 rounded-full border-2 border-cyan-600 object-cover"
+            />
+            <div>
+              <p className="text-sm text-gray-500">Student Name</p>
+              <p className="text-md font-medium text-gray-800">{dashboardData.student.name}</p>
+            </div>
+          </div>
           <div className="bg-white rounded-2xl shadow-md p-6 flex items-center gap-4">
             <FaChalkboardTeacher className="text-cyan-700 text-3xl" />
             <div>
               <p className="text-sm text-gray-500">Class</p>
               <h3 className="text-lg font-semibold text-gray-800">{dashboardData.className}</h3>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl shadow-md p-6 flex items-center gap-4">
-            <img
-              src={dashboardData.classTeacher.image}
-              alt="Class Teacher"
-              className="w-14 h-14 rounded-full border-2 border-cyan-600 object-cover"
-            />
-            <div>
-              <p className="text-sm text-gray-500">Class Teacher</p>
-              <p className="text-md font-medium text-gray-800">{dashboardData.classTeacher.name}</p>
             </div>
           </div>
         </div>
