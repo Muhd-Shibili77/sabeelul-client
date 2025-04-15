@@ -3,6 +3,7 @@ import AdminDashboard from './page/Admin/AdminDashboard'
 import AdminStudents from './page/Admin/AdminStudents';
 import AdminTeachers from './page/Admin/AdminTeachers';
 import AdminPrograms from './page/Admin/AdminPrograms';
+import AdminReport from './page/Admin/AdminReport';
 import AdminScore from './page/Admin/AdminScore';
 import Home from './page/Student/Home';
 import Profile from './page/Student/Profile';
@@ -28,6 +29,7 @@ const App = () => {
         <Route path="/admin/teachers" element={<AdminTeachers />} />
         <Route path="/admin/score" element={<AdminScore />} />
         <Route path="/admin/programs" element={<AdminPrograms />} />
+        <Route path="/admin/report" element={<AdminReport />} />
 
 
         <Route path="/student/login" element={<StudentLogin />} />

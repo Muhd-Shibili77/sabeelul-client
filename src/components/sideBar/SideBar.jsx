@@ -7,6 +7,10 @@ import {
   FaUser, FaUsersCog, FaCalendarAlt, FaTools,
   FaSignOutAlt, FaThLarge, FaBars, FaMoneyBillWave 
 } from "react-icons/fa";
+import { TbReport } from "react-icons/tb";
+import { PiMicrophoneStageFill  } from "react-icons/pi";
+
+
 
 function SideBar(props) {
   const navigate = useNavigate()
@@ -19,7 +23,8 @@ function SideBar(props) {
     { name: "Students", route:'students', icon: <FaUser />, key: "Students" },
     { name: "Teachers",route:'teachers', icon: <FaUsersCog />, key: "Teachers" },
     { name: "Score", route:'score',icon: <FaCalendarAlt />, key: "Score" },
-    { name: "Programs", route:'programs',icon: <FaCalendarAlt />, key: "Programs" },
+    { name: "Report", route:'report',icon: <TbReport />, key: "Report" },
+    { name: "Programs", route:'programs',icon: <PiMicrophoneStageFill  />, key: "Programs" },
     { name: "Logout", icon: <FaSignOutAlt />, key: "Logout" }
   ];
 
