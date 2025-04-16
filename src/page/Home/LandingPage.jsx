@@ -99,7 +99,7 @@ const LandingPage = () => {
 
   
         {/* Leaderboard */}
-        <div className="bg-white rounded-3xl shadow-2xl md:p-8 p-2 border border-gray-200 md:pl-20 md:pr-20">
+        <div className="bg-white rounded-3xl shadow-2xl md:p-8 p-2 border border-gray-200 md:pl-10 md:pr-10">
           <h2 className="md:text-3xl text-2xl font-bold text-gray-700 mb-6 mt-2">
             Top 10 Students Leaderboard
           </h2>
@@ -144,7 +144,7 @@ const LandingPage = () => {
         </div>
 
         {/* Class Wise Leaderboard */}
-        <div className="bg-white rounded-3xl shadow-2xl md:p-8 p-2 border border-gray-200 md:pl-20 md:pr-20">
+        <div className="bg-white rounded-3xl shadow-2xl md:p-8 p-2 border border-gray-200 md:pl-10 md:pr-10">
           <div className="flex justify-between items-center mb-6 mt-2">
             <h2 className="md:text-3xl text-2xl font-bold text-gray-700">
               Class-Wise Leaderboard
