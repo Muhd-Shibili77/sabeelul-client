@@ -4,11 +4,9 @@ import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
 import { PiExamFill } from "react-icons/pi";
 
-
 import {
   FaThLarge,
   FaUserGraduate,
-
   FaSignOutAlt,
   FaBars,
 } from "react-icons/fa";
@@ -20,9 +18,24 @@ const StudentSideBar = ({ page }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const menuItems = [
-    { name: "Dashboard", route: "dashboard", icon: <FaThLarge />, key: "Dashboard" },
-    { name: "Profile", route: "profile", icon: <FaUserGraduate />, key: "Profile" },
-    { name: "Performance", route: "performance", icon: <PiExamFill /> , key: "Performance" },
+    {
+      name: "Dashboard",
+      route: "dashboard",
+      icon: <FaThLarge />,
+      key: "Dashboard",
+    },
+    {
+      name: "Profile",
+      route: "profile",
+      icon: <FaUserGraduate />,
+      key: "Profile",
+    },
+    {
+      name: "Performance",
+      route: "performance",
+      icon: <PiExamFill />,
+      key: "Performance",
+    },
     { name: "Logout", icon: <FaSignOutAlt />, key: "Logout" },
   ];
 
@@ -31,8 +44,12 @@ const StudentSideBar = ({ page }) => {
       customUI: ({ onClose }) => (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-lg p-6 w-96 text-center">
-            <h2 className="text-xl font-semibold text-gray-800">Logout Confirmation</h2>
-            <p className="text-gray-600 mt-2">Are you sure you want to logout?</p>
+            <h2 className="text-xl font-semibold text-gray-800">
+              Logout Confirmation
+            </h2>
+            <p className="text-gray-600 mt-2">
+              Are you sure you want to logout?
+            </p>
             <div className="flex justify-center mt-5 gap-4">
               <button
                 onClick={() => {
@@ -59,18 +76,20 @@ const StudentSideBar = ({ page }) => {
   return (
     <>
       {/* Mobile Menu Button */}
-      <button
-        className="md:hidden p-3 text-gray-700 fixed top-4 left-4 z-50 bg-white rounded-full shadow-lg"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <FaBars size={24} />
-      </button>
+      {!isOpen && (
+        <button
+          className="md:hidden p-3 text-gray-700 fixed top-4 left-4 z-50 bg-white rounded-full shadow-lg"
+          onClick={() => setIsOpen(true)}
+        >
+          <FaBars size={24} />
+        </button>
+      )}
 
       {/* Sidebar */}
       <div
-        className={`h-screen md:h-auto  w-64 bg-white shadow-md p-5 flex flex-col fixed top-0 left-0 z-50 transform ${
+        className={`h-screen   w-64 bg-white shadow-md p-5 flex flex-col fixed overflow-y-auto top-0 left-0 z-50 transform ${
           isOpen ? "translate-x-0" : "-translate-x-full"
-        } md:relative md:translate-x-0 transition-transform duration-300 ease-in-out`}
+        } md:translate-x-0 transition-transform duration-300 ease-in-out`}
       >
         {/* Logo */}
         <div className="flex items-center space-x-2 text-xl font-semibold">

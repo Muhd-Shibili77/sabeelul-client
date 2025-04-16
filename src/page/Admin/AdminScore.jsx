@@ -62,9 +62,9 @@ const AdminScore = () => {
   };
 
   return (
-    <div className="flex bg-gradient-to-br from-gray-100 to-[rgba(53,130,140,0.4)] min-h-screen">
+    <div className="flex  min-h-screen bg-gradient-to-br from-gray-100 to-[rgba(53,130,140,0.4)]">
       <SideBar page="Score" />
-      <div className="flex-1 p-4">
+      <div className="flex-1 p-8 md:ml-64 transition-all duration-300 overflow-y-auto">
         <h1 className="text-xl font-bold mb-4">Score Manager</h1>
 
         <div className="flex gap-4 mb-4">

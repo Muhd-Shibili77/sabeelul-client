@@ -31,10 +31,10 @@ const Home = () => {
   const level = getLevelData(dashboardData.internalMark);
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-gradient-to-br from-gray-100 to-[rgba(53,130,140,0.4)]">
+    <div className="flex  min-h-screen bg-gradient-to-br from-gray-100 to-[rgba(53,130,140,0.4)]">
       <StudentSideBar page="Dashboard" />
 
-      <div className="flex-1 p-6 md:p-10">
+      <div className="flex-1 p-9 md:ml-68 transition-all duration-300 overflow-y-auto mt-8">
         
 
         {/* Class Info & Teacher */}

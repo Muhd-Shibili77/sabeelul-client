@@ -49,11 +49,11 @@ const Performance = () => {
   
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-gradient-to-br from-gray-100 to-[rgba(53,130,140,0.4)]">
+    <div className="flex  min-h-screen bg-gradient-to-br from-gray-100 to-[rgba(53,130,140,0.4)]">
       <StudentSideBar page="Performance" />
 
-      <div className="flex-1 p-6 mt-5 md:ml-12">
-        <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8 space-y-8">
+      <div className="flex-1 p-1 md:ml-60 transition-all duration-300 overflow-y-auto mt-8">
+        <div className="max-w-5xl mx-auto bg-white rounded-xl shadow-lg p-8 space-y-8">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">
             Student Performance
           </h2>
