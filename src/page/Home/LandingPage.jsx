@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FaStar, FaTrophy, FaDownload, FaCalendarAlt } from 'react-icons/fa';
 import logo from '../../assets/SabeelBlackLogo.png';
 
@@ -32,6 +33,7 @@ const downloadLinks = [
 ];
 
 const LandingPage = () => {
+  const navigate = useNavigate()
   const [selectedClass, setSelectedClass] = useState('10A');
 
   const topStudents = [...demoStudents].sort((a, b) => b.score - a.score).slice(0, 10);
@@ -45,7 +47,7 @@ const LandingPage = () => {
           <img src={logo} alt="Logo" className="h-10 w-10 object-contain" />
           <span className="text-2xl font-bold text-black">Sabeelul Hidaya</span>
         </div>
-        <button className="mt-2 md:mt-0 bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition">Login</button>
+        <button className="mt-2 md:mt-0 bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition" onClick={()=>navigate('/login')}>Login</button>
       </nav>
 
       <div className="p-6 md:p-10 space-y-10">
@@ -68,8 +70,8 @@ const LandingPage = () => {
         </div>
 
         {/* Leaderboard */}
-        <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-200 md:pl-20 md:pr-20">
-  <h2 className="text-3xl font-bold text-teal-700 mb-6">Top 10 Students Leaderboard</h2>
+        <div className="bg-white rounded-3xl shadow-2xl md:p-8 p-2 border border-gray-200 md:pl-20 md:pr-20">
+  <h2 className="md:text-3xl text-2xl font-bold text-gray-700 mb-6 mt-2">Top 10 Students Leaderboard</h2>
   <div className="overflow-x-auto">
     <table className="min-w-full text-sm sm:text-base border-separate border-spacing-y-2">
       <thead>
@@ -103,9 +105,9 @@ const LandingPage = () => {
 
 
         {/* Class Wise Leaderboard */}
-        <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-200 md:pl-20 md:pr-20">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-3xl font-bold text-teal-700">Class-Wise Leaderboard</h2>
+        <div className="bg-white rounded-3xl shadow-2xl md:p-8 p-2 border border-gray-200 md:pl-20 md:pr-20">
+          <div className="flex justify-between items-center mb-6 mt-2">
+            <h2 className="md:text-3xl text-2xl font-bold text-gray-700">Class-Wise Leaderboard</h2>
             <select
               className="p-2 px-4 border border-gray-300 rounded-xl shadow-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-400"
               value={selectedClass}
@@ -149,7 +151,7 @@ const LandingPage = () => {
 
         {/* Upcoming Events */}
         <div className="bg-white rounded-2xl shadow-xl p-6">
-          <h2 className="text-2xl font-semibold mb-4">Upcoming Events</h2>
+          <h2 className="text-2xl font-bold mb-4">Upcoming Events</h2>
           <div className="space-y-4">
             {demoEvents.map((event, index) => (
               <div key={index} className="border rounded-lg p-4 bg-teal-50">
@@ -165,7 +167,7 @@ const LandingPage = () => {
 
         {/* Downloads Section */}
         <div className="bg-white rounded-2xl shadow-xl p-6">
-          <h2 className="text-2xl font-semibold mb-4">Downloads</h2>
+          <h2 className="text-2xl font-bold mb-4">Downloads</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {downloadLinks.map((file, index) => (
               <a
