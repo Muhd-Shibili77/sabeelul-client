@@ -9,19 +9,18 @@ import Home from './page/Student/Home';
 import Profile from './page/Student/Profile';
 import Performance from './page/Student/Performance';
 import Score from './page/Teacher/Score';
-
 import TeacherInfo from './page/Teacher/teacherProfile';
 import StudentLogin from './page/Authentication/studentLogin';
 import TeacherLogin from './page/Authentication/teacherLogin';
 import AdminLogin from './page/Authentication/adminLogin';
-import TempPage from './page/tempPage';
+import LandingPage from './page/Home/LandingPage';
 import { Route,Routes } from 'react-router-dom'
 
 const App = () => {
   return (
     <>
       <Routes>
-        <Route path="/" element={<TempPage />} />
+        <Route path="/" element={<LandingPage />} />
 
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
@@ -39,7 +38,6 @@ const App = () => {
 
         <Route path="/teacher/login" element={<TeacherLogin />} />
         <Route path="/teacher/score" element={<Score />} />
-   
         <Route path="/teacher/profile" element={<TeacherInfo />} />
 
 
