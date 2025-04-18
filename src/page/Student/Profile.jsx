@@ -11,6 +11,7 @@ const Profile = () => {
     guardian: "Mr. Rahman",
     address: "Kozhikode, Kerala, India",
     profilePhoto: "https://i.pravatar.cc/150?img=32",
+    phone:'+91 9876543210',
   };
 
   return (
@@ -43,7 +44,7 @@ const Profile = () => {
             </div>
 
             <div className="bg-[rgba(53,130,140,0.05)] p-4 rounded-lg border-l-4 border-[rgba(53,130,140,0.8)] shadow-sm">
-              <h4 className="text-gray-700 font-semibold">Email Address</h4>
+              <h4 className="text-gray-700 font-semibold">Email</h4>
               <p className="text-gray-600">{student.email}</p>
             </div>
 
@@ -52,9 +53,13 @@ const Profile = () => {
               <p className="text-gray-600">{student.guardian}</p>
             </div>
 
-            <div className="bg-[rgba(53,130,140,0.05)] md:col-span-2 p-4 rounded-lg border-l-4 border-[rgba(53,130,140,0.8)] shadow-sm">
+            <div className="bg-[rgba(53,130,140,0.05)]  p-4 rounded-lg border-l-4 border-[rgba(53,130,140,0.8)] shadow-sm">
               <h4 className="text-gray-700 font-semibold">Address</h4>
               <p className="text-gray-600">{student.address}</p>
+            </div>
+            <div className="bg-[rgba(53,130,140,0.05)]  p-4 rounded-lg border-l-4 border-[rgba(53,130,140,0.8)] shadow-sm">
+              <h4 className="text-gray-700 font-semibold">Phone</h4>
+              <p className="text-gray-600">{student.phone}</p>
             </div>
           </div>
         </div>

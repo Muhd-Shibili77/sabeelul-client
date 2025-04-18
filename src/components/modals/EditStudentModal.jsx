@@ -1,12 +1,16 @@
 import React, { useState, useRef, useEffect } from "react";
-import defaultPhoto from '../../assets/freepik__upload__39837.png'; // Default fallback photo
+import defaultPhoto from "../../assets/freepik__upload__39837.png"; // Default fallback photo
 
 const EditStudentModal = ({ onClose, studentData }) => {
   const [formData, setFormData] = useState({
     admissionNo: "",
     name: "",
+    phone: "",
+    email: "",
     password: "",
     class: "",
+    address: "",
+    guardianName: "",
     photo: null,
   });
 
@@ -21,6 +25,11 @@ const EditStudentModal = ({ onClose, studentData }) => {
       setFormData({
         admissionNo: studentData.admissionNo || "",
         name: studentData.name || "",
+        phone: studentData.phone || "",
+        class: studentData.class || "",
+        address: studentData.address || "",
+        guardianName: studentData.guardianName || "",
+        email: studentData.email || "",
         password: studentData.password || "",
         class: studentData.class || "",
         photo: studentData.photo || null,
@@ -65,7 +74,7 @@ const EditStudentModal = ({ onClose, studentData }) => {
 
   return (
     <div className="fixed inset-0 bg-transparent backdrop-blur-sm bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-6 w-full max-w-md">
+      <div className="bg-white rounded-xl p-6 w-full max-w-lg shadow-lg">
         <div className="flex flex-col items-center mb-4">
           <div
             className="w-24 h-24 rounded-full overflow-hidden shadow cursor-pointer"
@@ -84,19 +93,24 @@ const EditStudentModal = ({ onClose, studentData }) => {
             onChange={handlePhotoChange}
             className="hidden"
           />
-          <span className="text-sm text-gray-500 mt-2">Click to change photo</span>
+          <span className="text-sm text-gray-500 mt-2">
+            Click to change photo
+          </span>
         </div>
 
         <h2 className="text-xl font-semibold mb-4 text-center">Edit Student</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4 mb-4">
+
+         
           <input
             type="text"
             name="admissionNo"
             placeholder="Admission No"
             value={formData.admissionNo}
-            required
+            disabled
             onChange={handleChange}
-            className="w-full border rounded px-4 py-2"
+            className="w-full border rounded px-4 py-2 bg-gray-200 cursor-not-allowed"
           />
           <input
             type="text"
@@ -108,14 +122,33 @@ const EditStudentModal = ({ onClose, studentData }) => {
             className="w-full border rounded px-4 py-2"
           />
           <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
+            type="text"
+            name="phone"
+            placeholder="Phone"
+            value={formData.phone}
             required
             onChange={handleChange}
             className="w-full border rounded px-4 py-2"
           />
+          <input
+            type="text"
+            name="guardian"
+            placeholder="Guardian Name"
+            value={formData.guardianName}
+            required
+            onChange={handleChange}
+            className="w-full border rounded px-4 py-2"
+          />
+          <input
+            type="text"
+            name="address"
+            placeholder="Address"
+            value={formData.address}
+            required
+            onChange={handleChange}
+            className="w-full border rounded px-4 py-2"
+          />
+          
           <select
             name="class"
             value={formData.class}
@@ -132,6 +165,25 @@ const EditStudentModal = ({ onClose, studentData }) => {
               </option>
             ))}
           </select>
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={formData.email}
+            required
+            onChange={handleChange}
+            className="w-full border rounded px-4 py-2"
+          />
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            required
+            onChange={handleChange}
+            className="w-full border rounded px-4 py-2"
+          />
+           </div>
 
           <div className="flex justify-between pt-2">
             <button

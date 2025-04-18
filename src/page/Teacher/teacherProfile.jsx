@@ -4,7 +4,9 @@ import TeacherSideBar from '../../components/sideBar/teacherSideBar';
 const TeacherInfo = () => {
   const teacherData = {
     name: 'Mr. Abdul Hameed',
+    registrationNumber: 'SHS-TR-12345',
     phone: '+91 98765 43210',
+    email: 'abdulhameed@gmail.com',
     address: '123 Knowledge Street, Edutown, Kerala',
     classTeacherOf: '10th Grade - A Section',
   };
@@ -25,9 +27,21 @@ const TeacherInfo = () => {
 
             {/* Info Section */}
             <div className="flex-1">
-              <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center md:text-left">{teacherData.name}</h2>
+              {/* <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center md:text-left">{teacherData.name}</h2> */}
 
               <div className="space-y-4">
+                <div className="bg-[rgba(53,130,140,0.05)] p-4 rounded-lg shadow-sm border-l-4 border-[rgba(53,130,140,0.8)]">
+                  <h4 className="font-semibold text-gray-700">Name</h4>
+                  <p className="text-gray-600">{teacherData.name}</p>
+                </div>
+                <div className="bg-[rgba(53,130,140,0.05)] p-4 rounded-lg shadow-sm border-l-4 border-[rgba(53,130,140,0.8)]">
+                  <h4 className="font-semibold text-gray-700">Registration Number</h4>
+                  <p className="text-gray-600">{teacherData.registrationNumber}</p>
+                </div>
+                <div className="bg-[rgba(53,130,140,0.05)] p-4 rounded-lg shadow-sm border-l-4 border-[rgba(53,130,140,0.8)]">
+                  <h4 className="font-semibold text-gray-700">Email</h4>
+                  <p className="text-gray-600">{teacherData.email}</p>
+                </div>
                 <div className="bg-[rgba(53,130,140,0.05)] p-4 rounded-lg shadow-sm border-l-4 border-[rgba(53,130,140,0.8)]">
                   <h4 className="font-semibold text-gray-700">Phone Number</h4>
                   <p className="text-gray-600">{teacherData.phone}</p>
@@ -38,10 +52,7 @@ const TeacherInfo = () => {
                   <p className="text-gray-600">{teacherData.address}</p>
                 </div>
 
-                <div className="bg-[rgba(53,130,140,0.05)] p-4 rounded-lg shadow-sm border-l-4 border-[rgba(53,130,140,0.8)]">
-                  <h4 className="font-semibold text-gray-700">Class Teacher of</h4>
-                  <p className="text-gray-600">{teacherData.classTeacherOf}</p>
-                </div>
+              
               </div>
             </div>
           </div>

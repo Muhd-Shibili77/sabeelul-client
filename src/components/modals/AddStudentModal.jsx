@@ -4,8 +4,12 @@ const AddStudentModal = ({ onClose }) => {
   const [formData, setFormData] = useState({
     admissionNo: "",
     name: "",
+    phone:'',
+    email: "",
     password: "",
     class: "",
+    address: "",
+    guardianName:'',
     photo: null,
   });
 
@@ -49,10 +53,10 @@ const AddStudentModal = ({ onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-transparent backdrop-blur-sm bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-6 w-full max-w-md">
+      <div className="bg-white rounded-xl p-6 w-full max-w-xl shadow-lg">
         <div className="flex flex-col items-center mb-4">
           <div
-            className="w-24 h-24 rounded-full overflow-hidden shadow cursor-pointer"
+            className="w-30 h-30 rounded-full overflow-hidden shadow cursor-pointer"
             onClick={handlePhotoClick}
           >
             <img
@@ -73,6 +77,7 @@ const AddStudentModal = ({ onClose }) => {
 
         <h2 className="text-xl font-semibold mb-4 text-center">Add Student</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4 mb-4">
           <input
             type="text"
             name="admissionNo"
@@ -89,10 +94,28 @@ const AddStudentModal = ({ onClose }) => {
             onChange={handleChange}
             className="w-full border rounded px-4 py-2"
           />
+
           <input
-            type="password"
-            name="password"
-            placeholder="Password"
+            type="text"
+            name="phone"
+            placeholder="Phone"
+            required
+            onChange={handleChange}
+            className="w-full border rounded px-4 py-2"
+          />
+           <input
+            type="text"
+            name="guardian"
+            placeholder="Guardian Name"
+            required
+            onChange={handleChange}
+            className="w-full border rounded px-4 py-2"
+          />
+          
+           <input
+            type="text"
+            name="address"
+            placeholder="Address"
             required
             onChange={handleChange}
             className="w-full border rounded px-4 py-2"
@@ -113,7 +136,23 @@ const AddStudentModal = ({ onClose }) => {
               </option>
             ))}
           </select>
-
+           <input
+            type="text"
+            name="email"
+            placeholder="Email"
+            required
+            onChange={handleChange}
+            className="w-full border rounded px-4 py-2"
+          />
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            required
+            onChange={handleChange}
+            className="w-full border rounded px-4 py-2"
+          />
+          </div>
           <div className="flex justify-between pt-2">
             <button
               type="button"

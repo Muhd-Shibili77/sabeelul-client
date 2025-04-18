@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { FiUpload } from 'react-icons/fi';
 
 const EditTeacherModal = ({ teacher, onClose, onUpdate }) => {
+  const [registerNumber, setRegisterNumber] = useState(1552525);
   const [name, setName] = useState(teacher.name);
   const [phone, setPhone] = useState(teacher.phone);
+  const [address, setAddress] = useState(teacher.address);
+  const [email, setEmail] = useState(teacher.email);
   const [password, setPassword] = useState('');
   const [previewImage, setPreviewImage] = useState(teacher.profile || '/default-avatar.png');
   const [selectedFile, setSelectedFile] = useState(null);
@@ -21,8 +24,11 @@ const EditTeacherModal = ({ teacher, onClose, onUpdate }) => {
   const handleUpdate = () => {
     const updatedTeacher = {
       ...teacher,
+      registerNumber,
       name,
       phone,
+      address,
+      email,
       password,
       profile: selectedFile ? previewImage : teacher.profile,
     };
@@ -31,7 +37,7 @@ const EditTeacherModal = ({ teacher, onClose, onUpdate }) => {
 
   return (
     <div className="fixed inset-0 bg-transparent backdrop-blur-sm bg-opacity-30 flex justify-center items-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-xl w-[90%] max-w-md">
+      <div className="bg-white p-6 rounded-lg shadow-xl w-[90%] max-w-lg">
         <h2 className="text-xl font-semibold mb-4 text-[rgba(53,130,140,1)]">Edit Teacher</h2>
 
         {/* Circular Image Upload */}
@@ -46,7 +52,7 @@ const EditTeacherModal = ({ teacher, onClose, onUpdate }) => {
             <img
               src={previewImage}
               alt="Teacher"
-              className="w-24 h-24 rounded-full object-cover border-4 border-[rgba(53,130,140,0.6)] shadow"
+              className="w-30 h-30 rounded-full object-cover border-4 border-[rgba(53,130,140,0.6)] shadow"
             />
             <div className="absolute bottom-0 right-0 bg-[rgba(53,130,140,1)] p-1 rounded-full">
               <FiUpload className="text-white text-sm" />
@@ -55,6 +61,13 @@ const EditTeacherModal = ({ teacher, onClose, onUpdate }) => {
         </div>
 
         {/* Form Fields */}
+        <input
+          type="text"
+          placeholder="Register number"
+          value={registerNumber}
+          disabled
+          className="w-full mb-3 px-3 py-2 border rounded bg-gray-200"
+        />
         <input
           type="text"
           placeholder="Name"
@@ -67,6 +80,20 @@ const EditTeacherModal = ({ teacher, onClose, onUpdate }) => {
           placeholder="Phone Number"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
+          className="w-full mb-3 px-3 py-2 border rounded"
+        />
+        <input
+          type="text"
+          placeholder="Address"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+          className="w-full mb-3 px-3 py-2 border rounded"
+        />
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setAddress(e.target.value)}
           className="w-full mb-3 px-3 py-2 border rounded"
         />
         <input
