@@ -10,7 +10,7 @@ const AddTeacherModal = ({ onClose }) => {
     registerNumber: "",
     email: "",
     password: "",
-    photo: null,
+    profile: null,
   });
 
   const [photoPreview, setPhotoPreview] = useState(photo);
@@ -28,7 +28,7 @@ const AddTeacherModal = ({ onClose }) => {
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData((prev) => ({ ...prev, photo: file }));
+      setFormData((prev) => ({ ...prev, profile: file }));
       const reader = new FileReader();
       reader.onloadend = () => {
         setPhotoPreview(reader.result);
@@ -40,7 +40,7 @@ const AddTeacherModal = ({ onClose }) => {
   const handleAdd = () => {
     const submittedData = {
       ...formData,
-      photo: photoPreview,
+      profile: photoPreview,
     };
     console.log("New Teacher:", submittedData);
     onClose();

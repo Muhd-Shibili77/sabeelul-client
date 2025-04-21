@@ -7,10 +7,10 @@ const AddStudentModal = ({ onClose }) => {
     phone:'',
     email: "",
     password: "",
-    class: "",
+    className: "",
     address: "",
     guardianName:'',
-    photo: null,
+    profile: null,
   });
 
   const [photoPreview, setPhotoPreview] = useState(photo); // Replace with your actual default photo path
@@ -30,7 +30,7 @@ const AddStudentModal = ({ onClose }) => {
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData((prev) => ({ ...prev, photo: file }));
+      setFormData((prev) => ({ ...prev, profile: file }));
       const reader = new FileReader();
       reader.onloadend = () => {
         setPhotoPreview(reader.result);
@@ -44,7 +44,7 @@ const AddStudentModal = ({ onClose }) => {
 
     const submittedData = {
       ...formData,
-      photo: photoPreview,
+      profile: photoPreview,
     };
 
     console.log("Adding student:", submittedData);
@@ -121,8 +121,8 @@ const AddStudentModal = ({ onClose }) => {
             className="w-full border rounded px-4 py-2"
           />
           <select
-            name="class"
-            value={formData.class}
+            name="className"
+            value={formData.className}
             required
             onChange={handleChange}
             className="w-full border rounded px-4 py-2"

@@ -31,7 +31,6 @@ const EditStudentModal = ({ onClose, studentData }) => {
         guardianName: studentData.guardianName || "",
         email: studentData.email || "",
         password: studentData.password || "",
-        class: studentData.class || "",
         photo: studentData.photo || null,
       });
 
