@@ -82,7 +82,14 @@ const AdminStudents = () => {
     setSelectedStudent(student);
     setShowDetailModal(true);
   };
-
+  const handleDeleteStudent = (studentId) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this student?");
+    if (confirmDelete) {
+      const updatedList = students.filter(student => student.id !== studentId);
+      setStudents(updatedList);
+    }
+  };
+  
   const handleEditStudent = (student) => {
     setSelectedStudent(student);
     setShowEditModal(true);
@@ -178,6 +185,13 @@ const AdminStudents = () => {
                         title="Edit Student"
                       >
                         Edit
+                      </button>
+                      <button
+                         onClick={() => handleDeleteStudent(student.id)}
+                        className="text-red-600 hover:text-red-800 transition"
+                        title="Delete Student"
+                      >
+                        Delete
                       </button>
                     </td>
                   </tr>
