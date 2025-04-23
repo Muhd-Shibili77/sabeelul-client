@@ -4,6 +4,7 @@ import SideBar from '../../components/sideBar/SideBar';
 import AddTeacherModal from '../../components/modals/AddTeacherModal';
 import TeacherDetailsModal from '../../components/modals/TeacherDetailsModal';
 import EditTeacherModal from '../../components/modals/EditTeacherModal';
+import { MdOutlineDelete } from "react-icons/md";
 
 const AdminTeachers = () => {
   const [showAddModal, setShowAddModal] = useState(false);
@@ -86,37 +87,53 @@ const AdminTeachers = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {paginatedTeachers.map((teacher, index) => (
-            <div
-              key={index}
-              className="bg-white p-4 rounded-lg shadow-md relative hover:shadow-lg transition cursor-pointer"
-            >
-              {/* Edit Icon */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setEditingTeacher(teacher);
-                }}
-                className="absolute top-2 right-2 text-[rgba(53,130,140,1)] hover:text-[rgba(53,130,140,0.8)]"
-              >
-                <FiEdit size={18} />
-              </button>
+       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  {paginatedTeachers.map((teacher, index) => (
+    <div
+      key={index}
+      className="bg-white p-4 rounded-lg shadow-md relative hover:shadow-lg transition cursor-pointer"
+    >
+      {/* Top Right Buttons Container */}
+      <div className="absolute top-2 right-2 flex gap-2">
+        {/* Edit Icon */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setEditingTeacher(teacher);
+          }}
+          className="text-[rgba(53,130,140,1)] hover:text-[rgba(53,130,140,0.8)]"
+        >
+          <FiEdit size={18} />
+        </button>
 
-              <div onClick={() => setSelectedTeacher(teacher)} className="flex items-center gap-4">
-                <img
-                  src={teacher.profile}
-                  alt={teacher.name}
-                  className="w-16 h-16 rounded-full object-cover shadow"
-                />
-                <div>
-                  <h3 className="text-lg font-semibold text-[rgba(53,130,140,1)]">{teacher.name}</h3>
-                  <p className="text-gray-500">Phone: {teacher.phone}</p>
-                </div>
-              </div>
-            </div>
-          ))}
+        {/* Delete Icon */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setEditingTeacher(teacher); // (If you're actually deleting, you might want a separate `setDeletingTeacher`)
+          }}
+          className="text-[rgba(53,130,140,1)] hover:text-[rgba(53,130,140,0.8)]"
+        >
+          <MdOutlineDelete size={22} />
+        </button>
+      </div>
+
+      {/* Teacher Info */}
+      <div onClick={() => setSelectedTeacher(teacher)} className="flex items-center gap-4">
+        <img
+          src={teacher.profile}
+          alt={teacher.name}
+          className="w-16 h-16 rounded-full object-cover shadow"
+        />
+        <div>
+          <h3 className="text-lg font-semibold text-[rgba(53,130,140,1)]">{teacher.name}</h3>
+          <p className="text-gray-500">Phone: {teacher.phone}</p>
         </div>
+      </div>
+    </div>
+  ))}
+</div>
+
 
         {/* Pagination */}
         <div className="flex justify-center mt-6 gap-4">

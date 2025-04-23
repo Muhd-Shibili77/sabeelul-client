@@ -117,7 +117,17 @@ const AdminScore = () => {
                 ))}
                 <option value="other">Other</option>
               </select>
+             
             </div>
+            <div className="mb-3">
+                  <input
+                    type="number"
+                    placeholder="Enter Marks"
+                    className="w-full p-2 border rounded"
+                    value={studentMarks}
+                    onChange={(e) => setStudentMarks(e.target.value)}
+                  />
+                </div>
 
             {selectedItem === "other" && (
               <div className="mb-3">
@@ -128,7 +138,11 @@ const AdminScore = () => {
                   value={customItem}
                   onChange={(e) => setCustomItem(e.target.value)}
                 />
+               
+                 
+               
               </div>
+              
             )}
 
             <button
