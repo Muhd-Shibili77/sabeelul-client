@@ -16,10 +16,14 @@ import AdminLogin from './page/Authentication/adminLogin';
 import LandingPage from './page/Home/LandingPage';
 import { Route,Routes } from 'react-router-dom'
 import TempPage from './page/tempPage';
+import NotFound from './components/404/404';
+
 const App = () => {
   return (
     <>
       <Routes>
+        <Route path='*' element={<NotFound />} />
+
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<TempPage />} />
 
