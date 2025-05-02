@@ -14,6 +14,7 @@ import StudentLogin from './page/Authentication/studentLogin';
 import TeacherLogin from './page/Authentication/teacherLogin';
 import AdminLogin from './page/Authentication/adminLogin';
 import LandingPage from './page/Home/LandingPage';
+import AdminClasses from './page/Admin/AdminClasses';
 import { Route,Routes } from 'react-router-dom'
 import TempPage from './page/tempPage';
 import NotFound from './components/404/404';
@@ -34,6 +35,7 @@ const App = () => {
         <Route path="/admin/score" element={<AdminScore />} />
         <Route path="/admin/programs" element={<AdminPrograms />} />
         <Route path="/admin/report" element={<AdminReport />} />
+        <Route path="/admin/classes" element={<AdminClasses />} />
 
 
         <Route path="/student/login" element={<StudentLogin />} />

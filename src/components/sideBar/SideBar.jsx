@@ -3,15 +3,15 @@ import logo from "../../assets/SabeelBlackLogo.png";
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
 import { useNavigate } from "react-router";
+import { SiGoogleclassroom } from "react-icons/si";
+
 import {
   FaUser,
   FaUsersCog,
   FaCalendarAlt,
-  FaTools,
   FaSignOutAlt,
   FaThLarge,
   FaBars,
-  FaMoneyBillWave,
 } from "react-icons/fa";
 import { TbReport } from "react-icons/tb";
 import { PiMicrophoneStageFill } from "react-icons/pi";
@@ -35,6 +35,12 @@ function SideBar(props) {
       route: "teachers",
       icon: <FaUsersCog />,
       key: "Teachers",
+    },
+    {
+      name: "Classes",
+      route: "classes",
+      icon: <SiGoogleclassroom />,
+      key: "Classes",
     },
     { name: "Score", route: "score", icon: <FaCalendarAlt />, key: "Score" },
     { name: "Report", route: "report", icon: <TbReport />, key: "Report" },

@@ -5,7 +5,7 @@ const Score = () => {
   const [scoreType, setScoreType] = useState("CCE");
   const [selectedClass, setSelectedClass] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("");
-  
+
   const classOptions = ["8A", "9B", "10C"];
   const subjectOptions = ["Math", "Science", "English"];
 
@@ -34,7 +34,7 @@ const Score = () => {
   };
 
   return (
-    <div className="flex  min-h-screen bg-gradient-to-br from-gray-100 to-[rgba(53,130,140,0.4)]">
+    <div className="flex min-h-screen bg-gradient-to-br from-gray-100 to-[rgba(53,130,140,0.4)]">
       <TeacherSideBar page="Score" />
 
       <div className="flex-1 p-8 md:ml-64 transition-all duration-300 overflow-y-auto">
@@ -63,11 +63,11 @@ const Score = () => {
         {/* Class & Subject Selection */}
         <div className="flex gap-4 mb-4">
           <select
-            className="px-4 py-2 rounded-lg border border-gray-300 shadow-sm "
+            className="px-4 py-2 rounded-lg border border-gray-300 shadow-sm"
             value={selectedClass}
             onChange={(e) => setSelectedClass(e.target.value)}
           >
-            <option value="" >Select Class</option>
+            <option value="">Select Class</option>
             {classOptions.map((cls) => (
               <option key={cls} value={cls}>
                 {cls}
@@ -75,10 +75,12 @@ const Score = () => {
             ))}
           </select>
 
+          {scoreType ==="CCE" &&(
           <select
             className="px-4 py-2 rounded-lg border border-gray-300 shadow-sm"
             value={selectedSubject}
             onChange={(e) => setSelectedSubject(e.target.value)}
+            disabled={scoreType === "Mentor"}
           >
             <option value="">Select Subject</option>
             {subjectOptions.map((sub) => (
@@ -87,10 +89,13 @@ const Score = () => {
               </option>
             ))}
           </select>
+
+          )}
         </div>
 
-        {/* Show student list if class & subject selected */}
-        {selectedClass && selectedSubject && (
+        {/* Show student list based on selected score type */}
+        {(scoreType === "Mentor" && selectedClass) ||
+        (scoreType === "CCE" && selectedClass && selectedSubject) ? (
           <div className="bg-white rounded-2xl shadow-md p-6">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">
               Student List - {scoreType} Marks
@@ -113,11 +118,7 @@ const Score = () => {
                           placeholder={`${phase} mark`}
                           className="px-3 py-2 border border-gray-300 rounded-md w-24"
                           onChange={(e) =>
-                            handleMarkChange(
-                              student.id,
-                              phase,
-                              e.target.value
-                            )
+                            handleMarkChange(student.id, phase, e.target.value)
                           }
                         />
                       ))}
@@ -145,7 +146,7 @@ const Score = () => {
               Submit Marks
             </button>
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );
