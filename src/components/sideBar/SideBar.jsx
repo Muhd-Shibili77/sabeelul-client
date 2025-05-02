@@ -4,7 +4,7 @@ import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
 import { useNavigate } from "react-router";
 import { SiGoogleclassroom } from "react-icons/si";
-
+import useLogout from "../../hooks/authentication/adminLogout";
 import {
   FaUser,
   FaUsersCog,
@@ -17,6 +17,7 @@ import { TbReport } from "react-icons/tb";
 import { PiMicrophoneStageFill } from "react-icons/pi";
 
 function SideBar(props) {
+  const {logout} = useLogout()
   const navigate = useNavigate();
 
   const [active, setActive] = useState(props.page);
@@ -67,9 +68,15 @@ function SideBar(props) {
               </p>
               <div className="flex justify-center mt-5 gap-4">
                 <button
-                  onClick={() => {
-                    navigate("/admin/login");
-                    onClose();
+                  onClick={async () => {
+                    const result = await logout()
+                    
+                    if (result.success) {
+                      setTimeout(()=>{
+                          navigate("/admin/login");
+                          onClose();
+                      },1000)
+                    }
                   }}
                   className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
                 >

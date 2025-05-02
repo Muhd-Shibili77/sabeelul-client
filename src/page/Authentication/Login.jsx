@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-const StudentLogin = () => {
+const Login = () => {
    const navigate = useNavigate()
   const handleLogin = (e) => {
     e.preventDefault();
@@ -8,14 +8,14 @@ const StudentLogin = () => {
     const password = e.target.password.value;
     console.log("Login with", { phone, password });
     // Handle login logic here
-    navigate('/student/dashboard')
+    navigate('/teacher/score')
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen px-4 bg-gradient-to-br from-gray-100 to-[rgba(53,130,140,0.4)]">
       <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-sm sm:max-w-md">
         <h2 className="text-2xl font-bold text-center mb-6 text-[rgba(53,130,140,0.9)]">
-          Student Login
+          Login to Continue
         </h2>
 
         <form onSubmit={handleLogin} className="space-y-5">
@@ -58,4 +58,4 @@ const StudentLogin = () => {
   );
 };
 
-export default StudentLogin;
+export default Login;
