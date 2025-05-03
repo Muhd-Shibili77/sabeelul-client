@@ -8,6 +8,10 @@ import { MdOutlineDelete } from "react-icons/md";
 import Pagination from "../../components/pagination/Pagination";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchTeacher,updateTeacher,addTeacher,deleteTeacher } from "../../redux/teacherSlice";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { confirmAlert } from "react-confirm-alert";
+import "react-confirm-alert/src/react-confirm-alert.css";
 
 const AdminTeachers = () => {
   const dispatch = useDispatch();
@@ -33,6 +37,75 @@ const AdminTeachers = () => {
 
     return () => clearTimeout(timer);
   }, [search]);
+
+  const handleAdd = async (teacherData)=>{
+    try {
+      const response = await dispatch(addTeacher(teacherData)).unwrap();
+      toast.success(response.message || 'Added successfully');
+      refreshList();
+      setShowAddModal(false)
+    } catch (error) {
+      toast.error(error.message);
+      console.error("Failed to add teacher:", error.message || error);
+    }
+  }
+  const handleUpdate = async (id,updatedData)=>{
+    try {
+      const response = await dispatch(updateTeacher({ id, updatedData })).unwrap()
+      toast.success(response.message || 'updated successfully');
+      refreshList()
+      setEditingTeacher(null)
+    } catch (error) {
+      toast.error(error.message);
+      console.error("Failed to add teacher:", error.message || error);
+    }
+  }
+
+  const handleDelete = (id) => {
+    confirmAlert({
+      customUI: ({ onClose }) => {
+        return (
+          <div className="fixed inset-0 flex items-center justify-center  z-50">
+            <div className="bg-white rounded-lg shadow-lg p-6 w-96 text-center">
+              <h2 className="text-xl font-semibold text-gray-800">
+                Delete Confirmation
+              </h2>
+              <p className="text-gray-600 mt-2">
+                Are you sure you want to delete this teacher?
+              </p>
+              <div className="flex justify-center mt-5 gap-4">
+                <button
+                  onClick={async () => {
+                    try {
+                      await dispatch(deleteTeacher(id)).unwrap();
+                      toast.success("Teacher deleted successfully");
+                      setTimeout(()=>{
+                        refreshList();
+                        onClose();
+                      },1000)
+                    } catch (error) {
+                      toast.error("Failed to delete teacher");
+                      console.error("Delete error:", error);
+                    }
+                  }}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                >
+                  Yes, Delete
+                </button>
+                <button
+                  onClick={onClose}
+                  className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      },
+    });
+  };
+  
 
   return (
     <div className="flex  min-h-screen bg-gradient-to-br from-gray-100 to-[rgba(53,130,140,0.4)]">
@@ -87,7 +160,7 @@ const AdminTeachers = () => {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      setEditingTeacher(teacher); // Use a separate state if it's for deletion
+                      handleDelete(teacher._id)
                     }}
                     className="text-[rgba(53,130,140,1)] hover:text-[rgba(53,130,140,0.8)]"
                   >
@@ -101,7 +174,7 @@ const AdminTeachers = () => {
                   className="flex items-center gap-4"
                 >
                   <img
-                    src={teacher.profile}
+                    src={teacher.profileImage}
                     alt={teacher.name}
                     className="w-16 h-16 rounded-full object-cover shadow"
                   />
@@ -127,7 +200,7 @@ const AdminTeachers = () => {
 
       {/* Modals */}
       {showAddModal && (
-        <AddTeacherModal onClose={() => setShowAddModal(false)} />
+        <AddTeacherModal onClose={() => setShowAddModal(false)} onAdd={(data)=> handleAdd(data)} />
       )}
       {selectedTeacher && (
         <TeacherDetailsModal
@@ -139,12 +212,12 @@ const AdminTeachers = () => {
         <EditTeacherModal
           teacher={editingTeacher}
           onClose={() => setEditingTeacher(null)}
-          onUpdate={(updatedTeacher) => {
-            console.log("Teacher updated:", updatedTeacher);
-            setEditingTeacher(null);
+          onUpdate={(id,updatedTeacher) => {
+            handleUpdate(id,updatedTeacher)
           }}
         />
       )}
+            <ToastContainer position="top-right" autoClose={2000} hideProgressBar />
     </div>
   );
 };

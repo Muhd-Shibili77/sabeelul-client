@@ -1,111 +1,136 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import SideBar from '../../components/sideBar/SideBar';
 import AddStudentModal from '../../components/modals/AddStudentModal';
 import StudentDetailsModal from '../../components/modals/StudentDetailsModal';
 import EditStudentModal from '../../components/modals/EditStudentModal';
-
+import Pagination from "../../components/pagination/Pagination";
+import { useDispatch, useSelector } from "react-redux";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { confirmAlert } from "react-confirm-alert";
+import "react-confirm-alert/src/react-confirm-alert.css";
+import { fetchClass } from '../../redux/classSlice';
+import { fetchStudent,addStudent,updateStudent,deleteStudent } from '../../redux/studentSlice';
 
 const AdminStudents = () => {
-  const [students, setStudents] = useState([
-    {
-      id: 1,
-      name: "Aarav Sharma",
-      class: "Class 1",
-      phone: "9876543210",
-      profile: "https://randomuser.me/api/portraits/men/11.jpg",
-      marks: {
-        Math: 92,
-        English: 88,
-        Science: 95,
-      },
-    },
-    {
-      id: 2,
-      name: "Diya Verma",
-      class: "Class 2",
-      phone: "9123456780",
-      profile: "https://randomuser.me/api/portraits/women/22.jpg",
-      marks: {
-        Math: 85,
-        English: 90,
-        Science: 80,
-      },
-    },
-    {
-      id: 3,
-      name: "Karan Mehta",
-      class: "Class 1",
-      phone: "9988776655",
-      profile: "https://randomuser.me/api/portraits/men/33.jpg",
-      marks: {
-        Math: 78,
-        English: 84,
-        Science: 88,
-      },
-    },
-    {
-      id: 4,
-      name: "Meera Iyer",
-      class: "Class 3",
-      phone: "9012345678",
-      profile: "https://randomuser.me/api/portraits/women/44.jpg",
-      marks: {
-        Math: 91,
-        English: 93,
-        Science: 90,
-      },
-    },
-    {
-      id: 5,
-      name: "Rohan Das",
-      class: "Class 2",
-      phone: "9871234560",
-      profile: "https://randomuser.me/api/portraits/men/55.jpg",
-      marks: {
-        Math: 67,
-        English: 70,
-        Science: 72,
-      },
-    },
-  ]);
-
-  const [searchTerm, setSearchTerm] = useState('');
+   const dispatch = useDispatch();
+   const {classes} = useSelector((state)=>state.class)
+   const {students,totalPages } = useSelector((state)=>state.student)
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  
   const [selectedClass, setSelectedClass] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
 
-  const classOptions = ['All', 'Class 1', 'Class 2', 'Class 3'];
+
+  useEffect(() => {
+    dispatch(fetchClass({ search: "", page: 1, limit: 1000 }));
+  }, [dispatch]);
+
+  const refreshList = () =>
+      dispatch(fetchStudent({ search: debouncedSearch, page }));
+
+
+  useEffect(() => {
+    refreshList();
+  }, [dispatch, debouncedSearch, page]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [search]);
+
+
 
   const handleViewDetails = (student) => {
     setSelectedStudent(student);
     setShowDetailModal(true);
   };
-  const handleDeleteStudent = (studentId) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this student?");
-    if (confirmDelete) {
-      const updatedList = students.filter(student => student.id !== studentId);
-      setStudents(updatedList);
-    }
-  };
+
+   const handleDeleteStudent = (id) => {
+      confirmAlert({
+        customUI: ({ onClose }) => {
+          return (
+            <div className="fixed inset-0 flex items-center justify-center  z-50">
+              <div className="bg-white rounded-lg shadow-lg p-6 w-96 text-center">
+                <h2 className="text-xl font-semibold text-gray-800">
+                  Delete Confirmation
+                </h2>
+                <p className="text-gray-600 mt-2">
+                  Are you sure you want to delete this student?
+                </p>
+                <div className="flex justify-center mt-5 gap-4">
+                  <button
+                    onClick={async () => {
+                      try {
+                        await dispatch(deleteStudent(id)).unwrap();
+                        toast.success("student deleted successfully");
+                        setTimeout(()=>{
+                          refreshList();
+                          onClose();
+                        },1000)
+                      } catch (error) {
+                        toast.error("Failed to delete student");
+                        console.error("Delete error:", error);
+                      }
+                    }}
+                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                  >
+                    Yes, Delete
+                  </button>
+                  <button
+                    onClick={onClose}
+                    className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        },
+      });
+    };
+
   
   const handleEditStudent = (student) => {
     setSelectedStudent(student);
     setShowEditModal(true);
   };
 
-  const updateStudent = (updatedStudent) => {
-    const updatedList = students.map((student) =>
-      student.id === updatedStudent.id ? updatedStudent : student
-    );
-    setStudents(updatedList);
+  const updateStudentData =async  (id,updatedData) => {
+    try {
+         const response = await dispatch(updateStudent({ id, updatedData })).unwrap()
+         toast.success(response.message || 'updated successfully');
+         refreshList()
+        setSelectedStudent(null);
+        setShowEditModal(false);
+       } catch (error) {
+         toast.error(error.message);
+         console.error("Failed to update student:", error.message || error);
+       }
   };
 
-  const filteredStudents = students.filter((student) =>
-    student.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-    (selectedClass === 'All' || selectedClass === '' || student.class === selectedClass)
-  );
+
+  const handleAdd = async (studentData)=>{
+    try {
+      const response = await dispatch(addStudent(studentData)).unwrap();
+      toast.success(response.message || 'Added successfully');
+      refreshList();
+      setShowAddModal(false)
+      
+    } catch (error) {
+       toast.error(error.message);
+       console.error("Failed to add teacher:", error.message || error);
+    }
+  }
 
   return (
     <div className="flex  min-h-screen bg-gradient-to-br from-gray-100 to-[rgba(53,130,140,0.4)]">
@@ -116,21 +141,13 @@ const AdminStudents = () => {
           <h2 className="text-2xl font-bold text-[rgba(53,130,140,0.9)]">Students</h2>
 
           <div className="flex gap-2 flex-wrap">
-            <select
-              value={selectedClass}
-              onChange={(e) => setSelectedClass(e.target.value)}
-              className="border rounded px-3 py-2"
-            >
-              {classOptions.map((cls, idx) => (
-                <option key={idx} value={cls === 'All' ? '' : cls}>{cls}</option>
-              ))}
-            </select>
+            
 
             <input
               type="text"
               placeholder="Search by name"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               className="border rounded px-3 py-2"
             />
 
@@ -155,21 +172,21 @@ const AdminStudents = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredStudents.length > 0 ? (
-                filteredStudents.map((student, index) => (
+              {students.length > 0 ? (
+                students.map((student, index) => (
                   <tr
                     key={index}
                     className="border-b hover:bg-gray-50 transition"
                   >
                     <td className="px-6 py-4 flex items-center gap-3">
                       <img
-                        src={student.profile}
+                        src={student.profileImage}
                         alt={student.name}
                         className="w-10 h-10 rounded-full object-cover shadow"
                       />
                       <span className="font-semibold">{student.name}</span>
                     </td>
-                    <td className="px-6 py-4">{student.class}</td>
+                    <td className="px-6 py-4">{student.classId.name}</td>
                     <td className="px-6 py-4">{student.phone}</td>
                     <td className="px-6 py-4 text-center space-x-3">
                       <button
@@ -187,7 +204,7 @@ const AdminStudents = () => {
                         Edit
                       </button>
                       <button
-                         onClick={() => handleDeleteStudent(student.id)}
+                         onClick={() => handleDeleteStudent(student._id)}
                         className="text-red-600 hover:text-red-800 transition"
                         title="Delete Student"
                       >
@@ -208,14 +225,15 @@ const AdminStudents = () => {
         </div>
 
         {/* Pagination Placeholder */}
-        <div className="flex justify-end mt-4">
-          <button className="px-3 py-1 bg-gray-200 rounded mx-1">Prev</button>
-          <button className="px-3 py-1 bg-gray-200 rounded mx-1">Next</button>
-        </div>
+        <Pagination
+          currentPage={page}
+          setCurrentPage={setPage}
+          totalPages={totalPages}
+        />
       </div>
 
       {/* Modals */}
-      {showAddModal && <AddStudentModal onClose={() => setShowAddModal(false)} />}
+      {showAddModal && <AddStudentModal onClose={() => setShowAddModal(false)} classes={classes} onAdd={(data)=> handleAdd(data)} />}
       {showDetailModal && (
         <StudentDetailsModal
           student={selectedStudent}
@@ -227,14 +245,18 @@ const AdminStudents = () => {
       )}
       {showEditModal && (
         <EditStudentModal
-          student={selectedStudent}
+        studentData={selectedStudent}
           onClose={() => {
             setSelectedStudent(null);
             setShowEditModal(false);
           }}
-          onUpdate={updateStudent}
+          classes={classes}
+          onUpdate={(id,updatedData)=> {
+            updateStudentData(id,updatedData)
+          }}
         />
       )}
+       <ToastContainer position="top-right" autoClose={2000} hideProgressBar />
     </div>
   );
 };

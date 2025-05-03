@@ -14,14 +14,14 @@ const StudentDetailsModal = ({ student, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-transparent backdrop-blur-sm bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl p-6 w-full max-w-lg shadow-2xl border border-gray-200">
+      <div className="bg-white rounded-2xl p-6 w-full max-w-xl shadow-2xl border border-gray-200">
         <h2 className="text-2xl font-bold mb-6 text-center text-[rgba(53,130,140,1)] tracking-wide">
           Student Information
         </h2>
 
         <div className="flex flex-col items-center gap-4 mb-6">
           <img
-            src={student.profile || "/default-avatar.png"}
+            src={student.profileImage || "/default-avatar.png"}
             alt="Profile"
             className="w-28 h-28 rounded-full object-cover border-2 border-[rgba(53,130,140,0.8)] shadow-lg"
           />
@@ -38,7 +38,7 @@ const StudentDetailsModal = ({ student, onClose }) => {
           </p>
           <p className="flex items-center gap-2">
             <FiBookOpen className="text-[rgba(53,130,140,1)]" />
-            <strong>Class:</strong> {student.class}
+            <strong>Class:</strong> {student.classId.name}
           </p>
           <p className="flex items-center gap-2">
             <FiPhone className="text-[rgba(53,130,140,1)]" />

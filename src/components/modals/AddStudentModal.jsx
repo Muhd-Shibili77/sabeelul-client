@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import photo from '../../assets/freepik__upload__39837.png'; // Default photo path
-const AddStudentModal = ({ onClose }) => {
+const AddStudentModal = ({ onAdd,onClose,classes }) => {
   const [formData, setFormData] = useState({
     admissionNo: "",
     name: "",
@@ -16,7 +16,6 @@ const AddStudentModal = ({ onClose }) => {
   const [photoPreview, setPhotoPreview] = useState(photo); // Replace with your actual default photo path
   const fileInputRef = useRef(null);
 
-  const classOptions = ["Class 1", "Class 2", "Class 3"];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -39,13 +38,45 @@ const AddStudentModal = ({ onClose }) => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
+    let imageUrl = photoPreview;
+    if (formData.profile && typeof formData.profile !== "string") {
+      const data = new FormData();
+      data.append("file", formData.profile);
+      data.append("upload_preset", "StudentProfile");
+      data.append("cloud_name", "dzr8vw5rf");
+  
+      try {
+        const res = await fetch(
+          "https://api.cloudinary.com/v1_1/dzr8vw5rf/image/upload",
+          {
+            method: "POST",
+            body: data,
+          }
+        );
+  
+        const cloudinaryData = await res.json();
+        imageUrl = cloudinaryData.secure_url;
+      } catch (error) {
+        console.error("Image upload failed", error);
+        
+        return;
+      }
+    }
     const submittedData = {
       ...formData,
-      profile: photoPreview,
+      profile: imageUrl,
     };
+    try {
+      await onAdd(submittedData);
+    } catch (error) {
+      console.error("Unexpected error occurred", error);
+      
+      if (error && error.message) {
+        console.log(error)
+      }
+    }
 
     console.log("Adding student:", submittedData);
     onClose();
@@ -105,7 +136,7 @@ const AddStudentModal = ({ onClose }) => {
           />
            <input
             type="text"
-            name="guardian"
+            name="guardianName"
             placeholder="Guardian Name"
             required
             onChange={handleChange}
@@ -130,9 +161,9 @@ const AddStudentModal = ({ onClose }) => {
             <option value="" disabled>
               Select Class
             </option>
-            {classOptions.map((cls, idx) => (
-              <option key={idx} value={cls}>
-                {cls}
+            {classes.map((cls) => (
+              <option key={cls._id} value={cls._id}>
+                {cls.name}
               </option>
             ))}
           </select>

@@ -8,7 +8,7 @@ const EditTeacherModal = ({ teacher, onClose, onUpdate }) => {
   const [address, setAddress] = useState(teacher.address);
   const [email, setEmail] = useState(teacher.email);
   const [password, setPassword] = useState('');
-  const [previewImage, setPreviewImage] = useState(teacher.profile || '/default-avatar.png');
+  const [previewImage, setPreviewImage] = useState(teacher.profileImage);
   const [selectedFile, setSelectedFile] = useState(null);
 
   const handleImageChange = (e) => {
@@ -21,7 +21,32 @@ const EditTeacherModal = ({ teacher, onClose, onUpdate }) => {
     }
   };
 
-  const handleUpdate = () => {
+  const handleUpdate =async() => {
+    let imageUrl = previewImage;
+
+    if(selectedFile !== null){
+      const data = new FormData();
+      data.append("file", formData.profile);
+      data.append("upload_preset", "TeacherProfile");
+      data.append("cloud_name", "dzr8vw5rf");
+
+      try {
+        const res = await fetch(
+          "https://api.cloudinary.com/v1_1/dzr8vw5rf/image/upload",
+          {
+            method: "POST",
+            body: data,
+          }
+        );
+  
+        const cloudinaryData = await res.json();
+        imageUrl = cloudinaryData.secure_url;
+      } catch (error) {
+        console.error("Image upload failed", error);
+        setError("Image upload failed. Please try again.");
+        return;
+      }
+    }
     const updatedTeacher = {
       ...teacher,
       registerNumber,
@@ -30,9 +55,23 @@ const EditTeacherModal = ({ teacher, onClose, onUpdate }) => {
       address,
       email,
       password,
-      profile: selectedFile ? previewImage : teacher.profile,
+      profile: imageUrl,
     };
-    onUpdate(updatedTeacher);
+    try {
+      const result =  onUpdate(updatedTeacher._id,updatedTeacher);
+      
+     
+    } catch (error) {
+      console.error("Unexpected error occurred", error);
+      
+      if (error && error.message) {
+        console.log(error)
+        setError(error.message,'qwerty'); // Set the specific error message
+      } else {
+        setError("Unexpected error occurred."); // Fallback message
+      }
+    }
+    
   };
 
   return (
@@ -93,7 +132,7 @@ const EditTeacherModal = ({ teacher, onClose, onUpdate }) => {
           type="email"
           placeholder="Email"
           value={email}
-          onChange={(e) => setAddress(e.target.value)}
+          onChange={(e) => setEmail(e.target.value)}
           className="w-full mb-3 px-3 py-2 border rounded"
         />
         <input

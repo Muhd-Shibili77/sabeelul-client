@@ -1,40 +1,38 @@
 import React, { useState, useRef, useEffect } from "react";
-import defaultPhoto from "../../assets/freepik__upload__39837.png"; // Default fallback photo
+import { FiUpload } from "react-icons/fi";
+import defaultPhoto from "../../assets/freepik__upload__39837.png";
 
-const EditStudentModal = ({ onClose, studentData }) => {
+const EditStudentModal = ({ onClose, studentData, onUpdate, classes }) => {
   const [formData, setFormData] = useState({
     admissionNo: "",
     name: "",
     phone: "",
     email: "",
     password: "",
-    class: "",
+    className: "",
     address: "",
     guardianName: "",
-    photo: null,
+    profile: null,
   });
 
   const [photoPreview, setPhotoPreview] = useState(defaultPhoto);
-  const fileInputRef = useRef(null);
+  const [selectedFile, setSelectedFile] = useState(null);
 
-  const classOptions = ["Class 1", "Class 2", "Class 3"];
-
-  // Pre-fill form with existing data
   useEffect(() => {
     if (studentData) {
       setFormData({
         admissionNo: studentData.admissionNo || "",
         name: studentData.name || "",
         phone: studentData.phone || "",
-        class: studentData.class || "",
+        className: studentData.classId?._id, // Supports object or id
         address: studentData.address || "",
         guardianName: studentData.guardianName || "",
         email: studentData.email || "",
-        password: studentData.password || "",
-        photo: studentData.photo || null,
+        password: "", // Don't pre-fill
+        profile: studentData.profileImage || null,
       });
 
-      setPhotoPreview(studentData.photo || defaultPhoto);
+      setPhotoPreview(studentData.profileImage || defaultPhoto);
     }
   }, [studentData]);
 
@@ -50,141 +48,157 @@ const EditStudentModal = ({ onClose, studentData }) => {
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData((prev) => ({ ...prev, photo: file }));
+      setSelectedFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setPhotoPreview(reader.result);
+        fileInputRef.current.value = null; // ✅ clear file input
       };
       reader.readAsDataURL(file);
     }
   };
+  
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    let imageUrl = formData.photo;
+
+    if (selectedFile) {
+      const data = new FormData();
+      data.append("file", selectedFile);
+      data.append("upload_preset", "StudentProfile");
+      data.append("cloud_name", "dzr8vw5rf");
+
+      try {
+        const res = await fetch(
+          "https://api.cloudinary.com/v1_1/dzr8vw5rf/image/upload",
+          {
+            method: "POST",
+            body: data,
+          }
+        );
+        const cloudinaryData = await res.json();
+        imageUrl = cloudinaryData.secure_url;
+      } catch (error) {
+        console.error("Image upload failed", error);
+        return;
+      }
+    }
 
     const updatedData = {
       ...formData,
-      photo: typeof formData.photo === "string" ? formData.photo : photoPreview,
+      profile: imageUrl, // match backend field
     };
+    
 
-    console.log("Updated student:", updatedData);
-    onClose(); // You can pass updatedData to parent if needed
+    onUpdate && onUpdate(studentData._id, updatedData);
+    onClose();
   };
 
   return (
     <div className="fixed inset-0 bg-transparent backdrop-blur-sm bg-opacity-40 flex items-center justify-center z-50">
       <div className="bg-white rounded-xl p-6 w-full max-w-lg shadow-lg">
-        <div className="flex flex-col items-center mb-4">
-          <div
-            className="w-24 h-24 rounded-full overflow-hidden shadow cursor-pointer"
-            onClick={handlePhotoClick}
-          >
+        <div className="flex flex-col items-center mb-4 relative">
+          <label className="cursor-pointer relative">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handlePhotoChange}
+              className="hidden"
+            />
             <img
               src={photoPreview}
-              alt="Profile"
-              className="w-full h-full object-cover"
+              alt="Student"
+              className="w-24 h-24 rounded-full object-cover border-4 border-[rgba(53,130,140,0.6)] shadow"
+              onClick={handlePhotoClick}
             />
-          </div>
-          <input
-            type="file"
-            accept="image/*"
-            ref={fileInputRef}
-            onChange={handlePhotoChange}
-            className="hidden"
-          />
-          <span className="text-sm text-gray-500 mt-2">
-            Click to change photo
-          </span>
+            <div className="absolute bottom-0 right-0 bg-[rgba(53,130,140,1)] p-1 rounded-full">
+              <FiUpload className="text-white text-sm" />
+            </div>
+          </label>
+          <span className="text-sm text-gray-500 mt-2">Click to change photo</span>
         </div>
 
         <h2 className="text-xl font-semibold mb-4 text-center">Edit Student</h2>
+
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-2 gap-4">
+            <input
+              type="text"
+              name="admissionNo"
+              placeholder="Admission No"
+              value={formData.admissionNo}
+              disabled
+              className="w-full border rounded px-4 py-2 bg-gray-200 cursor-not-allowed"
+            />
+            <input
+              type="text"
+              name="name"
+              placeholder="Name"
+              value={formData.name}
+              required
+              onChange={handleChange}
+              className="w-full border rounded px-4 py-2"
+            />
+            <input
+              type="text"
+              name="phone"
+              placeholder="Phone"
+              value={formData.phone}
+              required
+              onChange={handleChange}
+              className="w-full border rounded px-4 py-2"
+            />
+            <input
+              type="text"
+              name="guardianName"
+              placeholder="Guardian Name"
+              value={formData.guardianName}
+              required
+              onChange={handleChange}
+              className="w-full border rounded px-4 py-2"
+            />
+            <input
+              type="text"
+              name="address"
+              placeholder="Address"
+              value={formData.address}
+              required
+              onChange={handleChange}
+              className="w-full border rounded px-4 py-2"
+            />
+            <select
+              name="className"
+              value={formData.class}
+              required
+              onChange={handleChange}
+              className="w-full border rounded px-4 py-2"
+            >
+              <option value="" disabled>Select Class</option>
+              {classes.map((cls, idx) => (
+                <option key={idx} value={cls._id}>{cls.name}</option>
+              ))}
+            </select>
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={formData.email}
+              required
+              onChange={handleChange}
+              className="w-full border rounded px-4 py-2"
+            />
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+              className="w-full border rounded px-4 py-2"
+            />
+          </div>
 
-         
-          <input
-            type="text"
-            name="admissionNo"
-            placeholder="Admission No"
-            value={formData.admissionNo}
-            disabled
-            onChange={handleChange}
-            className="w-full border rounded px-4 py-2 bg-gray-200 cursor-not-allowed"
-          />
-          <input
-            type="text"
-            name="name"
-            placeholder="Name"
-            value={formData.name}
-            required
-            onChange={handleChange}
-            className="w-full border rounded px-4 py-2"
-          />
-          <input
-            type="text"
-            name="phone"
-            placeholder="Phone"
-            value={formData.phone}
-            required
-            onChange={handleChange}
-            className="w-full border rounded px-4 py-2"
-          />
-          <input
-            type="text"
-            name="guardian"
-            placeholder="Guardian Name"
-            value={formData.guardianName}
-            required
-            onChange={handleChange}
-            className="w-full border rounded px-4 py-2"
-          />
-          <input
-            type="text"
-            name="address"
-            placeholder="Address"
-            value={formData.address}
-            required
-            onChange={handleChange}
-            className="w-full border rounded px-4 py-2"
-          />
-          
-          <select
-            name="class"
-            value={formData.class}
-            required
-            onChange={handleChange}
-            className="w-full border rounded px-4 py-2"
-          >
-            <option value="" disabled>
-              Select Class
-            </option>
-            {classOptions.map((cls, idx) => (
-              <option key={idx} value={cls}>
-                {cls}
-              </option>
-            ))}
-          </select>
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
-            required
-            onChange={handleChange}
-            className="w-full border rounded px-4 py-2"
-          />
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            required
-            onChange={handleChange}
-            className="w-full border rounded px-4 py-2"
-          />
-           </div>
-
-          <div className="flex justify-between pt-2">
+          <div className="flex justify-between pt-4">
             <button
               type="button"
               onClick={onClose}

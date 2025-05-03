@@ -2,7 +2,8 @@ import React, { useRef, useState } from "react";
 import { FiUpload } from "react-icons/fi";
 import photo from "../../assets/freepik__upload__39837.png"; // Default photo path
 
-const AddTeacherModal = ({ onClose }) => {
+const AddTeacherModal = ({ onClose, onAdd }) => {
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -21,10 +22,6 @@ const AddTeacherModal = ({ onClose }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handlePhotoClick = () => {
-    fileInputRef.current.click();
-  };
-
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -37,14 +34,56 @@ const AddTeacherModal = ({ onClose }) => {
     }
   };
 
-  const handleAdd = () => {
-    const submittedData = {
+  const handleAdd = async () => {
+    setError(""); // clear previous errors
+  
+    let imageUrl = photoPreview;
+  
+    if (formData.profile && typeof formData.profile !== "string") {
+      const data = new FormData();
+      data.append("file", formData.profile);
+      data.append("upload_preset", "TeacherProfile");
+      data.append("cloud_name", "dzr8vw5rf");
+  
+      try {
+        const res = await fetch(
+          "https://api.cloudinary.com/v1_1/dzr8vw5rf/image/upload",
+          {
+            method: "POST",
+            body: data,
+          }
+        );
+  
+        const cloudinaryData = await res.json();
+        imageUrl = cloudinaryData.secure_url;
+      } catch (error) {
+        console.error("Image upload failed", error);
+        setError("Image upload failed. Please try again.");
+        return;
+      }
+    }
+  
+    const newTeacher = {
       ...formData,
-      profile: photoPreview,
+      profile: imageUrl,
     };
-    console.log("New Teacher:", submittedData);
-    onClose();
+  
+    try {
+      const result = await onAdd(newTeacher);
+      
+     
+    } catch (error) {
+      console.error("Unexpected error occurred", error);
+      
+      if (error && error.message) {
+        console.log(error)
+        setError(error.message,'qwerty'); // Set the specific error message
+      } else {
+        setError("Unexpected error occurred."); // Fallback message
+      }
+    }
   };
+  
 
   return (
     <div className="fixed inset-0 bg-transparent backdrop-blur-sm bg-opacity-30 flex justify-center items-center z-50">
@@ -52,6 +91,12 @@ const AddTeacherModal = ({ onClose }) => {
         <h2 className="text-xl font-semibold mb-4 text-[rgba(53,130,140,1)]">
           Add New Teacher
         </h2>
+
+        {error && (
+          <div className="mb-4 text-red-500 text-sm font-semibold text-center">
+            {error}
+          </div>
+        )}
 
         {/* Circular Image Upload */}
         <div className="flex justify-center mb-4 relative">

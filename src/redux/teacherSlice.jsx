@@ -19,13 +19,15 @@ export const fetchTeacher = createAsyncThunk(
         const response = await api.post("/teacher", teacherData);
         return response.data;
       } catch (error) {
+        
         return rejectWithValue(error.response.data);
       }
     }
   );
   export const updateTeacher = createAsyncThunk(
     "updateTeacher",
-    async ({ id, updatedData }, { rejectWithValue }) => {
+    async ({ id, updatedData } , { rejectWithValue }) => {
+     
       try {
         const response = await api.put(`/teacher/${id}`, updatedData);
         return response.data;
@@ -48,7 +50,7 @@ export const fetchTeacher = createAsyncThunk(
       
 
 const teacherSlice = createSlice({
-    name: "class",
+    name: "teacher",
     initialState: { teachers: [], loading: false, error: null,totalPages: 0 },
     reducers: {},
     extraReducers: (builder) => {
