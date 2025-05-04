@@ -4,9 +4,10 @@ import { FaChalkboardTeacher, FaTrophy } from "react-icons/fa";
 import Loader from "../../components/loader/Loader";
 import { getLevelData } from "../../utils/studentLevel";
 import useStudentDashboardData from "../../hooks/fetch/useStudentDashboard";
+import { useStudentContext } from "../../context/StudentContext";
 const Home = () => {
+  const { totalMark, theme } = useStudentContext();
   const {data,loading,error } = useStudentDashboardData()
-
   const dashboardData = {
    
     totalMark: data?.marks,
@@ -31,7 +32,7 @@ const Home = () => {
   const level = getLevelData(dashboardData.totalMark);
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-gray-100 to-[rgba(53,130,140,0.4)]">
+    <div className={`flex min-h-screen bg-gradient-to-br from-gray-100 ${theme.bg}`}>
       <StudentSideBar page="Dashboard" />
   
       <div className="flex-1 p-9 md:ml-68 transition-all duration-300 overflow-y-auto mt-8">
@@ -52,7 +53,7 @@ const Home = () => {
                 <img
                   src={dashboardData.student.image}
                   alt="Student"
-                  className="w-14 h-14 rounded-full border-2 border-cyan-600 object-cover"
+                  className={`w-14 h-14 rounded-full border-2 ${theme.border} object-cover`}
                 />
                 <div>
                   <p className="text-sm text-gray-500">Student Name</p>
@@ -63,7 +64,7 @@ const Home = () => {
               </div>
   
               <div className="bg-white rounded-2xl shadow-md p-6 flex items-center gap-4">
-                <FaChalkboardTeacher className="text-cyan-700 text-3xl" />
+                <FaChalkboardTeacher className={`${theme.text} text-3xl`} />
                 <div>
                   <p className="text-sm text-gray-500">Class</p>
                   <h3 className="text-lg font-semibold text-gray-800">
@@ -77,7 +78,7 @@ const Home = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
               <div className="bg-white rounded-2xl shadow-md p-6">
                 <p className="text-sm text-gray-500 mb-1">Your Score</p>
-                <h2 className="text-4xl font-bold text-cyan-700">{dashboardData.totalMark}</h2>
+                <h2 className={`text-4xl font-bold ${theme.text}`}>{dashboardData.totalMark}</h2>
               </div>
   
               <div className="bg-white rounded-2xl shadow-md p-6 flex items-center justify-between">
@@ -108,7 +109,7 @@ const Home = () => {
                   <p className="font-medium text-gray-700">{dashboardData.latestAchievement.title}</p>
                   <p className="text-sm text-gray-500">{dashboardData.latestAchievement.date}</p>
                 </div>
-                <span className="text-cyan-700 text-lg font-bold">
+                <span className={`${theme.text} text-lg font-bold`}>
                   {dashboardData.latestAchievement.score}
                 </span>
               </div>

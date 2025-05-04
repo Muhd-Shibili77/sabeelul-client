@@ -3,8 +3,11 @@ import StudentSideBar from "../../components/sideBar/studentSideBar";
 import Loader from "../../components/loader/Loader";
 import { getLevelData } from "../../utils/studentLevel";
 import useStudentPerformanceData from "../../hooks/fetch/useStdPerfo";
+import { useStudentContext } from "../../context/StudentContext";
+
 const Performance = () => {
   const { data, loading, error } = useStudentPerformanceData();
+  const { totalMark, theme } = useStudentContext();
 
   const [showMore, setShowMore] = useState(false);
 
@@ -28,7 +31,7 @@ const Performance = () => {
   };
 
   return (
-    <div className="flex  min-h-screen bg-gradient-to-br from-gray-100 to-[rgba(53,130,140,0.4)]">
+    <div className={`flex min-h-screen bg-gradient-to-br from-gray-100 ${theme.bg}`}>
       <StudentSideBar page="Performance" />
 
       <div className="flex-1 p-1 md:ml-60 transition-all duration-300 overflow-y-auto mt-8">
@@ -54,7 +57,7 @@ const Performance = () => {
                 <h3 className="text-lg font-semibold text-gray-700">
                   Your Score
                 </h3>
-                <p className="text-3xl font-bold text-[rgba(53,130,140,1)] mt-2">
+                <p className={`text-3xl font-bold ${theme.text} mt-2`}>
                   {performanceData.yourScore}
                 </p>
                 <p className="text-sm text-gray-600 mt-1">
@@ -66,8 +69,8 @@ const Performance = () => {
                   Your Level
                 </h3>
                 <div className="flex items-center justify-between mt-2">
-                  <p className="text-3xl font-bold text-[rgba(53,130,140,1)]">
-                    {performanceData.level.label}
+                  <p className={`text-3xl font-bold ${theme.text}`}>
+                    {performanceData?.level?.label}
                   </p>
                   <span
                     className={`w-10 h-10 rounded-full ${performanceData.level.color} border-4 border-white shadow-md`}
@@ -84,7 +87,7 @@ const Performance = () => {
             <div className="text-right">
               <button
                 onClick={() => setShowMore(!showMore)}
-                className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded hover:bg-[rgba(53,130,140,1)] transition"
+                className={`${theme.color} text-white px-4 py-2 rounded ${theme.hoverBg} transition`}
               >
                 {showMore ? "Hide Detailed Scores" : "View Detailed Scores"}
               </button>
@@ -150,7 +153,7 @@ const Performance = () => {
                             {activity.date}
                           </p>
                         </div>
-                        <span className="text-[rgba(53,130,140,1)] font-bold text-lg">
+                        <span className={`${theme.text} font-bold text-lg`}>
                           {activity.score}
                         </span>
                       </div>

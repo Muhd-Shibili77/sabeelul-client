@@ -3,12 +3,6 @@ import SideBar from '../../components/sideBar/SideBar';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import useAdminDashboard from '../../hooks/fetch/useAdmin';
 
-
-
-
-
-
-
 const AdminDashboard = () => {
   const [showAll, setShowAll] = useState(false);
   const { data, loading, error } = useAdminDashboard();
@@ -46,7 +40,7 @@ const AdminDashboard = () => {
           <div className="bg-white rounded-2xl shadow-md p-6 text-center">
             <h3 className="text-xl font-semibold">Best Performing Class</h3>
             <p className="text-xl mt-2 text-[rgba(53,130,140,0.9)] font-semibold">{data?.bestPerformerClass?.className}</p>
-            <p className="text-3xl mt-1">{data?.bestPerformerClass?.totalScore}</p>
+            <p className="text-3xl mt-1">{Math.round(data?.bestPerformerClass?.totalScore)}</p>
           </div>
         </div>
 

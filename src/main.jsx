@@ -5,16 +5,16 @@ import './index.css'
 import App from './App.jsx'
 import { Provider } from 'react-redux'
 import store from './redux/store.jsx'
-// import { StudentProvider } from './context/StudentContext.jsx'
+import { StudentProvider } from './context/StudentContext.jsx'
 
 
 createRoot(document.getElementById('root')).render(
   <Provider store={store}>
       <StrictMode>
         <BrowserRouter>
-          {/* <StudentProvider> */}
+          <StudentProvider>
               <App />
-          {/* </StudentProvider> */}
+          </StudentProvider>
         </BrowserRouter>
       </StrictMode>,
   </Provider>

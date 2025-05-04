@@ -4,7 +4,7 @@ import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
 import { PiExamFill } from "react-icons/pi";
 import useUserLogout from "../../hooks/authentication/useLogout";
-
+import { useStudentContext } from "../../context/StudentContext";
 import {
   FaThLarge,
   FaUserGraduate,
@@ -14,6 +14,7 @@ import {
 import logo from "../../assets/SabeelBlackLogo.png"; // Replace with correct student logo if needed
 
 const StudentSideBar = ({ page }) => {
+    const { totalMark, theme } = useStudentContext();
   const {userLogout} = useUserLogout()
   const navigate = useNavigate();
   const [active, setActive] = useState(page);
@@ -114,7 +115,7 @@ const StudentSideBar = ({ page }) => {
               key={item.key}
               className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-300 ${
                 active === item.key
-                  ? "bg-[rgba(53,130,140,0.9)] text-black"
+                  ? `${theme.color} text-black`
                   : "text-gray-700 hover:bg-gray-200"
               }`}
               onClick={() => {
