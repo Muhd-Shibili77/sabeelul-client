@@ -2,7 +2,7 @@ import React from 'react'
 
 const Loader = () => {
     return (
-      <div className="flex items-center justify-center h-screen bg-white">
+      <div className="flex items-center justify-center h-screen">
         <div className="relative w-[45px] h-[45px] animate-spin-custom">
           <div className="absolute w-[30%] h-full bottom-[5%] left-0 origin-[50%_85%] rotate-[60deg]">
             <div className="absolute w-full pb-full bg-[rgba(53,130,140,1.4)] rounded-full animate-wobble1"></div>

@@ -13,7 +13,7 @@ const useFetchStudents = (classId) => {
       try {
         setLoading(true);
         const res = await api.get(`/student/class/${classId}`);
-        setStudents(res.data.students); // adapt according to your response shape
+        setStudents(res.data.students);
       } catch (err) {
         console.error("Failed to fetch students:", err);
       } finally {

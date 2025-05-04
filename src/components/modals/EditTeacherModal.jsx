@@ -26,7 +26,7 @@ const EditTeacherModal = ({ teacher, onClose, onUpdate }) => {
 
     if(selectedFile !== null){
       const data = new FormData();
-      data.append("file", formData.profile);
+      data.append("file", selectedFile);
       data.append("upload_preset", "TeacherProfile");
       data.append("cloud_name", "dzr8vw5rf");
 
