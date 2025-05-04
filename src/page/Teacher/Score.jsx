@@ -4,7 +4,7 @@ import { fetchClass } from "../../redux/classSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { addMentorMark } from "../../redux/studentSlice";
+import { addCceMark, addMentorMark } from "../../redux/studentSlice";
 import useFetchStudents from "../../hooks/fetch/useFetchStudents";
 import { getCurrentAcademicYear } from "../../utils/academicYear";
 const Score = () => {
@@ -60,13 +60,19 @@ const Score = () => {
   const handleCCESubmit = async () => {
     try {
       for (const studentId in marks) {
-        const data = {
-          subject: selectedSubject,
-          Phase1: marks[studentId]["Phase1"] || 0,
-          Phase2: marks[studentId]["Phase2"] || 0,
-          Phase3: marks[studentId]["Phase3"] || 0,
-        };
-        await dispatch(addCCEMark({ id: studentId, data }));
+        const studentMarks = marks[studentId];
+        for (const phase of ["Phase1", "Phase2", "Phase3"]) {
+          const mark = studentMarks[phase];
+          if (mark) {
+            const data = {
+              classId: selectedClass,
+              subjectName: selectedSubject,
+              phase,
+              mark: Number(mark),
+            };
+            await dispatch(addCceMark({ id: studentId, data }));
+          }
+        }
       }
       toast.success("CCE marks submitted successfully!");
     } catch (err) {
@@ -160,21 +166,35 @@ const Score = () => {
 
                     {scoreType === "CCE" ? (
                       <div className="flex gap-4 mt-2">
-                        {["Phase1", "Phase2", "Phase3"].map((phase) => (
-                          <input
-                            key={phase}
-                            type="number"
-                            placeholder={`${phase} mark`}
-                            className="px-3 py-2 border border-gray-300 rounded-md w-24"
-                            onChange={(e) =>
-                              handleMarkChange(
-                                student._id,
-                                phase,
-                                e.target.value
-                              )
-                            }
-                          />
-                        ))}
+                        {["Phase1", "Phase2", "Phase3"].map((phase) => {
+                          const existingMark =
+                            marks[student._id]?.[phase] ??
+                            student.cceMarks
+                              ?.find((m) => m.academicYear === academicYear)
+                              ?.subjects?.find(
+                                (s) =>
+                                  s.subjectName === selectedSubject  &&
+                                  s.phase === phase
+                              )?.mark ??
+                            "";
+
+                          return (
+                            <input
+                              key={phase}
+                              type="number"
+                              placeholder={`${phase} mark`}
+                              className="px-3 py-2 border border-gray-300 rounded-md w-24"
+                              value={existingMark}
+                              onChange={(e) =>
+                                handleMarkChange(
+                                  student._id,
+                                  phase,
+                                  e.target.value
+                                )
+                              }
+                            />
+                          );
+                        })}
                       </div>
                     ) : (
                       <div className="mt-2">
