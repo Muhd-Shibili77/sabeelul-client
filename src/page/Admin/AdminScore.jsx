@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import SideBar from "../../components/sideBar/SideBar";
-import { fetchClass } from "../../redux/classSlice";
+import { fetchClass,addScore } from "../../redux/classSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { addScore } from "../../redux/classSlice";
 import useStudentByAdmissionNo from "../../hooks/fetch/useStudent";
 import { addExtraMark } from "../../redux/studentSlice";
 import { fetchProgram } from "../../redux/programSlice";
@@ -65,7 +64,6 @@ const AdminScore = () => {
 
   const handleSubmitStudentScore = async () => {
     const itemToSubmit = selectedItem === "other" ? customItem : selectedItem;
-    console.log(itemToSubmit)
     const data = {
       programName: itemToSubmit,
       mark: studentMarks,

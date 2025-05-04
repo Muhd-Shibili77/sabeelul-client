@@ -174,7 +174,7 @@ const EditStudentModal = ({ onClose, studentData, onUpdate, classes }) => {
               onChange={handleChange}
               className="w-full border rounded px-4 py-2"
             >
-              <option value="" disabled>Select Class</option>
+              <option value="" selected>Select Class</option>
               {classes.map((cls, idx) => (
                 <option key={idx} value={cls._id}>{cls.name}</option>
               ))}
