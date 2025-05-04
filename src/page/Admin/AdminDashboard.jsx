@@ -1,41 +1,30 @@
 import React, { useState } from 'react';
 import SideBar from '../../components/sideBar/SideBar';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import useAdminDashboard from '../../hooks/fetch/useAdmin';
 
-const performanceData = [
-  { class: 'Class 1', avgScore: 75 },
-  { class: 'Class 2', avgScore: 82 },
-  { class: 'Class 3', avgScore: 69 },
-  { class: 'Class 4', avgScore: 88 },
-  { class: 'Class 5', avgScore: 74 },
-  { class: 'Class 6', avgScore: 91 },
-  { class: 'Class 7', avgScore: 68 },
-  { class: 'Class 8', avgScore: 80 },
-  { class: 'Class 9', avgScore: 77 },
-  { class: 'Class 10', avgScore: 85 },
-];
 
-// Determine best performance class
-const bestClass = performanceData.reduce((prev, current) => {
-  return current.avgScore > prev.avgScore ? current : prev;
-}, performanceData[0]);
 
-const bestPerformers = [
-  { className: 'Class 1', student: 'John Doe' },
-  { className: 'Class 2', student: 'Jane Smith' },
-  { className: 'Class 3', student: 'Alice Johnson' },
-  { className: 'Class 4', student: 'Michael Brown' },
-  { className: 'Class 5', student: 'Emily Clark' },
-  { className: 'Class 6', student: 'Daniel White' },
-  { className: 'Class 7', student: 'Sophia King' },
-  { className: 'Class 8', student: 'William Scott' },
-  { className: 'Class 9', student: 'Olivia Green' },
-  { className: 'Class 10', student: 'James Taylor' },
-];
+
+
+
 
 const AdminDashboard = () => {
   const [showAll, setShowAll] = useState(false);
+  const { data, loading, error } = useAdminDashboard();
 
+  
+
+  const performanceData = data?.classAnalysis?.map((item) => ({
+    class: item.className,
+    totalScore: item.totalScore
+  })) || [];
+
+  const bestPerformers = data?.performerInClass?.map((item)=>({
+    className:item?.classId?.name,
+    student:item?.name
+  })) || []
+  
   const visiblePerformers = showAll ? bestPerformers : bestPerformers.slice(0, 4);
 
   return (
@@ -48,16 +37,16 @@ const AdminDashboard = () => {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
           <div className="bg-white rounded-2xl shadow-md p-6 text-center">
             <h3 className="text-xl font-semibold">Students</h3>
-            <p className="text-3xl mt-2">150</p>
+            <p className="text-3xl mt-2">{data?.totalStudents}</p>
           </div>
           <div className="bg-white rounded-2xl shadow-md p-6 text-center">
             <h3 className="text-xl font-semibold">Teachers</h3>
-            <p className="text-3xl mt-2">20</p>
+            <p className="text-3xl mt-2">{data?.totalTeachers}</p>
           </div>
           <div className="bg-white rounded-2xl shadow-md p-6 text-center">
             <h3 className="text-xl font-semibold">Best Performing Class</h3>
-            <p className="text-xl mt-2 text-[rgba(53,130,140,0.9)] font-semibold">{bestClass.class}</p>
-            <p className="text-3xl mt-1">{bestClass.avgScore}%</p>
+            <p className="text-xl mt-2 text-[rgba(53,130,140,0.9)] font-semibold">{data?.bestPerformerClass?.className}</p>
+            <p className="text-3xl mt-1">{data?.bestPerformerClass?.totalScore}</p>
           </div>
         </div>
 
@@ -91,7 +80,7 @@ const AdminDashboard = () => {
               <XAxis dataKey="class" />
               <YAxis />
               <Tooltip />
-              <Bar dataKey="avgScore" fill="rgba(53,130,140,0.8)" radius={[10, 10, 0, 0]} />
+              <Bar dataKey="totalScore" fill="rgba(53,130,140,0.8)" radius={[10, 10, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

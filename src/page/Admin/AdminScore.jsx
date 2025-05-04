@@ -1,64 +1,87 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import SideBar from "../../components/sideBar/SideBar";
-
+import { fetchClass } from "../../redux/classSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { addScore } from "../../redux/classSlice";
+import useStudentByAdmissionNo from "../../hooks/fetch/useStudent";
+import { addExtraMark } from "../../redux/studentSlice";
+import { fetchProgram } from "../../redux/programSlice";
 const AdminScore = () => {
+  const dispatch = useDispatch();
   const [scoreType, setScoreType] = useState("Class");
   const [selectedClass, setSelectedClass] = useState("");
   const [selectedItem, setSelectedItem] = useState("");
   const [customItem, setCustomItem] = useState("");
   const [admissionNo, setAdmissionNo] = useState("");
-  const [foundStudent, setFoundStudent] = useState(null);
   const [studentMarks, setStudentMarks] = useState("");
+  const [classMarks, setClassMark] = useState("");
 
-  const classes = ["8A", "9B", "10C", "7D"];
+  const { classes } = useSelector((state) => state.class);
+  const { programs } = useSelector((state) => state.program);
+  const {
+    student: foundStudent,
+    loading: studentLoading,
+    error: studentError,
+    fetchStudent,
+  } = useStudentByAdmissionNo();
+
+  useEffect(() => {
+    dispatch(fetchClass({ search: "", page: 1, limit: 1000 }));
+  }, [dispatch]);
+  useEffect(() => {
+    dispatch(fetchProgram({ search: "", page: 1, limit: 1000 }));
+  }, [dispatch]);
+
   const items = ["Discipline", "Cleaning", "Participation"];
 
-  const dummyStudents = [
-    { admissionNo: "1001", name: "John Doe", class: "8A" },
-    { admissionNo: "1002", name: "Jane Smith", class: "9B" },
-    { admissionNo: "1003", name: "Ali Khan", class: "10C" },
-  ];
 
-  const handleSubmitClassScore = () => {
+  const handleSubmitClassScore = async () => {
     const itemToSubmit = selectedItem === "other" ? customItem : selectedItem;
     const data = {
-      class: selectedClass,
       item: itemToSubmit,
+      score: classMarks,
     };
 
-    console.log("Class Score Submitted:", data);
-    alert("Class Score submitted!");
-
-    setSelectedClass("");
-    setSelectedItem("");
-    setCustomItem("");
+    try {
+      const res = await dispatch(
+        addScore({ id: selectedClass, newScore: data })
+      ).unwrap();
+      toast.success("Class score submitted successfully!");
+      setSelectedClass("");
+      setSelectedItem("");
+      setCustomItem("");
+      setClassMark("");
+    } catch (err) {
+      toast.error(err.message || "Failed to submit class score");
+    }
   };
 
   const handleSearchStudent = () => {
-    const found = dummyStudents.find(
-      (student) => student.admissionNo === admissionNo
-    );
-    setFoundStudent(found || null);
+    if (!admissionNo) return toast.warning("Please enter an admission number");
+    fetchStudent(admissionNo);
   };
 
-  const handleSubmitStudentScore = () => {
+  const handleSubmitStudentScore = async () => {
     const itemToSubmit = selectedItem === "other" ? customItem : selectedItem;
+    console.log(itemToSubmit)
     const data = {
-      admissionNo,
-      name: foundStudent.name,
-      class: foundStudent.class,
-      item: itemToSubmit,
-      marks: studentMarks,
+      programName: itemToSubmit,
+      mark: studentMarks,
     };
-
-    console.log("Student Score Submitted:", data);
-    alert("Student Score submitted!");
-
-    setAdmissionNo("");
-    setFoundStudent(null);
-    setSelectedItem("");
-    setCustomItem("");
-    setStudentMarks("");
+    try {
+      const res = await dispatch(
+        addExtraMark({ id: foundStudent._id,data })
+      ).unwrap();
+      toast.success("student score submitted successfully!");
+      setAdmissionNo("");
+      setSelectedItem("");
+      setCustomItem("");
+      setStudentMarks("");
+    } catch (err) {
+      toast.error(err.message || "Failed to submit student score");
+    }
   };
 
   return (
@@ -71,7 +94,9 @@ const AdminScore = () => {
           <button
             onClick={() => setScoreType("Class")}
             className={`px-4 py-2 rounded ${
-              scoreType === "Class" ? "bg-[rgba(53,130,140,0.9)] text-white" : "bg-white"
+              scoreType === "Class"
+                ? "bg-[rgba(53,130,140,0.9)] text-white"
+                : "bg-white"
             }`}
           >
             Class Score
@@ -79,7 +104,9 @@ const AdminScore = () => {
           <button
             onClick={() => setScoreType("Student")}
             className={`px-4 py-2 rounded ${
-              scoreType === "Student" ? "bg-[rgba(53,130,140,0.9)] text-white" : "bg-white"
+              scoreType === "Student"
+                ? "bg-[rgba(53,130,140,0.9)] text-white"
+                : "bg-white"
             }`}
           >
             Student Score
@@ -96,8 +123,8 @@ const AdminScore = () => {
               >
                 <option value="">Select Class</option>
                 {classes.map((cls, i) => (
-                  <option key={i} value={cls}>
-                    {cls}
+                  <option key={i} value={cls._id}>
+                    {cls.name}
                   </option>
                 ))}
               </select>
@@ -111,23 +138,22 @@ const AdminScore = () => {
               >
                 <option value="">Select Item</option>
                 {items.map((item, i) => (
-                  <option key={i} value={item}>
+                  <option key={i} value={item._id}>
                     {item}
                   </option>
                 ))}
                 <option value="other">Other</option>
               </select>
-             
             </div>
             <div className="mb-3">
-                  <input
-                    type="number"
-                    placeholder="Enter Marks"
-                    className="w-full p-2 border rounded"
-                    value={studentMarks}
-                    onChange={(e) => setStudentMarks(e.target.value)}
-                  />
-                </div>
+              <input
+                type="number"
+                placeholder="Enter Marks"
+                className="w-full p-2 border rounded"
+                value={classMarks}
+                onChange={(e) => setClassMark(e.target.value)}
+              />
+            </div>
 
             {selectedItem === "other" && (
               <div className="mb-3">
@@ -138,11 +164,7 @@ const AdminScore = () => {
                   value={customItem}
                   onChange={(e) => setCustomItem(e.target.value)}
                 />
-               
-                 
-               
               </div>
-              
             )}
 
             <button
@@ -168,14 +190,15 @@ const AdminScore = () => {
                 onClick={handleSearchStudent}
                 className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded"
               >
-                Search
+                {studentLoading ? "Searching..." : "Search"}
               </button>
             </div>
 
+            {studentError && <p className="text-red-600">{studentError}</p>}
             {foundStudent && (
               <div className="mt-3">
                 <p className="mb-2 font-medium">
-                  {foundStudent.name} ({foundStudent.class})
+                  {foundStudent.name}
                 </p>
 
                 <div className="mb-3">
@@ -185,9 +208,9 @@ const AdminScore = () => {
                     onChange={(e) => setSelectedItem(e.target.value)}
                   >
                     <option value="">Select Item</option>
-                    {items.map((item, i) => (
-                      <option key={i} value={item}>
-                        {item}
+                    {programs.map((item, i) => (
+                      <option key={i} value={item._id}>
+                        {item.name}
                       </option>
                     ))}
                     <option value="other">Other</option>
@@ -227,6 +250,7 @@ const AdminScore = () => {
           </div>
         )}
       </div>
+      <ToastContainer position="top-right" autoClose={2000} hideProgressBar />
     </div>
   );
 };

@@ -1,56 +1,84 @@
-import React, { useState } from 'react';
-import SideBar from '../../components/sideBar/SideBar';
-
-const dummyPrograms = [
-  {
-    name: 'Math Enrichment',
-    startDate: '2024-06-01',
-    endDate: '2024-06-30',
-    criteria: 'Score above 75%',
-    classes: ['Class 5', 'Class 6'],
-  },
-  {
-    name: 'Science Fair',
-    startDate: '2024-07-01',
-    endDate: '2024-07-15',
-    criteria: 'Participation',
-    classes: ['All Classes'],
-  },
-];
-
+import React, { useEffect, useState } from "react";
+import SideBar from "../../components/sideBar/SideBar";
+import { fetchProgram, addProgram } from "../../redux/programSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { fetchClass } from "../../redux/classSlice";
 const AdminPrograms = () => {
+  const dispatch = useDispatch();
   const [showModal, setShowModal] = useState(false);
-  const [programs, setPrograms] = useState(dummyPrograms);
   const [newProgram, setNewProgram] = useState({
-    name: '',
-    startDate: '',
-    endDate: '',
-    criteria: '',
+    name: "",
+    startDate: "",
+    endDate: "",
+    criteria: "",
     classes: [],
   });
+  const { programs } = useSelector((state) => state.program);
+  const { classes } = useSelector((state) => state.class);
+  useEffect(() => {
+    dispatch(fetchClass({ search: "", page: 1, limit: 1000 }));
+  }, [dispatch]);
 
-  const handleAddProgram = () => {
-    if (!newProgram.name || !newProgram.startDate || !newProgram.endDate) return;
-    setPrograms([...programs, newProgram]);
-    setNewProgram({
-      name: '',
-      startDate: '',
-      endDate: '',
-      criteria: '',
-      classes: [],
-    });
-    setShowModal(false);
+  const refreshList = () =>
+    dispatch(fetchProgram({ search: "", page: 1, limit: 1000 }));
+
+  useEffect(() => {
+    refreshList();
+  }, [dispatch]);
+
+  const handleAddProgram = async () => {
+    const { name, startDate, endDate, criteria, classes } = newProgram;
+
+    // Field validations
+    if (!name || !startDate || !endDate || !criteria) {
+      toast.error(
+        "All fields (Name, Start Date, End Date, Criteria) are required"
+      );
+      return;
+    }
+
+    // Date validation
+    if (new Date(startDate) >= new Date(endDate)) {
+      toast.error("Start Date must be before End Date");
+      return;
+    }
+
+    // Classes validation
+    if (!Array.isArray(classes) || classes.length === 0) {
+      toast.error("Please select at least one class");
+      return;
+    }
+
+    try {
+      const response = await dispatch(addProgram({ newProgram })).unwrap();
+      toast.success(response.message || "Program added successfully");
+
+      refreshList();
+      setNewProgram({
+        name: "",
+        startDate: "",
+        endDate: "",
+        criteria: "",
+        classes: [],
+      });
+      setShowModal(false);
+    } catch (error) {
+      toast.error(error.message || "Failed to add program");
+      console.error("Add Program Error:", error.message || error);
+    }
   };
 
   const toggleClassSelection = (cls) => {
-    if (cls === 'All Classes') {
-      setNewProgram({ ...newProgram, classes: ['All Classes'] });
+    if (cls === "All Classes") {
+      setNewProgram({ ...newProgram, classes: ["All Classes"] });
     } else {
       setNewProgram((prev) => ({
         ...prev,
         classes: prev.classes.includes(cls)
           ? prev.classes.filter((c) => c !== cls)
-          : [...prev.classes.filter((c) => c !== 'All Classes'), cls],
+          : [...prev.classes.filter((c) => c !== "All Classes"), cls],
       }));
     }
   };
@@ -71,15 +99,31 @@ const AdminPrograms = () => {
 
         {/* Program List */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {programs.map((program, idx) => (
-            <div key={idx} className="bg-white p-4 rounded-2xl shadow-md">
-              <h3 className="text-lg font-semibold mb-2 text-[rgba(53,130,140,0.9)]">{program.name}</h3>
-              <p><strong>Start:</strong> {program.startDate}</p>
-              <p><strong>End:</strong> {program.endDate}</p>
-              <p><strong>Criteria:</strong> {program.criteria}</p>
-              <p><strong>Classes:</strong> {program.classes.join(', ')}</p>
+          {programs.length > 0 ? (
+            programs.map((program, idx) => (
+              <div key={idx} className="bg-white p-4 rounded-2xl shadow-md">
+                <h3 className="text-lg font-semibold mb-2 text-[rgba(53,130,140,0.9)]">
+                  {program.name}
+                </h3>
+                <p>
+                  <strong>Start:</strong> {new Date(program.startDate).toLocaleDateString("en-GB")}
+                </p>
+                <p>
+                  <strong>End:</strong> {new Date(program.endDate).toLocaleDateString("en-GB")}
+                </p>
+                <p>
+                  <strong>Criteria:</strong> {program.criteria}
+                </p>
+                <p>
+                  <strong>Classes:</strong> {program.classes.join(", ")}
+                </p>
+              </div>
+            ))
+          ) : (
+            <div className="col-span-full text-center text-gray-500">
+              No programs found.
             </div>
-          ))}
+          )}
         </div>
       </div>
 
@@ -94,44 +138,54 @@ const AdminPrograms = () => {
                 placeholder="Program Name"
                 className="w-full border p-2 rounded-md"
                 value={newProgram.name}
-                onChange={(e) => setNewProgram({ ...newProgram, name: e.target.value })}
+                onChange={(e) =>
+                  setNewProgram({ ...newProgram, name: e.target.value })
+                }
               />
               <div className="flex gap-4">
                 <input
                   type="date"
                   className="w-full border p-2 rounded-md"
                   value={newProgram.startDate}
-                  onChange={(e) => setNewProgram({ ...newProgram, startDate: e.target.value })}
+                  onChange={(e) =>
+                    setNewProgram({ ...newProgram, startDate: e.target.value })
+                  }
                 />
                 <input
                   type="date"
                   className="w-full border p-2 rounded-md"
                   value={newProgram.endDate}
-                  onChange={(e) => setNewProgram({ ...newProgram, endDate: e.target.value })}
+                  onChange={(e) =>
+                    setNewProgram({ ...newProgram, endDate: e.target.value })
+                  }
                 />
               </div>
               <textarea
                 placeholder="Criteria"
                 className="w-full border p-2 rounded-md"
                 value={newProgram.criteria}
-                onChange={(e) => setNewProgram({ ...newProgram, criteria: e.target.value })}
+                onChange={(e) =>
+                  setNewProgram({ ...newProgram, criteria: e.target.value })
+                }
               ></textarea>
               <div>
                 <p className="font-medium mb-2">Set for Classes:</p>
                 <div className="flex flex-wrap gap-2">
-                  {['All Classes', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10'].map((cls) => (
-                    <button
-                      key={cls}
-                      onClick={() => toggleClassSelection(cls)}
-                      className={`px-3 py-1 rounded-full border ${
-                        newProgram.classes.includes(cls)
-                          ? 'bg-[rgba(53,130,140,0.8)] text-white'
-                          : 'bg-white text-gray-700'
-                      }`}
-                    >
-                      {cls}
-                    </button>
-                  ))}
+                  {["All Classes", ...classes.map((cls) => cls.name)].map(
+                    (cls) => (
+                      <button
+                        key={cls}
+                        onClick={() => toggleClassSelection(cls)}
+                        className={`px-3 py-1 rounded-full border ${
+                          newProgram.classes.includes(cls)
+                            ? "bg-[rgba(53,130,140,0.8)] text-white"
+                            : "bg-white text-gray-700"
+                        }`}
+                      >
+                        {cls}
+                      </button>
+                    )
+                  )}
                 </div>
               </div>
               <div className="flex justify-end gap-2 mt-4">
@@ -152,6 +206,7 @@ const AdminPrograms = () => {
           </div>
         </div>
       )}
+      <ToastContainer position="top-right" autoClose={2000} hideProgressBar />
     </div>
   );
 };

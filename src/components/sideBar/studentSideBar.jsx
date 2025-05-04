@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
 import { PiExamFill } from "react-icons/pi";
+import useUserLogout from "../../hooks/authentication/useLogout";
 
 import {
   FaThLarge,
@@ -13,6 +14,7 @@ import {
 import logo from "../../assets/SabeelBlackLogo.png"; // Replace with correct student logo if needed
 
 const StudentSideBar = ({ page }) => {
+  const {userLogout} = useUserLogout()
   const navigate = useNavigate();
   const [active, setActive] = useState(page);
   const [isOpen, setIsOpen] = useState(false);
@@ -52,9 +54,15 @@ const StudentSideBar = ({ page }) => {
             </p>
             <div className="flex justify-center mt-5 gap-4">
               <button
-                onClick={() => {
-                  navigate("/student/login"); // Adjust route if needed
-                  onClose();
+                onClick={async () => {
+                  const result = await userLogout()
+                  if(result.success){
+                    setTimeout(()=>{
+                      navigate("/"); // Adjust if needed
+                      onClose();
+                    },1000)
+                  }
+                  
                 }}
                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
               >

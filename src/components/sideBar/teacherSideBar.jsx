@@ -2,13 +2,14 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
-
+import useUserLogout from "../../hooks/authentication/useLogout";
 import { FaThLarge, FaUserTie, FaSignOutAlt, FaBars } from "react-icons/fa";
 import { MdGrade } from "react-icons/md";
 
 import logo from "../../assets/SabeelBlackLogo.png"; // Update if you have a separate teacher logo
 
 const TeacherSideBar = ({ page }) => {
+  const {userLogout} = useUserLogout()
   const navigate = useNavigate();
   const [active, setActive] = useState(page);
   const [isOpen, setIsOpen] = useState(false);
@@ -32,9 +33,15 @@ const TeacherSideBar = ({ page }) => {
             </p>
             <div className="flex justify-center mt-5 gap-4">
               <button
-                onClick={() => {
-                  navigate("/teacher/login"); // Adjust if needed
-                  onClose();
+                onClick={async () => {
+                  const result = await userLogout()
+                  if(result.success){
+                    setTimeout(()=>{
+                      navigate("/");
+                      onClose();
+                    },1000)
+                  }
+                  
                 }}
                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
               >

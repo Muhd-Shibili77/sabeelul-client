@@ -52,6 +52,21 @@ export const fetchStudent = createAsyncThunk(
       }
     }
   );
+   
+  export const addExtraMark = createAsyncThunk(
+    "addExtraMark",
+    async ({ id, data }, { rejectWithValue }) => {
+    
+      try {
+        const response = await api.post(`/student/score/${id}`, data);
+        return response.data;
+      } catch (error) {
+        return rejectWithValue(error.response.data);
+      }
+    }
+  );
+
+
   
   const studentSlice = createSlice({
       name: "student",

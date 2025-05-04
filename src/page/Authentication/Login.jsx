@@ -1,14 +1,16 @@
+// components/Login.jsx
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import useLogin from "../../hooks/authentication/useLogin";
+
 const Login = () => {
-   const navigate = useNavigate()
+  const { login, loading, error } = useLogin();
+
   const handleLogin = (e) => {
     e.preventDefault();
-    const phone = e.target.phone.value;
+    const loginData = e.target.identifier.value.trim();
     const password = e.target.password.value;
-    console.log("Login with", { phone, password });
-    // Handle login logic here
-    navigate('/teacher/score')
+
+    login({ loginData, password });
   };
 
   return (
@@ -17,18 +19,22 @@ const Login = () => {
         <h2 className="text-2xl font-bold text-center mb-6 text-[rgba(53,130,140,0.9)]">
           Login to Continue
         </h2>
+        {error && (
+          <div className="mb-4 text-sm text-red-700 bg-red-200 border border-red-400 rounded-md px-4 py-2">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleLogin} className="space-y-5">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Phone Number
+              Email or Phone
             </label>
             <input
-              type="tel"
-              name="phone"
-              pattern="[0-9]{10}"
+              type="text"
+              name="identifier"
               required
-              placeholder="Enter your phone number"
+              placeholder="Enter your email or phone"
               className="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[rgba(53,130,140,0.7)]"
             />
           </div>
@@ -46,11 +52,13 @@ const Login = () => {
             />
           </div>
 
+
           <button
             type="submit"
+            disabled={loading}
             className="w-full py-2 px-4 bg-[rgba(53,130,140,0.9)] text-white font-semibold rounded-lg hover:bg-[rgba(53,130,140,1)] transition"
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
       </div>
