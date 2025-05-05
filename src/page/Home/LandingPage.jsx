@@ -7,12 +7,12 @@ import { fetchClass } from "../../redux/classSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useClassLeaderboard } from "../../hooks/fetch/useClassLeaderboard";
 const downloadLinks = [
-  { name: "Academic Calendar", url: "#" },
-  { name: "DH Academic Calendar", url: "#" },
-  { name: "SQAC Application Form", url: "#" },
-  { name: "Recovery Form", url: "#" },
-  { name: "Leave Application Form", url: "#" },
-  { name: "No-Due Certificate", url: "#" },
+  { name: "Academic Calendar", url: "/files/Calendar 25-26.pdf" },
+  // { name: "DH Academic Calendar", url: "#" },
+  // { name: "SQAC Application Form", url: "#" },
+  { name: "Recovery Form", url: "/files/recovery.pdf" },
+  // { name: "Leave Application Form", url: "#" },
+  { name: "No-Due Certificate", url: "/files/No Due Certificate 2nd Sem 2025.pdf" },
 ];
 
 const LandingPage = () => {
