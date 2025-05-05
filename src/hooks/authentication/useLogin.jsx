@@ -21,13 +21,14 @@ const useLogin = () => {
         setSuccess('Login successful!');
         if(role === "Student"){
             navigate("/student/dashboard");
+            location.reload()
         }else{
             navigate("/teacher/score");
         }
         return { success: true };
       
     } catch (err) {
-      setError(err.message || "Login failed");
+      setError(err.response?.data?.message || 'Login failed');
     } finally {
       setLoading(false);
     }

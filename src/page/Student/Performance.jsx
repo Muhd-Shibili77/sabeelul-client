@@ -46,7 +46,7 @@ const Performance = () => {
             </p>
           </div>
         ) : (
-          <div className="max-w-5xl mx-auto bg-white rounded-xl shadow-lg p-8 space-y-8">
+          <div className="md:max-w-5xl max-w-90 mx-auto bg-white rounded-xl shadow-lg p-8 space-y-8">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">
               Student Performance
             </h2>

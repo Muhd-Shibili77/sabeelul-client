@@ -28,10 +28,10 @@ const Login = () => {
         <form onSubmit={handleLogin} className="space-y-5">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email or Phone
+              Email
             </label>
             <input
-              type="text"
+              type="email"
               name="identifier"
               required
               placeholder="Enter your email or phone"
