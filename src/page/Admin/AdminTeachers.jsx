@@ -110,7 +110,7 @@ const AdminTeachers = () => {
   return (
     <div className="flex  min-h-screen bg-gradient-to-br from-gray-100 to-[rgba(53,130,140,0.4)]">
       <SideBar page="Teachers" />
-      <div className="flex-1 p-8 md:ml-64 transition-all duration-300 overflow-y-auto">
+      <div className="flex-1 p-8 md:ml-64 md:mt-4 mt-10 transition-all duration-300 overflow-y-auto">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
           <h2 className="text-2xl font-semibold text-[rgba(53,130,140,1)]">
             Teachers

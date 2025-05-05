@@ -20,8 +20,8 @@ const useStudentInfo = () => {
         const response = await api.get(`/student/profile/${userId}`); // adjust endpoint if needed
         setStudent(response.data.student);
       } catch (error) {
-        setError(err);
-        console.error("Error fetching student:", err);
+        setError(error);
+        console.error("Error fetching student:", error);
       } finally {
         setTimeout(() => {
           setLoading(false);

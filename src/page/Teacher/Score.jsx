@@ -84,7 +84,7 @@ const Score = () => {
     <div className="flex min-h-screen bg-gradient-to-br from-gray-100 to-[rgba(53,130,140,0.4)]">
       <TeacherSideBar page="Score" />
 
-      <div className="flex-1 p-8 md:ml-64 transition-all duration-300 overflow-y-auto">
+      <div className="flex-1 p-8 md:ml-64 md:mt-1 mt-16 transition-all duration-300 overflow-y-auto">
         <h1 className="text-2xl font-bold mb-6 text-gray-800">Add Scores</h1>
 
         {/* Score Type Toggle */}
@@ -179,11 +179,14 @@ const Score = () => {
                             "";
 
                           return (
+                            <div className="flex flex-col items-start gap-1">
+                           
                             <input
+                              id={`mark-${student._id}-${phase}`}
                               key={phase}
                               type="number"
-                              placeholder={`${phase} mark`}
-                              className="px-3 py-2 border border-gray-300 rounded-md w-24"
+                             
+                              className="px-3 py-2 border border-gray-300 rounded-md md:w-24 w-18"
                               value={existingMark}
                               onChange={(e) =>
                                 handleMarkChange(
@@ -193,6 +196,11 @@ const Score = () => {
                                 )
                               }
                             />
+                             <label htmlFor={`mark-${student._id}-${phase}`} className="text-sm font-medium text-gray-700">
+                              {phase}
+                            </label>
+                          </div>
+                          
                           );
                         })}
                       </div>

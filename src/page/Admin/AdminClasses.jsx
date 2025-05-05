@@ -112,7 +112,7 @@ const AdminClasses = () => {
   return (
     <div className="flex min-h-screen  bg-gradient-to-br from-gray-100 to-[rgba(53,130,140,0.4)]">
       <SideBar page="Classes" />
-      <div className="flex-1 p-8 md:ml-40 transition-all duration-300 overflow-y-auto">
+      <div className="flex-1 p-8 md:ml-40 md:mt-4 mt-10 transition-all duration-300 overflow-y-auto">
         <div className="max-w-4xl mx-auto">
           <div className="flex justify-between items-center mb-5">
             <h1 className="text-2xl font-bold text-gray-800">

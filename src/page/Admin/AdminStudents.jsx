@@ -135,7 +135,7 @@ const AdminStudents = () => {
     <div className="flex  min-h-screen bg-gradient-to-br from-gray-100 to-[rgba(53,130,140,0.4)]">
       <SideBar page="Students" />
 
-      <div className="flex-1 p-8 md:ml-64 transition-all duration-300 overflow-y-auto">
+      <div className="flex-1 p-8 md:ml-64 md:mt-4 mt-10 transition-all duration-300 overflow-y-auto">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
           <h2 className="text-2xl font-bold text-[rgba(53,130,140,0.9)]">Students</h2>
 

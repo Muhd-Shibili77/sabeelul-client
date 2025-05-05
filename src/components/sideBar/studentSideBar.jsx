@@ -96,7 +96,7 @@ const StudentSideBar = ({ page }) => {
 
       {/* Sidebar */}
       <div
-        className={`h-screen   w-64 bg-white shadow-md p-5 flex flex-col fixed overflow-y-auto top-0 left-0 z-50 transform ${
+        className={`min-h-screen  w-64 bg-white shadow-md pl-5 pr-5 pt-5 flex flex-col fixed overflow-y-auto top-0 left-0 z-50 transform ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         } md:translate-x-0 transition-transform duration-300 ease-in-out`}
       >

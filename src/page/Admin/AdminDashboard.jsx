@@ -24,7 +24,7 @@ const AdminDashboard = () => {
   return (
     <div className="flex  min-h-screen bg-gradient-to-br from-gray-100 to-[rgba(53,130,140,0.4)]">
       <SideBar page="Dashboard" />
-      <div className="flex-1 p-4 md:ml-64 transition-all duration-300 overflow-y-auto">
+      <div className="flex-1 p-4 md:ml-64 md:mt-4 mt-16  transition-all duration-300 overflow-y-auto">
         <h2 className="text-2xl font-bold mb-6">Admin Dashboard</h2>
 
         {/* Stats */}

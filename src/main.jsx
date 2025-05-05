@@ -16,6 +16,6 @@ createRoot(document.getElementById('root')).render(
               <App />
           </StudentProvider>
         </BrowserRouter>
-      </StrictMode>,
+      </StrictMode>
   </Provider>
 )

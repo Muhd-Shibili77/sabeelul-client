@@ -34,7 +34,7 @@ const Performance = () => {
     <div className={`flex min-h-screen bg-gradient-to-br from-gray-100 ${theme.bg}`}>
       <StudentSideBar page="Performance" />
 
-      <div className="flex-1 p-1 md:ml-60 transition-all duration-300 overflow-y-auto mt-8">
+      <div className="flex-1 p-1 md:ml-60 md:mt-8 mt-16 transition-all duration-300 overflow-y-auto ">
         {loading ? (
           <div className="flex justify-center items-center h-full">
             <Loader />
