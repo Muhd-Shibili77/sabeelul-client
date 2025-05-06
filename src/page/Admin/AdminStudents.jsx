@@ -164,8 +164,8 @@ const AdminStudents = () => {
           <table className="min-w-full table-auto text-sm text-gray-800">
             <thead className="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 uppercase text-xs tracking-wider">
               <tr>
-                <th className="px-6 py-3 text-left">Admission No</th>
                 <th className="px-6 py-3 text-left">Name</th>
+                <th className="px-6 py-3 text-left">Admission No</th>
                 <th className="px-6 py-3 text-left">Class</th>
                 <th className="px-6 py-3 text-left">Phone</th>
                 <th className="px-6 py-3 text-center">Actions</th>
@@ -178,7 +178,6 @@ const AdminStudents = () => {
                     key={index}
                     className="border-b hover:bg-gray-50 transition"
                   >
-                    <td className="px-6 py-4">{student.admissionNo}</td>
                     <td className="px-6 py-4 flex items-center gap-3">
                       <img
                         src={student.profileImage}
@@ -187,6 +186,7 @@ const AdminStudents = () => {
                       />
                       <span className="font-semibold">{student.name}</span>
                     </td>
+                    <td className="px-6 py-4">{student.admissionNo}</td>
                     <td className="px-6 py-4">{student.classId.name}</td>
                     <td className="px-6 py-4">{student.phone}</td>
                     <td className="px-6 py-4 text-center space-x-3">
