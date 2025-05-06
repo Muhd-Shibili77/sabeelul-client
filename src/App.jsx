@@ -6,9 +6,10 @@ import LandingPage from './page/Home/LandingPage';
 import NotFound from './components/404/404';
 import TeacherRoutes from './routes/TeacherRoutes';
 import StudentRoutes from './routes/StudentRoutes';
-import AdminRoutes from './routes/adminRoutes';
+import AdminRoutes from './routes/AdminRoutes';
 import ProtectedAuthRoutes from './routes/protectedAuthRoute';
 import ProtectedRoutes from './routes/protectedRoute';
+import { StudentProvider } from './context/StudentContext';
 const App = () => {
   return (
     <>
@@ -19,7 +20,7 @@ const App = () => {
         <Route path='/admin/login' element={<ProtectedAuthRoutes element={<AdminLogin/>}/>}/>
 
         <Route path='/admin/*'  element={<ProtectedRoutes element={<AdminRoutes/>} requiredRoles={['Admin']}/>}/>
-        <Route path='/student/*'  element={<ProtectedRoutes element={<StudentRoutes/>} requiredRoles={['Student']}/>}/>
+        <Route path='/student/*'  element={<ProtectedRoutes element={<StudentProvider><StudentRoutes/></StudentProvider>} requiredRoles={['Student']}/>}/>
         <Route path='/teacher/*'  element={<ProtectedRoutes element={<TeacherRoutes/>} requiredRoles={['Teacher']}/>}/>
       </Routes>
     </>
