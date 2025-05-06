@@ -74,11 +74,15 @@ const LandingPage = () => {
         {/* Highlights */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white rounded-2xl shadow-xl p-6 flex items-center space-x-4">
-            <img
+            {data?.starPerformer ? (
+              <>
+                <img
               src={data?.starPerformer?.profileImage}
-              alt="Alice"
+              alt="profile"
               className="h-16 w-16 rounded-full border-2 border-yellow-400"
             />
+              
+            
             <div>
               <h2 className="text-xl font-semibold">Star Performer</h2>
               <p className="text-lg font-bold">
@@ -87,13 +91,27 @@ const LandingPage = () => {
                 {Math.round(data?.starPerformer?.performanceScore)} Points
               </p>
             </div>
+            </>
+
+            ):(
+              <>
+              
+              <span className="h-16 w-16 rounded-full border-2 border-yellow-400"></span>
+            <div>
+              <h2 className="text-xl font-semibold">Star Performer</h2>
+              <p className="text-lg font-bold">
+                  "Be the next Star Performer 💪"
+              </p>
+            </div>
+            </>
+            )}
           </div>
           <div className="bg-white rounded-2xl shadow-xl p-6 flex items-center space-x-4">
             <FaTrophy className="text-orange-400 text-4xl" />
             <div>
               <h2 className="text-xl font-semibold">Best Performing Class</h2>
               <p className="text-lg">
-                Class {data?.bestPerformerClass?.className}
+                Class {data?.bestPerformerClass?.className ? data?.bestPerformerClass?.className:"No selected"}
               </p>
             </div>
           </div>
@@ -204,24 +222,29 @@ const LandingPage = () => {
                         </td>
                       </tr>
                     ) : leaderboard && leaderboard.length > 0 ? (
-                      leaderboard.slice(0, 10).map((student, index) => (
-                        <tr
-                          key={student._id || index}
-                          className="bg-white shadow-md rounded-xl hover:shadow-lg transition-all duration-300 text-center"
-                        >
-                          <td className="p-4 font-semibold text-teal-600">
-                            <span className="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-sm">
-                              #{index + 1}
-                            </span>
-                          </td>
-                          <td className="p-4 font-bold text-lg text-gray-800">
-                            {student.name || "--"}
-                          </td>
-                          <td className="p-4 text-gray-700">
-                            {Math.round(student.performanceScore) || "--"}
-                          </td>
-                        </tr>
-                      ))
+                      [...Array(10)].map((_, index) => {
+                        const student = leaderboard?.[index];
+                      
+                        return (
+                          <tr
+                            key={student?._id || index}
+                            className="bg-white shadow-md rounded-xl hover:shadow-lg transition-all duration-300 text-center"
+                          >
+                            <td className="p-4 font-semibold text-teal-600">
+                              <span className="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-sm">
+                                #{index + 1}
+                              </span>
+                            </td>
+                            <td className="p-4 font-bold text-lg text-gray-800">
+                              {student ? student.name : "--"}
+                            </td>
+                            <td className="p-4 text-gray-700">
+                              {student ? Math.round(student.performanceScore) : "--"}
+                            </td>
+                          </tr>
+                        );
+                      })
+                      
                     ) : (
                       <tr>
                         <td colSpan="3" className="text-center p-4">
@@ -241,18 +264,27 @@ const LandingPage = () => {
           <div className="bg-white rounded-2xl shadow-xl p-6">
             <h2 className="text-2xl font-bold mb-4">Upcoming Events</h2>
             <div className="space-y-4">
-              {events.map((event, index) => (
-                <div key={index} className="border rounded-lg p-4 bg-teal-50">
-                  <h3 className="text-xl font-semibold flex items-center space-x-2">
-                    <FaCalendarAlt className="text-teal-600" />{" "}
-                    <span>{event.title}</span>
-                  </h3>
-                  <p className="text-sm text-gray-600">{event.description}</p>
-                  <p className="text-sm text-gray-700 mt-1">
-                    Start: {event.start} | End: {event.end}
-                  </p>
-                </div>
-              ))}
+              {events.length !==0 ?(
+                events.map((event, index) => (
+                  <div key={index} className="border rounded-lg p-4 bg-teal-50">
+                    <h3 className="text-xl font-semibold flex items-center space-x-2">
+                      <FaCalendarAlt className="text-teal-600" />{" "}
+                      <span>{event.title}</span>
+                    </h3>
+                    <p className="text-sm text-gray-600">{event.description}</p>
+                    <p className="text-sm text-gray-700 mt-1">
+                      Start: {event.start} | End: {event.end}
+                    </p>
+                  </div>
+                ))
+              ):(
+                <div  className="border rounded-lg p-4 bg-teal-50">
+                    <h3 className="text-xl font-semibold flex items-center space-x-2">
+                      <span>No events are scheduled at the moment.</span>
+                    </h3>
+                  </div>
+              )}
+              
             </div>
           </div>
 
