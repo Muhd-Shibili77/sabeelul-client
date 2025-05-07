@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FiUpload } from "react-icons/fi";
-import defaultPhoto from "../../assets/freepik__upload__39837.png";
+import defaultPhoto from "/defaultProfile/freepik__upload__39837.png";
+import imageCompression from "browser-image-compression";
 
 const EditStudentModal = ({ onClose, studentData, onUpdate, classes }) => {
+    const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     admissionNo: "",
     name: "",
@@ -60,11 +62,23 @@ const EditStudentModal = ({ onClose, studentData, onUpdate, classes }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+
     let imageUrl = formData.photo;
 
     if (selectedFile) {
+      const compressedFile = await imageCompression(selectedFile, {
+        maxSizeMB: 0.2,
+        maxWidthOrHeight: 800,
+        useWebWorker: true,
+        fileType: "image/webp",
+      });
+
       const data = new FormData();
-      data.append("file", selectedFile);
+      data.append("file", compressedFile);
       data.append("upload_preset", "StudentProfile");
       data.append("cloud_name", "dzr8vw5rf");
 
@@ -91,6 +105,7 @@ const EditStudentModal = ({ onClose, studentData, onUpdate, classes }) => {
 
     onUpdate && onUpdate(studentData._id, updatedData);
     onClose();
+    setIsSubmitting(false);
   };
 
   return (
@@ -122,123 +137,152 @@ const EditStudentModal = ({ onClose, studentData, onUpdate, classes }) => {
         <h2 className="text-xl font-semibold mb-4 text-center">Edit Student</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-  <div>
-    <label className="block mb-1 font-medium">Admission No</label>
-    <input
-      type="text"
-      name="admissionNo"
-      value={formData.admissionNo}
-      disabled
-      className="w-full border rounded px-4 py-2 bg-gray-200 cursor-not-allowed"
-    />
-  </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block mb-1 font-medium">Admission No</label>
+              <input
+                type="text"
+                name="admissionNo"
+                value={formData.admissionNo}
+                disabled
+                className="w-full border rounded px-4 py-2 bg-gray-200 cursor-not-allowed"
+              />
+            </div>
 
-  <div>
-    <label className="block mb-1 font-medium">Student Name</label>
-    <input
-      type="text"
-      name="name"
-      value={formData.name}
-      required
-      onChange={handleChange}
-      className="w-full border rounded px-4 py-2"
-    />
-  </div>
+            <div>
+              <label className="block mb-1 font-medium">Student Name</label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                required
+                onChange={handleChange}
+                className="w-full border rounded px-4 py-2"
+              />
+            </div>
 
-  <div>
-    <label className="block mb-1 font-medium">Phone</label>
-    <input
-      type="text"
-      name="phone"
-      value={formData.phone}
-      required
-      onChange={handleChange}
-      className="w-full border rounded px-4 py-2"
-    />
-  </div>
+            <div>
+              <label className="block mb-1 font-medium">Phone</label>
+              <input
+                type="text"
+                name="phone"
+                value={formData.phone}
+                required
+                onChange={handleChange}
+                className="w-full border rounded px-4 py-2"
+              />
+            </div>
 
-  <div>
-    <label className="block mb-1 font-medium">Guardian Name</label>
-    <input
-      type="text"
-      name="guardianName"
-      value={formData.guardianName}
-      required
-      onChange={handleChange}
-      className="w-full border rounded px-4 py-2"
-    />
-  </div>
+            <div>
+              <label className="block mb-1 font-medium">Guardian Name</label>
+              <input
+                type="text"
+                name="guardianName"
+                value={formData.guardianName}
+                required
+                onChange={handleChange}
+                className="w-full border rounded px-4 py-2"
+              />
+            </div>
 
-  <div>
-    <label className="block mb-1 font-medium">Address</label>
-    <input
-      type="text"
-      name="address"
-      value={formData.address}
-      required
-      onChange={handleChange}
-      className="w-full border rounded px-4 py-2"
-    />
-  </div>
+            <div>
+              <label className="block mb-1 font-medium">Address</label>
+              <input
+                type="text"
+                name="address"
+                value={formData.address}
+                required
+                onChange={handleChange}
+                className="w-full border rounded px-4 py-2"
+              />
+            </div>
 
-  <div>
-    <label className="block mb-1 font-medium">Class</label>
-    <select
-      name="class"
-      value={formData.className}
-      onChange={handleChange}
-      className="w-full border rounded px-4 py-2"
-    >
-      <option value="">Select Class</option>
-      {classes.map((cls, idx) => (
-        <option key={idx} value={cls._id}>
-          {cls.name}
-        </option>
-      ))}
-    </select>
-  </div>
+            <div>
+              <label className="block mb-1 font-medium">Class</label>
+              <select
+                name="class"
+                value={formData.className}
+                onChange={handleChange}
+                className="w-full border rounded px-4 py-2"
+              >
+                <option value="">Select Class</option>
+                {classes.map((cls, idx) => (
+                  <option key={idx} value={cls._id}>
+                    {cls.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-  <div>
-    <label className="block mb-1 font-medium">Email</label>
-    <input
-      type="email"
-      name="email"
-      value={formData.email}
-      required
-      onChange={handleChange}
-      className="w-full border rounded px-4 py-2"
-    />
-  </div>
+            <div>
+              <label className="block mb-1 font-medium">Email</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                required
+                onChange={handleChange}
+                className="w-full border rounded px-4 py-2"
+              />
+            </div>
 
-  <div>
-    <label className="block mb-1 font-medium">Password</label>
-    <input
-      type="password"
-      name="password"
-      value={formData.password}
-      onChange={handleChange}
-      className="w-full border rounded px-4 py-2"
-    />
-  </div>
-</div>
+            <div>
+              <label className="block mb-1 font-medium">Password</label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full border rounded px-4 py-2"
+              />
+            </div>
+          </div>
 
-<div className="flex justify-between pt-4">
-  <button
-    type="button"
-    onClick={onClose}
-    className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-  >
-    Cancel
-  </button>
-  <button
-    type="submit"
-    className="px-4 py-2 bg-[rgba(53,130,140,0.9)] text-white rounded hover:bg-[rgba(53,130,140,1)]"
-  >
-    Save
-  </button>
-</div>
-
+          <div className="flex justify-between pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className={`px-4 py-2 flex justify-center items-center ${
+                isSubmitting
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-[rgba(53,130,140,0.9)] hover:bg-[rgba(53,130,140,1)]"
+              } text-white rounded`}            >
+              {isSubmitting ? (
+                <div className="flex items-center gap-2">
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    ></path>
+                  </svg>
+                  Saving...
+                </div>
+              ) : (
+                "Save"
+              )}
+            </button>
+          </div>
         </form>
       </div>
     </div>
