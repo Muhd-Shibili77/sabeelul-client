@@ -181,14 +181,13 @@ const AdminStudents = () => {
                     <td className="px-6 py-4 flex items-center gap-3">
                       <img
                         src={student.profileImage}
-                        alt={student.name}
                         className="w-10 h-10 rounded-full object-cover shadow"
                       />
-                      <span className="font-semibold">{student.name}</span>
+                      <span className="font-semibold">{student?.name}</span>
                     </td>
-                    <td className="px-6 py-4">{student.admissionNo}</td>
-                    <td className="px-6 py-4">{student.classId.name}</td>
-                    <td className="px-6 py-4">{student.phone}</td>
+                    <td className="px-6 py-4">{student?.admissionNo}</td>
+                    <td className="px-6 py-4">{student?.classId?.name}</td>
+                    <td className="px-6 py-4">{student?.phone}</td>
                     <td className="px-6 py-4 text-center space-x-3">
                       <button
                         onClick={() => handleViewDetails(student)}

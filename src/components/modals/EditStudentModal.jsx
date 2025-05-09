@@ -26,7 +26,7 @@ const EditStudentModal = ({ onClose, studentData, onUpdate, classes }) => {
         admissionNo: studentData.admissionNo || "",
         name: studentData.name || "",
         phone: studentData.phone || "",
-        className: studentData.classId?._id, // Supports object or id
+        className: studentData.classId?._id || studentData.classId || "", // Supports object or id
         address: studentData.address || "",
         guardianName: studentData.guardianName || "",
         email: studentData.email || "",
@@ -200,7 +200,7 @@ const EditStudentModal = ({ onClose, studentData, onUpdate, classes }) => {
             <div>
               <label className="block mb-1 font-medium">Class</label>
               <select
-                name="class"
+                name="className"
                 value={formData.className}
                 onChange={handleChange}
                 className="w-full border rounded px-4 py-2"
