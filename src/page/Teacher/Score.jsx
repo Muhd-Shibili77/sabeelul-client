@@ -162,47 +162,60 @@ const Score = () => {
                     key={student._id}
                     className="p-4 bg-[rgba(53,130,140,0.1)] rounded-xl"
                   >
-                    <p className="font-medium text-gray-700">{student.name}</p>
+                    <p className="font-medium text-gray-700">AdmNo: {student.admissionNo} - {student.name} </p>
 
                     {scoreType === "CCE" ? (
                       <div className="flex gap-4 mt-2">
-                        {["Phase1", "Phase2", "Phase3"].map((phase) => {
+                        {["Phase 1", "Phase 2", "Phase 3"].map((phase) => {
                           const existingMark =
                             marks[student._id]?.[phase] ??
                             student.cceMarks
                               ?.find((m) => m.academicYear === academicYear)
                               ?.subjects?.find(
                                 (s) =>
-                                  s.subjectName === selectedSubject  &&
+                                  s.subjectName === selectedSubject &&
                                   s.phase === phase
                               )?.mark ??
                             "";
+                           
 
                           return (
                             <div className="flex flex-col items-start gap-1">
-                           
-                            <input
-                              id={`mark-${student._id}-${phase}`}
-                              key={phase}
-                              type="number"
-                             
-                              className="px-3 py-2 border border-gray-300 rounded-md md:w-24 w-18"
-                              value={existingMark}
-                              onChange={(e) =>
-                                handleMarkChange(
-                                  student._id,
-                                  phase,
-                                  e.target.value
-                                )
-                              }
-                            />
-                             <label htmlFor={`mark-${student._id}-${phase}`} className="text-sm font-medium text-gray-700">
-                              {phase}
-                            </label>
-                          </div>
-                          
+                              <input
+                                id={`mark-${student._id}-${phase}`}
+                                key={phase}
+                                type="number"
+                                className="px-3 py-2 border border-gray-300 rounded-md md:w-24 w-18"
+                                value={existingMark}
+                                onChange={(e) =>
+                                  handleMarkChange(
+                                    student._id,
+                                    phase,
+                                    e.target.value
+                                  )
+                                }
+                              />
+                              <label
+                                htmlFor={`mark-${student._id}-${phase}`}
+                                className="text-sm font-medium text-gray-700"
+                              >
+                                {phase}
+                              </label>
+                            </div>
                           );
                         })}
+                        <div className="flex flex-col items-start gap-1">
+                        <input
+                          id={`mark`}
+                          type="number"
+                          value={"totalMark"}
+                          disabled
+                          className="px-3 py-2 border border-gray-300 rounded-md md:w-24 w-18"
+                        />
+                        <label className="text-sm font-medium text-gray-700">
+                          Total Mark
+                        </label>
+                      </div>
                       </div>
                     ) : (
                       <div className="mt-2">

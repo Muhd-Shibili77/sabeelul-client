@@ -17,6 +17,10 @@ import {
   deleteSubject,
   addSubject
 } from "../../redux/classSlice";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { confirmAlert } from "react-confirm-alert";
+import "react-confirm-alert/src/react-confirm-alert.css";
 
 const AdminClasses = () => {
   const dispatch = useDispatch();
@@ -64,14 +68,53 @@ const AdminClasses = () => {
     }
   };
 
-  const handleDeleteClass = async (id) => {
-    try {
-      await dispatch(deleteClass(id)).unwrap();
-      refreshList();
-    } catch (err) {
-      console.error("Failed to delete class:", err.message || err);
-    }
+
+ const handleDeleteClass = (id) => {
+    confirmAlert({
+      customUI: ({ onClose }) => {
+        return (
+          <div className="fixed inset-0 flex items-center justify-center  z-50">
+            <div className="bg-white rounded-lg shadow-lg p-6 w-96 text-center">
+              <h2 className="text-xl font-semibold text-gray-800">
+                Delete Confirmation
+              </h2>
+              <p className="text-gray-600 mt-2">
+                Are you sure you want to delete this class?
+              </p>
+              <div className="flex justify-center mt-5 gap-4">
+                <button
+                  onClick={async () => {
+                    try {
+                      await dispatch(deleteClass(id)).unwrap();
+                      toast.success("class deleted successfully");
+                      setTimeout(()=>{
+                        refreshList();
+                        onClose();
+                      },1000)
+                    } catch (error) {
+                       onClose();
+                        toast.error(error.message || "Failed to delete class");
+                      console.error("Delete error:", error);
+                    }
+                  }}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                >
+                  Yes, Delete
+                </button>
+                <button
+                  onClick={onClose}
+                  className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      },
+    });
   };
+
 
   const handleEditClassName = async (id) => {
     if (!editedClassName.trim()) return;
@@ -286,6 +329,7 @@ const AdminClasses = () => {
           )}
         </div>
       </div>
+            <ToastContainer position="top-right" autoClose={2000} hideProgressBar />
     </div>
   );
 };

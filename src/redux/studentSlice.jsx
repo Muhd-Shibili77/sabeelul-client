@@ -65,6 +65,31 @@ export const fetchStudent = createAsyncThunk(
       }
     }
   );
+   
+  export const editExtraMark = createAsyncThunk(
+    "editExtraMark",
+    async ({ id, mark }, { rejectWithValue }) => {  
+      try {
+        const response = await api.put(`/student/score/${id}`, {mark:mark});
+        return response.data;
+      } catch (error) {
+        return rejectWithValue(error.response.data);
+      }
+    }
+  );
+   
+  export const deleteExtraMark = createAsyncThunk(
+    "deleteExtraMark",
+    async ({ id }, { rejectWithValue }) => {
+    
+      try {
+        const response = await api.delete(`/student/score/${id}`);
+        return response.data;
+      } catch (error) {
+        return rejectWithValue(error.response.data);
+      }
+    }
+  );
   export const addMentorMark = createAsyncThunk(
     "addMentorMark",
     async ({ id, data }, { rejectWithValue }) => {

@@ -10,31 +10,40 @@ const Performance = () => {
   const { totalMark, theme } = useStudentContext();
 
   const [showMore, setShowMore] = useState(false);
+  const [showAllActivities, setShowAllActivities] = useState(false);
 
   const performanceData = {
     cceMark: data?.cceScore,
     penaltyMarks: 0,
     creditMarks: data?.creditScore,
     level: getLevelData(data?.totalScore),
-    yourScore: `${data?.totalScore} / 500`,
-    activities: data?.achievments?.map((item) => ({
-      title: item.name || "Untitled",
-      score: `${item.mark} / 10`,
-      date: item.date
-        ? new Date(item.date).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })
-        : "Date not available",
-    })) || [],
+    yourScore: `${data?.totalScore}`,
+    activities:
+      data?.achievments?.map((item) => ({
+        title: item.name || "Untitled",
+        score: `${item.mark}`,
+        date: item.date
+          ? new Date(item.date).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })
+          : "Date not available",
+      }
+    )) || [],
   };
 
+  const displayedActivities = showAllActivities
+    ? performanceData.activities
+    : performanceData.activities.slice(0, 10);
+
   return (
-    <div className={`flex min-h-screen bg-gradient-to-br from-gray-100 ${theme.bg}`}>
+    <div
+      className={`flex min-h-screen bg-gradient-to-br from-gray-100 ${theme.bg}`}
+    >
       <StudentSideBar page="Performance" />
 
-      <div className="flex-1 p-1 md:ml-60 md:mt-8 mt-16 transition-all duration-300 overflow-y-auto ">
+      <div className="flex-1 p-1 md:ml-60 md:mt-8 mt-16 transition-all duration-300 overflow-y-auto">
         {loading ? (
           <div className="flex justify-center items-center h-full">
             <Loader />
@@ -108,12 +117,9 @@ const Performance = () => {
                   <h4 className="text-md font-semibold text-gray-700">
                     CCE Score
                   </h4>
-                  <a
-                    
-                    className="text-2xl text-blue-700 font-bold mt-1 block"
-                  >
+                  <p className="text-2xl text-blue-700 font-bold mt-1">
                     {performanceData.cceMark}
-                  </a>
+                  </p>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-lg shadow-md">
                   <h4 className="text-md font-semibold text-gray-700">
@@ -132,14 +138,14 @@ const Performance = () => {
                 Recent Inputs
               </h3>
               <ul className="space-y-4">
-                {!data.achievments ? (
+                {performanceData.activities.length === 0 ? (
                   <div className="flex justify-center items-center h-40">
                     <p className="text-gray-500 font-medium">
                       No achievements yet
                     </p>
                   </div>
                 ) : (
-                  performanceData.activities.map((activity, index) => (
+                  displayedActivities.map((activity, index) => (
                     <li
                       key={index}
                       className="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm"
@@ -161,6 +167,17 @@ const Performance = () => {
                   ))
                 )}
               </ul>
+
+              {performanceData.activities.length > 10 && (
+                <div className="text-center mt-4">
+                  <button
+                    onClick={() => setShowAllActivities(!showAllActivities)}
+                    className="text-blue-600 underline font-medium"
+                  >
+                    {showAllActivities ? "Show Less" : "See More"}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}

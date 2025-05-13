@@ -1,4 +1,5 @@
 import React from "react";
+import { getCurrentAcademicYear } from "../../utils/academicYear";
 import {
   FiUser,
   FiPhone,
@@ -6,32 +7,60 @@ import {
   FiMapPin,
   FiUsers,
   FiBookOpen,
-  FiHash,
+  FiAward,
 } from "react-icons/fi";
 
 const StudentDetailsModal = ({ student, onClose }) => {
   if (!student) return null;
 
+  const academic = getCurrentAcademicYear();
+
+  const currentMentorMark = student.mentorMarks?.find(
+    (item) => item.academicYear === academic
+  );
+  console.log(currentMentorMark)
+  const mentorMark = currentMentorMark ? currentMentorMark.mark : 0;
+
+  const extraMarksForCurrentYear =
+    student.extraMarks?.filter((entry) => entry.academicYear === academic) ||
+    [];
+  const extraMarksTotal = extraMarksForCurrentYear.reduce(
+    (sum, entry) => sum + entry.mark,
+    0
+  );
+
+  const cceEntry = student.cceMarks?.find(
+    (entry) => entry.academicYear === academic
+  );
+
+  const subjectMarks = cceEntry?.subjects || [];
+
+  const totalCceMark = subjectMarks.reduce((total, entry) => {
+    return total + entry.mark * 0.2;
+  }, 0);
+
+  const totalMark = Math.round(mentorMark + totalCceMark + extraMarksTotal +200);
+
   return (
     <div className="fixed inset-0 bg-transparent backdrop-blur-sm bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl p-6 w-full max-w-xl shadow-2xl border border-gray-200">
+      <div className="bg-white rounded-2xl p-6 w-full max-w-3xl shadow-2xl border border-gray-200">
         <h2 className="text-2xl font-bold mb-6 text-center text-[rgba(53,130,140,1)] tracking-wide">
           Student Information
         </h2>
 
-        <div className="flex flex-col items-center gap-4 mb-6">
+        <div className="flex flex-col items-center gap-4 mb-8">
           <img
             src={student.profileImage || "/default-avatar.png"}
             alt="Profile"
             className="w-28 h-28 rounded-full object-cover border-2 border-[rgba(53,130,140,0.8)] shadow-lg"
           />
-          <p className="text-gray-600 text-sm flex items-center gap-2">
-            <FiHash className="text-[rgba(53,130,140,1)]" />
-            <strong>{student.admissionNo}</strong>
-          </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-800 mb-6">
+          <p className="flex items-center gap-2">
+            <FiUser className="text-[rgba(53,130,140,1)]" />
+            <strong>Admisson No:</strong> {student.admissionNo}
+          </p>
           <p className="flex items-center gap-2">
             <FiUser className="text-[rgba(53,130,140,1)]" />
             <strong>Name:</strong> {student.name}
@@ -52,25 +81,62 @@ const StudentDetailsModal = ({ student, onClose }) => {
             <FiUsers className="text-[rgba(53,130,140,1)]" />
             <strong>Guardian:</strong> {student.guardianName}
           </p>
-          <p className="flex items-center gap-2 col-span-1 sm:col-span-2">
+          <p className="flex items-center gap-2">
+            <FiAward className="text-[rgba(53,130,140,1)]" />
+            <strong>Total Mark:</strong> {totalMark}
+          </p>
+          <p className="flex items-center gap-2 ">
             <FiMapPin className="text-[rgba(53,130,140,1)]" />
             <strong>Address:</strong> {student.address}
           </p>
         </div>
 
-        {Array.isArray(student.marks) && student.marks.length > 0 && (
-          <div className="mb-6">
-            <h3 className="text-md font-semibold text-gray-900 mb-2 border-b pb-1">Academic Marks</h3>
-            <ul className="list-disc list-inside space-y-1 text-sm text-gray-700 pl-4">
-              {student.marks.map((mark, index) => (
-                <li key={index}>
-                  {mark.subject}: <strong>{mark.score}</strong>
+        {/* === CCE MARKS === */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+        
+        {subjectMarks.length > 0 && (
+          <div className="bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200">
+            <h3 className="text-md font-semibold mb-2 text-[rgba(53,130,140,1)]">
+              CCE Marks
+            </h3>
+            <ul className="text-sm text-gray-700 space-y-1 pl-2 list-disc">
+              {subjectMarks.map((entry, idx) => (
+                <li key={idx}>
+                  {entry.subjectName} ({entry.phase}): {entry.mark}
                 </li>
               ))}
             </ul>
           </div>
         )}
 
+        {/* === MENTOR MARK === */}
+        {mentorMark !== null && (
+          <div className="bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200">
+            <h3 className="text-md font-semibold mb-2 text-[rgba(53,130,140,1)]">
+              Mentor Mark
+            </h3>
+            <p className="text-sm">Mark: {mentorMark}</p>
+          </div>
+        )}
+     
+
+        {/* === EXTRA MARKS === */}
+        {extraMarksForCurrentYear.length > 0 && (
+          <div className="bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200">
+            <h3 className="text-md font-semibold mb-2 text-[rgba(53,130,140,1)]">
+              Extra Marks
+            </h3>
+            <ul className="text-sm text-gray-700 space-y-1 pl-2 list-disc">
+              {extraMarksForCurrentYear.map((entry, idx) => (
+                <li key={idx}>Mark: {entry.mark}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+         </div>
+
+        {/* === CLOSE BUTTON === */}
         <div className="flex justify-center">
           <button
             onClick={onClose}
