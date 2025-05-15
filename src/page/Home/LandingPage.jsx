@@ -6,6 +6,7 @@ import useHomeData from "../../hooks/fetch/useHome";
 import { fetchClass } from "../../redux/classSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useClassLeaderboard } from "../../hooks/fetch/useClassLeaderboard";
+import { useGetTopClasses } from "../../hooks/fetch/useGetTopClass";
 const downloadLinks = [
   { name: "Academic Calendar", url: "/files/Calendar 25-26.pdf" },
   // { name: "DH Academic Calendar", url: "#" },
@@ -26,7 +27,8 @@ const LandingPage = () => {
   const { data, loading, error } = useHomeData();
   const { leaderboard, loading: leaderboardLoading } =
     useClassLeaderboard(selectedClass);
-
+  const { Classleaderboard, loading: classLeaderboardLoading } =
+    useGetTopClasses();
   useEffect(() => {
     dispatch(fetchClass({ search: "", page: 1, limit: 1000 }));
   }, []);
@@ -132,7 +134,7 @@ const LandingPage = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {/* Leaderboard */}
           <div className="bg-white rounded-3xl shadow-2xl md:p-8 p-2 border border-gray-200 md:pl-10 md:pr-10">
             <h2 className="md:text-3xl text-2xl font-bold text-gray-700 mb-6 mt-2">
@@ -194,6 +196,66 @@ const LandingPage = () => {
                     })
                   )}
                 </tbody>
+              </table>
+            </div>
+          </div>
+          {/* class leaderboard */}
+          <div className="bg-white rounded-3xl shadow-2xl md:p-8 p-2 border border-gray-200 md:pl-10 md:pr-10">
+            <h2 className="md:text-3xl text-xl font-bold text-gray-700 mb-6 mt-2">
+              Top 10 Classes Leaderboard
+            </h2>
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-sm sm:text-base border-separate border-spacing-y-2">
+                <thead>
+                  <tr
+                    style={{ backgroundColor: "rgba(53,130,140,0.4)" }}
+                    className="text-white"
+                  >
+                    <th className="p-4 rounded-l-2xl">Rank</th>
+                    <th className="p-4">Class</th>
+                    <th className="p-4 rounded-r-2xl">Mark</th>
+                  </tr>
+                </thead>
+                 <tbody>
+                    {classLeaderboardLoading ? (
+                      <tr>
+                        <td colSpan="3" className="text-center p-4">
+                          Loading leaderboard data...
+                        </td>
+                      </tr>
+                    ) : Classleaderboard && Classleaderboard.length > 0 ? (
+                      [...Array(10)].map((_, index) => {
+                        const classes = Classleaderboard?.[index];
+
+                        return (
+                          <tr
+                            key={classes?._id || index}
+                            className="bg-white shadow-md rounded-xl hover:shadow-lg transition-all duration-300 text-center"
+                          >
+                            <td className="p-4 font-semibold text-teal-600">
+                              <span className="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-sm">
+                                #{index + 1}
+                              </span>
+                            </td>
+                            <td className="p-4 font-bold text-lg text-gray-800">
+                              {classes ? classes.className : "--"}
+                            </td>
+                            <td className="p-4 text-gray-700">
+                              {classes
+                                ? Math.round(classes.totalScore)
+                                : "--"}
+                            </td>
+                          </tr>
+                        );
+                      })
+                    ) : (
+                      <tr>
+                        <td colSpan="3" className="text-center p-4">
+                          No class found 
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
               </table>
             </div>
           </div>
