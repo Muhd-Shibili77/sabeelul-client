@@ -12,6 +12,7 @@ const Home = () => {
    
     totalMark: data?.marks,
     className: data?.class?.name,
+    classLogo : data?.class?.icon,
     student: {
       name: data?.name,
       image: data?.profileImage,
@@ -62,14 +63,17 @@ const Home = () => {
                   </p>
                 </div>
               </div>
-  
               <div className="bg-white rounded-2xl shadow-md p-6 flex items-center gap-4">
-                <FaChalkboardTeacher className={`${theme.text} text-3xl`} />
+                <img
+                  src={`${import.meta.env.VITE_API_URL}/${dashboardData.classLogo}`}
+                  alt="Student"
+                  className={`w-14 h-14 rounded-full border-2 ${theme.border} object-cover`}
+                />
                 <div>
                   <p className="text-sm text-gray-500">Class</p>
-                  <h3 className="text-lg font-semibold text-gray-800">
+                  <p className="text-md font-medium text-gray-800">
                     {dashboardData.className}
-                  </h3>
+                  </p>
                 </div>
               </div>
             </div>

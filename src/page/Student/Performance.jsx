@@ -4,14 +4,15 @@ import Loader from "../../components/loader/Loader";
 import { getLevelData } from "../../utils/studentLevel";
 import useStudentPerformanceData from "../../hooks/fetch/useStdPerfo";
 import { useStudentContext } from "../../context/StudentContext";
-
+import CCEModal from "../../components/modals/CCEModal";
 const Performance = () => {
   const { data, loading, error } = useStudentPerformanceData();
   const { totalMark, theme } = useStudentContext();
 
   const [showMore, setShowMore] = useState(false);
   const [showAllActivities, setShowAllActivities] = useState(false);
-
+  const [isCCEModalOpen, setIsCCEModalOpen] = useState(false);
+  const [cceData, setCceData] = useState(null);
   const performanceData = {
     cceMark: data?.cceScore,
     penaltyMarks: 0,
@@ -29,14 +30,17 @@ const Performance = () => {
               day: "numeric",
             })
           : "Date not available",
-      }
-    )) || [],
+      })) || [],
   };
 
   const displayedActivities = showAllActivities
     ? performanceData.activities
     : performanceData.activities.slice(0, 10);
 
+  const openCCEModal = () => {
+    setCceData(data?.subjectWiseMarks);
+    setIsCCEModalOpen(true);
+  };
   return (
     <div
       className={`flex min-h-screen bg-gradient-to-br from-gray-100 ${theme.bg}`}
@@ -113,14 +117,23 @@ const Performance = () => {
                     +{performanceData.creditMarks}
                   </p>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-lg shadow-md">
-                  <h4 className="text-md font-semibold text-gray-700">
-                    CCE Score
-                  </h4>
-                  <p className="text-2xl text-blue-700 font-bold mt-1">
-                    {performanceData.cceMark}
-                  </p>
+                <div className="bg-gray-50 p-4 rounded-lg shadow-md flex items-center justify-between">
+                  <div>
+                    <h4 className="text-md font-semibold text-gray-700">
+                      CCE Score
+                    </h4>
+                    <p className="text-2xl text-blue-700 font-bold mt-1">
+                      {performanceData.cceMark}
+                    </p>
+                  </div>
+                  <button
+                      onClick={openCCEModal}
+                    className={`text-sm ${theme.color} text-white px-3 py-1.5 rounded-md ${theme.hoverBg} transition`}
+                  >
+                    View Details
+                  </button>
                 </div>
+
                 <div className="bg-gray-50 p-4 rounded-lg shadow-md">
                   <h4 className="text-md font-semibold text-gray-700">
                     Penalty Score
@@ -182,6 +195,11 @@ const Performance = () => {
           </div>
         )}
       </div>
+      <CCEModal
+        isOpen={isCCEModalOpen}
+        onClose={() => setIsCCEModalOpen(false)}
+        cceData={cceData}
+      />
     </div>
   );
 };

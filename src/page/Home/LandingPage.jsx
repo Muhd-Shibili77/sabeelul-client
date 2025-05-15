@@ -92,14 +92,13 @@ const LandingPage = () => {
 
                 <div>
                   <h2 className="text-xl font-bold">Star Performer</h2>
+                  <p className="text-lg ">{data?.starPerformer?.name}</p>
                   <p className="text-lg ">
-                    {data?.starPerformer?.name}
+                    {data?.starPerformer?.classId?.name}
                   </p>
-                  <p className="text-lg ">            
-                     {data?.starPerformer?.classId?.name}
-                  </p>
-                  <p className="text-lg ">            
-                     <strong>score: </strong> {Math.round(data?.starPerformer?.performanceScore)}
+                  <p className="text-lg ">
+                    <strong>score: </strong>{" "}
+                    {Math.round(data?.starPerformer?.performanceScore)}
                   </p>
                 </div>
               </>
@@ -116,7 +115,11 @@ const LandingPage = () => {
             )}
           </div>
           <div className="bg-white rounded-2xl shadow-xl p-6 flex items-center space-x-4">
-            <FaTrophy className="text-orange-400 text-4xl" />
+            <img
+              src={`${import.meta.env.VITE_API_URL}/${data?.bestPerformerClass?.classLogo}`}
+              alt="profile"
+              className="h-16 w-16 rounded-full border-2 border-yellow-400"
+            />
             <div>
               <h2 className="text-xl font-semibold">Best Performing Class</h2>
               <p className="text-lg">

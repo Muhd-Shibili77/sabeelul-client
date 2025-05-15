@@ -61,9 +61,14 @@ const Score = () => {
     try {
       for (const studentId in marks) {
         const studentMarks = marks[studentId];
-        for (const phase of ["Phase1", "Phase2", "Phase3"]) {
+        for (const phase of ["Phase 1", "Phase 2", "Phase 3"]) {
           const mark = studentMarks[phase];
-          if (mark) {
+          if (mark && mark > 20) {
+            toast.error("CCE marks should be out of 20.");
+            return 
+          }
+
+          if (mark && mark <= 20) {
             const data = {
               classId: selectedClass,
               subjectName: selectedSubject,
@@ -78,6 +83,34 @@ const Score = () => {
     } catch (err) {
       toast.error("Failed to submit CCE marks.");
     }
+  };
+
+  // Calculate total mark for a student
+  const calculateTotalMark = (studentId) => {
+    // Get the marks from state or existing student data
+    const getPhaseValue = (phase) => {
+      // First try to get from our current marks state
+      if (marks[studentId]?.[phase] !== undefined) {
+        return marks[studentId][phase] ? Number(marks[studentId][phase]) : 0;
+      }
+
+      // Otherwise look in the student's existing saved marks
+      const savedMark = students
+        .find((s) => s._id === studentId)
+        ?.cceMarks?.find((m) => m.academicYear === academicYear)
+        ?.subjects?.find(
+          (s) => s.subjectName === selectedSubject && s.phase === phase
+        )?.mark;
+
+      return savedMark ? Number(savedMark) : 0;
+    };
+
+    // Calculate sum of all phases
+    const phase1 = getPhaseValue("Phase 1");
+    const phase2 = getPhaseValue("Phase 2");
+    const phase3 = getPhaseValue("Phase 3");
+
+    return phase1 + phase2 + phase3;
   };
 
   return (
@@ -162,7 +195,9 @@ const Score = () => {
                     key={student._id}
                     className="p-4 bg-[rgba(53,130,140,0.1)] rounded-xl"
                   >
-                    <p className="font-medium text-gray-700">AdmNo: {student.admissionNo} - {student.name} </p>
+                    <p className="font-medium text-gray-700">
+                      AdmNo: {student.admissionNo} - {student.name}{" "}
+                    </p>
 
                     {scoreType === "CCE" ? (
                       <div className="flex gap-4 mt-2">
@@ -177,13 +212,14 @@ const Score = () => {
                                   s.phase === phase
                               )?.mark ??
                             "";
-                           
 
                           return (
-                            <div className="flex flex-col items-start gap-1">
+                            <div
+                              key={phase}
+                              className="flex flex-col items-start gap-1"
+                            >
                               <input
                                 id={`mark-${student._id}-${phase}`}
-                                key={phase}
                                 type="number"
                                 className="px-3 py-2 border border-gray-300 rounded-md md:w-24 w-18"
                                 value={existingMark}
@@ -205,17 +241,20 @@ const Score = () => {
                           );
                         })}
                         <div className="flex flex-col items-start gap-1">
-                        <input
-                          id={`mark`}
-                          type="number"
-                          value={"totalMark"}
-                          disabled
-                          className="px-3 py-2 border border-gray-300 rounded-md md:w-24 w-18"
-                        />
-                        <label className="text-sm font-medium text-gray-700">
-                          Total Mark
-                        </label>
-                      </div>
+                          <input
+                            id={`total-mark-${student._id}`}
+                            type="number"
+                            value={calculateTotalMark(student._id)}
+                            disabled
+                            className="px-3 py-2 border border-gray-300 rounded-md md:w-24 w-18 bg-gray-100"
+                          />
+                          <label
+                            htmlFor={`total-mark-${student._id}`}
+                            className="text-sm font-medium text-gray-700"
+                          >
+                            Total Mark
+                          </label>
+                        </div>
                       </div>
                     ) : (
                       <div className="mt-2">

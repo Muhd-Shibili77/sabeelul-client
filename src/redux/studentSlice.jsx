@@ -93,7 +93,7 @@ export const fetchStudent = createAsyncThunk(
   export const addMentorMark = createAsyncThunk(
     "addMentorMark",
     async ({ id, data }, { rejectWithValue }) => {
-    
+      console.log(id)
       try {
         const response = await api.post(`/student/mentor/${id}`, data);
         return response.data;
