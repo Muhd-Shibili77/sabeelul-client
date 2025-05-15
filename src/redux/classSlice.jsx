@@ -21,7 +21,11 @@ export const addClass = createAsyncThunk(
   "addClass",
   async ({ newClass }, { rejectWithValue }) => {
     try {
-      const response = await api.post(`/class`, newClass);
+      const response = await api.post(`/class`, newClass,{
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       return { newClass: response.data.newClass };
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -31,8 +35,13 @@ export const addClass = createAsyncThunk(
 export const updateClass = createAsyncThunk(
   "updateClass",
   async ({ id, updatedData }, { rejectWithValue }) => {
+   
     try {
-      const response = await api.put(`/class/${id}`, { name: updatedData });
+      const response = await api.put(`/class/${id}`, updatedData,{
+         headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       return { updatedClass: response.data.updatedClass };
     } catch (error) {
       return rejectWithValue(error.response.data);
