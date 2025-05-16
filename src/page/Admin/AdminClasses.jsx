@@ -305,158 +305,167 @@ const AdminClasses = () => {
           </div>
 
           {/* Class List */}
-          {classes.map((cls) => (
-            <div
-              key={cls._id}
-              className="bg-white rounded-xl shadow-md mb-4 p-4"
-            >
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-4">
-                  {editingClass === cls._id ? (
-                    <div className="flex flex-col md:flex-row gap-4 w-full">
-                      {/* Edit Icon Preview */}
-                      <div className="flex flex-col items-center">
-                        <label
-                          htmlFor={`edit-icon-${cls._id}`}
-                          className="cursor-pointer"
-                        >
-                          <div className="w-16 h-16 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden relative">
-                            {iconPreview ? (
-                              <img
-                                src={iconPreview}
-                                alt="Icon Preview"
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <span className="text-gray-400 text-xs text-center">
-                                Upload Icon
-                              </span>
-                            )}
-                          </div>
-                        </label>
-                        <input
-                          id={`edit-icon-${cls._id}`}
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={handleEditIconChange}
-                        />
-                      </div>
+          {classes.length > 0 ? (
+            classes.map((cls) => (
+              <div
+                key={cls._id}
+                className="bg-white rounded-xl shadow-md mb-4 p-4 transition hover:shadow-lg"
+              >
+                <div className="flex justify-between items-center">
+                  {/* Left Section */}
+                  <div className="flex items-center gap-4 flex-wrap">
+                    {editingClass === cls._id ? (
+                      <div className="flex flex-col md:flex-row gap-4 w-full">
+                        {/* Edit Icon Preview */}
+                        <div className="flex flex-col items-center">
+                          <label
+                            htmlFor={`edit-icon-${cls._id}`}
+                            className="cursor-pointer"
+                          >
+                            <div className="w-16 h-16 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden relative">
+                              {iconPreview ? (
+                                <img
+                                  src={iconPreview}
+                                  alt="New Icon Preview"
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <span className="text-gray-400 text-xs text-center">
+                                  Upload Icon
+                                </span>
+                              )}
+                            </div>
+                          </label>
+                          <input
+                            id={`edit-icon-${cls._id}`}
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleEditIconChange}
+                          />
+                        </div>
 
-                      {/* Edit Class Name Input */}
-                      <div className="flex flex-col md:flex-row gap-2 items-center">
-                        <input
-                          className="border px-3 py-2 rounded w-full"
-                          value={editedClassName}
-                          onChange={(e) => setEditedClassName(e.target.value)}
-                          placeholder="Class name"
-                        />
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => handleEditClassName(cls._id)}
-                            className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 transition"
-                          >
-                            Save
-                          </button>
-                          <button
-                            onClick={cancelEditing}
-                            className="bg-gray-300 text-gray-800 px-3 py-1 rounded hover:bg-gray-400 transition"
-                          >
-                            Cancel
-                          </button>
+                        {/* Class Name Edit Input */}
+                        <div className="flex flex-col md:flex-row gap-2 items-center flex-1">
+                          <input
+                            className="border px-3 py-2 rounded w-full"
+                            value={editedClassName}
+                            onChange={(e) => setEditedClassName(e.target.value)}
+                            placeholder="Class name"
+                          />
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleEditClassName(cls._id)}
+                              className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 transition"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={cancelEditing}
+                              className="bg-gray-300 text-gray-800 px-3 py-1 rounded hover:bg-gray-400 transition"
+                            >
+                              Cancel
+                            </button>
+                          </div>
                         </div>
                       </div>
+                    ) : (
+                      <>
+                        {cls.icon && (
+                          <img
+                            src={`${import.meta.env.VITE_API_URL}/${cls.icon}`}
+                            alt={`${cls.name} icon`}
+                            className="w-12 h-12 rounded-full object-cover border"
+                          />
+                        )}
+                        <h2 className="text-lg font-semibold">{cls.name}</h2>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Action Buttons */}
+                  {!editingClass && (
+                    <div className="flex gap-3 items-center">
+                      <button
+                        onClick={() =>
+                          setExpandedClass(
+                            expandedClass === cls._id ? null : cls._id
+                          )
+                        }
+                        className="text-gray-600 hover:text-black"
+                      >
+                        {expandedClass === cls._id ? (
+                          <FaChevronUp />
+                        ) : (
+                          <FaChevronDown />
+                        )}
+                      </button>
+                      <button
+                        onClick={() => startEditingClass(cls)}
+                        className="text-blue-500 hover:text-blue-700"
+                      >
+                        <FaEdit />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteClass(cls._id)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <FaTrash />
+                      </button>
                     </div>
-                  ) : (
-                    <>
-                      {cls.icon && (
-                        <img
-                          src={`${import.meta.env.VITE_API_URL}/${cls.icon}`}
-                          alt={`${cls.name} icon`}
-                          className="w-12 h-12 rounded-full object-cover border"
-                        />
-                      )}
-                      <h2 className="text-lg font-semibold">{cls.name}</h2>
-                    </>
                   )}
                 </div>
 
-                {!editingClass && (
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() =>
-                        setExpandedClass(
-                          expandedClass === cls._id ? null : cls._id
-                        )
-                      }
-                    >
-                      {expandedClass === cls._id ? (
-                        <FaChevronUp />
-                      ) : (
-                        <FaChevronDown />
-                      )}
-                    </button>
-                    <button onClick={() => startEditingClass(cls)}>
-                      <FaEdit />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteClass(cls._id)}
-                      className="text-red-500"
-                    >
-                      <FaTrash />
-                    </button>
+                {/* Expanded Section */}
+                {expandedClass === cls._id && editingClass !== cls._id && (
+                  <div className="mt-4 ml-2">
+                    {cls.subjects.length === 0 && (
+                      <p className="text-gray-500 italic">No subjects yet.</p>
+                    )}
+
+                    {/* Subjects List */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+                      {cls.subjects.map((subject, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center justify-between bg-gray-100 rounded-md px-3 py-2"
+                        >
+                          <span className="text-gray-800">{subject}</span>
+                          <button
+                            onClick={() =>
+                              handleDeleteSubject(cls._id, subject)
+                            }
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Add Subject Input */}
+                    <div className="mt-4 flex gap-3">
+                      <input
+                        type="text"
+                        className="border px-3 py-2 rounded w-full"
+                        placeholder="Add a subject"
+                        value={subjectInput}
+                        onChange={(e) => setSubjectInput(e.target.value)}
+                      />
+                      <button
+                        onClick={() => handleAddSubject(cls._id)}
+                        className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded hover:bg-[rgba(53,130,140,1)] transition"
+                      >
+                        Add
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
-
-              {expandedClass === cls._id && editingClass !== cls._id && (
-                <div className="mt-4 ml-2">
-                  {cls.subjects.length === 0 && (
-                    <p className="text-gray-500">No subjects yet.</p>
-                  )}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {cls.subjects.map((subject, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between bg-gray-100 rounded-md px-3 py-2"
-                      >
-                        <>
-                          <span className="text-gray-800">{subject}</span>
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() =>
-                                handleDeleteSubject(cls._id, subject)
-                              }
-                              className="text-red-500"
-                            >
-                              <FaTrash />
-                            </button>
-                          </div>
-                        </>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Add Subject */}
-                  <div className="mt-3 flex gap-3">
-                    <input
-                      type="text"
-                      className="border px-2 py-1 rounded w-full"
-                      placeholder="Add a subject"
-                      value={subjectInput}
-                      onChange={(e) => setSubjectInput(e.target.value)}
-                    />
-                    <button
-                      onClick={() => handleAddSubject(cls._id)}
-                      className="bg-[rgba(53,130,140,0.9)] text-white px-3 py-1 rounded"
-                    >
-                      Add
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
+            ))
+          ) : (
+            <p className="text-gray-500 text-center">No classes found.</p>
+          )}
 
           {/* Pagination */}
           <Pagination
