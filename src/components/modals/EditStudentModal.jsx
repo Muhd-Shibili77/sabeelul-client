@@ -84,7 +84,6 @@ const EditStudentModal = ({ onClose, studentData, onUpdate, classes }) => {
     if (
       !admissionNo.trim() ||
       !name.trim() ||
-      !phone.trim() ||
       !email.trim() ||
       !className.trim() ||
       !address.trim() ||
