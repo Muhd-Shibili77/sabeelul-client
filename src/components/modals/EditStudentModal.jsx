@@ -6,6 +6,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const EditStudentModal = ({ onClose, studentData, onUpdate, classes }) => {
+  const fileInputRef = useRef()
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     admissionNo: "",
