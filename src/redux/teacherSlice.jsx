@@ -19,7 +19,6 @@ export const fetchTeacher = createAsyncThunk(
         const response = await api.post("/teacher", teacherData);
         return response.data;
       } catch (error) {
-        
         return rejectWithValue(error.response.data);
       }
     }

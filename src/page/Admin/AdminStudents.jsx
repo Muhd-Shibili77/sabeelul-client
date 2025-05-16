@@ -129,8 +129,14 @@ const AdminStudents = () => {
       refreshList();
       setShowAddModal(false);
     } catch (error) {
-      toast.error(error.message);
-      console.error("Failed to add teacher:", error.message || error);
+      // Properly extract the error message based on the structure returned by rejectWithValue
+      const errorMessage =
+        error.message ||
+        (error.data && error.data.message) ||
+        "Failed to add student";
+
+      toast.error(errorMessage);
+      console.error("Failed to add student:", error);
     }
   };
 

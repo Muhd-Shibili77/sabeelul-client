@@ -68,8 +68,6 @@ const AddStudentModal = ({ onAdd, onClose, classes }) => {
       !address.trim() ||
       !guardianName.trim()
     ) {
-     
-
       toast.error("Please fill in all required fields.");
       return;
     }
@@ -150,11 +148,12 @@ const AddStudentModal = ({ onAdd, onClose, classes }) => {
       console.error("Unexpected error occurred", error);
 
       if (error && error.message) {
+        toast.error(error.message);
+
         console.log(error);
       }
     }
 
-    onClose();
     setIsSubmitting(false);
   };
 
