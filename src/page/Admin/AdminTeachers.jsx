@@ -7,12 +7,17 @@ import EditTeacherModal from "../../components/modals/EditTeacherModal";
 import { MdOutlineDelete } from "react-icons/md";
 import Pagination from "../../components/pagination/Pagination";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchTeacher,updateTeacher,addTeacher,deleteTeacher } from "../../redux/teacherSlice";
+import {
+  fetchTeacher,
+  updateTeacher,
+  addTeacher,
+  deleteTeacher,
+} from "../../redux/teacherSlice";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
-
+import Loader from "../../components/loader/Loader";
 const AdminTeachers = () => {
   const dispatch = useDispatch();
   const [showAddModal, setShowAddModal] = useState(false);
@@ -21,7 +26,9 @@ const AdminTeachers = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const { teachers, totalPages } = useSelector((state) => state.teacher);
+  const { teachers, totalPages, loading } = useSelector(
+    (state) => state.teacher
+  );
 
   const refreshList = () =>
     dispatch(fetchTeacher({ search: debouncedSearch, page }));
@@ -38,28 +45,30 @@ const AdminTeachers = () => {
     return () => clearTimeout(timer);
   }, [search]);
 
-  const handleAdd = async (teacherData)=>{
+  const handleAdd = async (teacherData) => {
     try {
       const response = await dispatch(addTeacher(teacherData)).unwrap();
-      toast.success(response.message || 'Added successfully');
+      toast.success(response.message || "Added successfully");
       refreshList();
-      setShowAddModal(false)
+      setShowAddModal(false);
     } catch (error) {
       toast.error(error.message);
       console.error("Failed to add teacher:", error.message || error);
     }
-  }
-  const handleUpdate = async (id,updatedData)=>{
+  };
+  const handleUpdate = async (id, updatedData) => {
     try {
-      const response = await dispatch(updateTeacher({ id, updatedData })).unwrap()
-      toast.success(response.message || 'updated successfully');
-      refreshList()
-      setEditingTeacher(null)
+      const response = await dispatch(
+        updateTeacher({ id, updatedData })
+      ).unwrap();
+      toast.success(response.message || "updated successfully");
+      refreshList();
+      setEditingTeacher(null);
     } catch (error) {
       toast.error(error.message);
       console.error("Failed to add teacher:", error.message || error);
     }
-  }
+  };
 
   const handleDelete = (id) => {
     confirmAlert({
@@ -79,10 +88,10 @@ const AdminTeachers = () => {
                     try {
                       await dispatch(deleteTeacher(id)).unwrap();
                       toast.success("Teacher deleted successfully");
-                      setTimeout(()=>{
+                      setTimeout(() => {
                         refreshList();
                         onClose();
-                      },1000)
+                      }, 1000);
                     } catch (error) {
                       toast.error("Failed to delete teacher");
                       console.error("Delete error:", error);
@@ -105,7 +114,6 @@ const AdminTeachers = () => {
       },
     });
   };
-  
 
   return (
     <div className="flex  min-h-screen bg-gradient-to-br from-gray-100 to-[rgba(53,130,140,0.4)]">
@@ -133,7 +141,11 @@ const AdminTeachers = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {teachers.length === 0 ? (
+          {loading ? (
+            <div className="col-span-full flex justify-center py-10">
+              <Loader />
+            </div>
+          ) : teachers.length === 0 ? (
             <div className="col-span-full text-center text-gray-500 py-10">
               No teachers available.
             </div>
@@ -143,9 +155,8 @@ const AdminTeachers = () => {
                 key={index}
                 className="bg-white p-4 rounded-lg shadow-md relative hover:shadow-lg transition cursor-pointer"
               >
-                {/* Top Right Buttons Container */}
+                {/* Top Right Buttons */}
                 <div className="absolute top-2 right-2 flex gap-2">
-                  {/* Edit Icon */}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -155,12 +166,10 @@ const AdminTeachers = () => {
                   >
                     <FiEdit size={18} />
                   </button>
-
-                  {/* Delete Icon */}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleDelete(teacher._id)
+                      handleDelete(teacher._id);
                     }}
                     className="text-[rgba(53,130,140,1)] hover:text-[rgba(53,130,140,0.8)]"
                   >
@@ -200,7 +209,10 @@ const AdminTeachers = () => {
 
       {/* Modals */}
       {showAddModal && (
-        <AddTeacherModal onClose={() => setShowAddModal(false)} onAdd={(data)=> handleAdd(data)} />
+        <AddTeacherModal
+          onClose={() => setShowAddModal(false)}
+          onAdd={(data) => handleAdd(data)}
+        />
       )}
       {selectedTeacher && (
         <TeacherDetailsModal
@@ -212,12 +224,12 @@ const AdminTeachers = () => {
         <EditTeacherModal
           teacher={editingTeacher}
           onClose={() => setEditingTeacher(null)}
-          onUpdate={(id,updatedTeacher) => {
-            handleUpdate(id,updatedTeacher)
+          onUpdate={(id, updatedTeacher) => {
+            handleUpdate(id, updatedTeacher);
           }}
         />
       )}
-            <ToastContainer position="top-right" autoClose={2000} hideProgressBar />
+      <ToastContainer position="top-right" autoClose={2000} hideProgressBar />
     </div>
   );
 };

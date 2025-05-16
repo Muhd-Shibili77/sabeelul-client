@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { fetchClass } from "../../redux/classSlice";
+import Loader from "../../components/loader/Loader";
 const AdminPrograms = () => {
   const dispatch = useDispatch();
   const [showModal, setShowModal] = useState(false);
@@ -15,8 +16,8 @@ const AdminPrograms = () => {
     criteria: "",
     classes: [],
   });
-  const { programs } = useSelector((state) => state.program);
-  const { classes } = useSelector((state) => state.class);
+  const { programs, loading } = useSelector((state) => state.program);
+  const { classes,loading:classLoading } = useSelector((state) => state.class);
   useEffect(() => {
     dispatch(fetchClass({ search: "", page: 1, limit: 1000 }));
   }, [dispatch]);
@@ -99,17 +100,23 @@ const AdminPrograms = () => {
 
         {/* Program List */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {programs.length > 0 ? (
+          {loading ? (
+            <div className="col-span-full flex justify-center items-center min-h-[150px]">
+              <Loader />
+            </div>
+          ) : programs.length > 0 ? (
             programs.map((program, idx) => (
               <div key={idx} className="bg-white p-4 rounded-2xl shadow-md">
                 <h3 className="text-lg font-semibold mb-2 text-[rgba(53,130,140,0.9)]">
                   {program.name}
                 </h3>
                 <p>
-                  <strong>Start:</strong> {new Date(program.startDate).toLocaleDateString("en-GB")}
+                  <strong>Start:</strong>{" "}
+                  {new Date(program.startDate).toLocaleDateString("en-GB")}
                 </p>
                 <p>
-                  <strong>End:</strong> {new Date(program.endDate).toLocaleDateString("en-GB")}
+                  <strong>End:</strong>{" "}
+                  {new Date(program.endDate).toLocaleDateString("en-GB")}
                 </p>
                 <p>
                   <strong>Criteria:</strong> {program.criteria}
@@ -170,7 +177,9 @@ const AdminPrograms = () => {
               ></textarea>
               <div>
                 <p className="font-medium mb-2">Set for Classes:</p>
+
                 <div className="flex flex-wrap gap-2">
+                 
                   {["All Classes", ...classes.map((cls) => cls.name)].map(
                     (cls) => (
                       <button

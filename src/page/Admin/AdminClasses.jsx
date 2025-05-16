@@ -21,10 +21,11 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
+import Loader from "../../components/loader/Loader";
 
 const AdminClasses = () => {
   const dispatch = useDispatch();
-  const { classes, totalPages } = useSelector((state) => state.class);
+  const { classes, totalPages,loading } = useSelector((state) => state.class);
 
   const [newClassName, setNewClassName] = useState("");
   const [expandedClass, setExpandedClass] = useState(null);
@@ -305,7 +306,8 @@ const AdminClasses = () => {
           </div>
 
           {/* Class List */}
-          {classes.length > 0 ? (
+          {loading ? (<Loader/>):(
+          classes.length > 0 ? (
             classes.map((cls) => (
               <div
                 key={cls._id}
@@ -465,6 +467,7 @@ const AdminClasses = () => {
             ))
           ) : (
             <p className="text-gray-500 text-center">No classes found.</p>
+          )
           )}
 
           {/* Pagination */}
