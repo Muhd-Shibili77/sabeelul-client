@@ -101,7 +101,7 @@ const AdminReport = () => {
 
           <button
             onClick={handleDownloadPDF}
-            className="bg-[rgba(53,130,140,0.9)] text-white px-6 py-3 rounded-lg shadow hover:bg-[rgba(53,130,140,1)]"
+            className="bg-[rgba(53,130,140,0.9)] text-white px-6 py-3 rounded-xl shadow hover:bg-[rgba(53,130,140,1)]"
           >
             Download PDF
           </button>
@@ -116,7 +116,7 @@ const AdminReport = () => {
           {reportType === 'Student-wise' ? (
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-[rgba(53,130,140,0.9)] text-white">
+                <tr className="bg-[rgba(53,130,140,0.9)] text-white rounded-lg">
                   <th className="p-2">Name</th>
                   <th className="p-2">Class</th>
                   <th className="p-2">Marks</th>
@@ -151,7 +151,7 @@ const AdminReport = () => {
                 <h3 className="font-semibold text-gray-700 mb-2">Class {className}</h3>
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-[rgba(53,130,140,0.9)] text-white">
+                    <tr className="bg-[rgba(53,130,140,0.9)] text-white rounded-2xl">
                       <th className="p-2">Name</th>
                       <th className="p-2">Marks</th>
                     </tr>

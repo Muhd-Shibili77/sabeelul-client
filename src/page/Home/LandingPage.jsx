@@ -119,7 +119,7 @@ const LandingPage = () => {
           <div className="bg-white rounded-2xl shadow-xl p-6 flex items-center space-x-4">
             <img
               src={`${import.meta.env.VITE_API_URL}/${data?.bestPerformerClass?.classLogo}`}
-              alt="profile"
+              
               className="h-16 w-16 rounded-full border-2 border-yellow-400"
             />
             <div>
