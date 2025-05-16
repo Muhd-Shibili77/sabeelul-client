@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { FiUpload } from "react-icons/fi";
 import imageCompression from "browser-image-compression";
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const EditTeacherModal = ({ teacher, onClose, onUpdate }) => {
   const [registerNumber, setRegisterNumber] = useState(1552525);
   const [name, setName] = useState(teacher.name);
@@ -11,7 +12,7 @@ const EditTeacherModal = ({ teacher, onClose, onUpdate }) => {
   const [password, setPassword] = useState("");
   const [previewImage, setPreviewImage] = useState(teacher.profileImage);
   const [selectedFile, setSelectedFile] = useState(null);
-    const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -23,13 +24,58 @@ const EditTeacherModal = ({ teacher, onClose, onUpdate }) => {
     }
   };
 
-  const handleUpdate = async () => {
-    if (isSubmitting) return;
+ const handleUpdate = async () => {
+  if (isSubmitting) return;
 
-    setIsSubmitting(true);
-    let imageUrl = previewImage;
+  // Validate all fields
+  if (
+    !registerNumber ||
+    !name.trim() ||
+    !phone.trim() ||
+    !address.trim() ||
+    !email.trim()
+  ) {
+    toast.error("Please fill in all required fields.");
+    return;
+  }
 
-    if (selectedFile !== null) {
+  // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    toast.error("Please enter a valid email address.");
+    return;
+  }
+
+  // Validate phone number (10 digits)
+  const phoneRegex = /^\d{10}$/;
+  if (!phoneRegex.test(phone)) {
+    toast.error("Phone number must be exactly 10 digits.");
+    return;
+  }
+
+
+
+  // Validate image if selected
+  if (selectedFile) {
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(selectedFile.type)) {
+      toast.error("Only JPEG, PNG, or WEBP images are allowed.");
+      return;
+    }
+
+    const maxSizeMB = 2;
+    const sizeInMB = selectedFile.size / (1024 * 1024);
+    if (sizeInMB > maxSizeMB) {
+      toast.error("Image size must be less than 2MB.");
+      return;
+    }
+  }
+
+  setIsSubmitting(true);
+  let imageUrl = previewImage;
+
+  if (selectedFile !== null) {
+    try {
       const compressedFile = await imageCompression(selectedFile, {
         maxSizeMB: 0.2,
         maxWidthOrHeight: 800,
@@ -42,48 +88,50 @@ const EditTeacherModal = ({ teacher, onClose, onUpdate }) => {
       data.append("upload_preset", "TeacherProfile");
       data.append("cloud_name", "dzr8vw5rf");
 
-      try {
-        const res = await fetch(
-          "https://api.cloudinary.com/v1_1/dzr8vw5rf/image/upload",
-          {
-            method: "POST",
-            body: data,
-          }
-        );
+      const res = await fetch(
+        "https://api.cloudinary.com/v1_1/dzr8vw5rf/image/upload",
+        {
+          method: "POST",
+          body: data,
+        }
+      );
 
-        const cloudinaryData = await res.json();
-        imageUrl = cloudinaryData.secure_url;
-      } catch (error) {
-        console.error("Image upload failed", error);
-        setError("Image upload failed. Please try again.");
-        return;
-      }
-    }
-    const updatedTeacher = {
-      ...teacher,
-      registerNumber,
-      name,
-      phone,
-      address,
-      email,
-      password,
-      profile: imageUrl,
-    };
-    try {
-      const result = onUpdate(updatedTeacher._id, updatedTeacher);
+      const cloudinaryData = await res.json();
+      imageUrl = cloudinaryData.secure_url;
     } catch (error) {
-      console.error("Unexpected error occurred", error);
-
-      if (error && error.message) {
-        console.log(error);
-        setError(error.message, "qwerty"); // Set the specific error message
-      } else {
-        setError("Unexpected error occurred."); // Fallback message
-      }
+      console.error("Image upload failed", error);
+      toast.error("Image upload failed. Please try again.");
+      setIsSubmitting(false);
+      return;
     }
-    setIsSubmitting(false);
+  }
 
+  const updatedTeacher = {
+    ...teacher,
+    registerNumber,
+    name,
+    phone,
+    address,
+    email,
+    password,
+    profile: imageUrl,
   };
+
+  try {
+    await onUpdate(updatedTeacher._id, updatedTeacher);
+    toast.success("Teacher updated successfully!");
+  } catch (error) {
+    console.error("Unexpected error occurred", error);
+    if (error && error.message) {
+      toast.error(error.message);
+    } else {
+      toast.error("Unexpected error occurred.");
+    }
+  }
+
+  setIsSubmitting(false);
+};
+
 
   return (
     <div className="fixed inset-0 bg-transparent backdrop-blur-sm bg-opacity-30 flex justify-center items-center z-50">
@@ -170,37 +218,39 @@ const EditTeacherModal = ({ teacher, onClose, onUpdate }) => {
               isSubmitting
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-[rgba(53,130,140,0.9)] hover:bg-[rgba(53,130,140,1)]"
-            } text-white rounded`}            >
+            } text-white rounded`}
+          >
             {isSubmitting ? (
-                <div className="flex items-center gap-2">
-                  <svg
-                    className="animate-spin h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                    ></path>
-                  </svg>
-                  Saving...
-                </div>
-              ) : (
-                "Save Changes"
-              )}
+              <div className="flex items-center gap-2">
+                <svg
+                  className="animate-spin h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  ></path>
+                </svg>
+                Saving...
+              </div>
+            ) : (
+              "Save Changes"
+            )}
           </button>
         </div>
       </div>
+      <ToastContainer position="top-right" autoClose={2000} hideProgressBar />
     </div>
   );
 };

@@ -38,7 +38,7 @@ const AdminClasses = () => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [editedClassName, setEditedClassName] = useState("");
-  
+
   // Add these new states for editing icon
   const [editedIconFile, setEditedIconFile] = useState(null);
   const [iconPreview, setIconPreview] = useState(null);
@@ -82,13 +82,42 @@ const AdminClasses = () => {
       reader.readAsDataURL(file);
     }
   };
-
   const handleAddClass = async () => {
-    if (!newClassName.trim() || !iconFile) return;
+    // Validate class name
+    if (!newClassName.trim()) {
+      toast.error("Class name is required.");
+      return;
+    }
 
+    if (newClassName.length < 2 || newClassName.length > 30) {
+      toast.error("Class name must be between 2 and 30 characters.");
+      return;
+    }
+
+    // Validate icon
+    if (!iconFile) {
+      toast.error("Please select an icon file.");
+      return;
+    }
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(iconFile.type)) {
+      toast.error("Only JPEG, PNG, or WEBP image formats are allowed.");
+      return;
+    }
+
+    const maxSizeMB = 2;
+    const fileSizeMB = iconFile.size / (1024 * 1024);
+    if (fileSizeMB > maxSizeMB) {
+      toast.error("Icon size must be less than 2MB.");
+      return;
+    }
+
+    // If all validations pass, proceed
     const newClass = new FormData();
     newClass.append("name", newClassName);
     newClass.append("icon", iconFile);
+
     try {
       await dispatch(addClass({ newClass })).unwrap();
       setNewClassName("");
@@ -96,8 +125,10 @@ const AdminClasses = () => {
       setIconFile(null);
       setPreviewIcon(null);
       refreshList();
+      toast.success("Class added successfully!");
     } catch (err) {
       console.error("Failed to add class:", err.message || err);
+      toast.error("Failed to add class. Please try again.");
     }
   };
 
@@ -148,21 +179,45 @@ const AdminClasses = () => {
   };
 
   const handleEditClassName = async (id) => {
-    if (!editedClassName.trim()) return;
+    // Validate class name
+    if (!editedClassName.trim()) {
+      toast.error("Class name is required.");
+      return;
+    }
+
+    if (editedClassName.length < 2 || editedClassName.length > 30) {
+      toast.error("Class name must be between 2 and 30 characters.");
+      return;
+    }
+
+    // Validate icon file (if a new one is selected)
+    if (editedIconFile) {
+      const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+      const maxSizeMB = 2;
+      const fileSizeMB = editedIconFile.size / (1024 * 1024);
+
+      if (!allowedTypes.includes(editedIconFile.type)) {
+        toast.error("Only JPEG, PNG, or WEBP images are allowed.");
+        return;
+      }
+
+      if (fileSizeMB > maxSizeMB) {
+        toast.error("Icon size must be less than 2MB.");
+        return;
+      }
+    }
+
     const updatedData = new FormData();
     updatedData.append("name", editedClassName);
-    
+
     if (editedIconFile) {
       updatedData.append("icon", editedIconFile);
     } else {
-        // If no new icon selected, we need to handle this case in the reducer
-        updatedData.append("keepExistingIcon", "true");
-      }
+      updatedData.append("keepExistingIcon", "true");
+    }
 
     try {
-      await dispatch(
-        updateClass({ id, updatedData })
-      ).unwrap();
+      await dispatch(updateClass({ id, updatedData })).unwrap();
       toast.success("Class updated successfully");
       setEditingClass(null);
       setEditedClassName("");
@@ -170,8 +225,8 @@ const AdminClasses = () => {
       setIconPreview(null);
       refreshList();
     } catch (err) {
-      toast.error(err.message || "Failed to update class");
-      console.error("Failed to edit class:", err.message || err);
+      toast.error(err?.message || "Failed to update class");
+      console.error("Failed to edit class:", err?.message || err);
     }
   };
 
@@ -206,7 +261,9 @@ const AdminClasses = () => {
   const startEditingClass = (cls) => {
     setEditingClass(cls._id);
     setEditedClassName(cls.name);
-    setIconPreview(cls.icon ? `${import.meta.env.VITE_API_URL}/${cls.icon}` : null);
+    setIconPreview(
+      cls.icon ? `${import.meta.env.VITE_API_URL}/${cls.icon}` : null
+    );
     setEditedIconFile(null);
   };
 
@@ -259,7 +316,10 @@ const AdminClasses = () => {
                     <div className="flex flex-col md:flex-row gap-4 w-full">
                       {/* Edit Icon Preview */}
                       <div className="flex flex-col items-center">
-                        <label htmlFor={`edit-icon-${cls._id}`} className="cursor-pointer">
+                        <label
+                          htmlFor={`edit-icon-${cls._id}`}
+                          className="cursor-pointer"
+                        >
                           <div className="w-16 h-16 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden relative">
                             {iconPreview ? (
                               <img
@@ -282,7 +342,7 @@ const AdminClasses = () => {
                           onChange={handleEditIconChange}
                         />
                       </div>
-                      
+
                       {/* Edit Class Name Input */}
                       <div className="flex flex-col md:flex-row gap-2 items-center">
                         <input
@@ -336,9 +396,7 @@ const AdminClasses = () => {
                         <FaChevronDown />
                       )}
                     </button>
-                    <button
-                      onClick={() => startEditingClass(cls)}
-                    >
+                    <button onClick={() => startEditingClass(cls)}>
                       <FaEdit />
                     </button>
                     <button

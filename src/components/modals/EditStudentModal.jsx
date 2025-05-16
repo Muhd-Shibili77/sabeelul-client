@@ -2,9 +2,11 @@ import React, { useState, useRef, useEffect } from "react";
 import { FiUpload } from "react-icons/fi";
 import defaultPhoto from "/defaultProfile/freepik__upload__39837.png";
 import imageCompression from "browser-image-compression";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const EditStudentModal = ({ onClose, studentData, onUpdate, classes }) => {
-    const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     admissionNo: "",
     name: "",
@@ -65,24 +67,81 @@ const EditStudentModal = ({ onClose, studentData, onUpdate, classes }) => {
 
     if (isSubmitting) return;
 
+    const {
+      admissionNo,
+      name,
+      phone,
+      email,
+      password,
+      className,
+      address,
+      guardianName,
+      profile,
+    } = formData;
+
+    // Required field check
+    if (
+      !admissionNo.trim() ||
+      !name.trim() ||
+      !phone.trim() ||
+      !email.trim() ||
+      !className.trim() ||
+      !address.trim() ||
+      !guardianName.trim()
+    ) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+
+    // Email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid email address.");
+      return;
+    }
+
+    // Phone format
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(phone)) {
+      toast.error("Phone number must be exactly 10 digits.");
+      return;
+    }
+
+
+    // Image validation (optional)
+    if (selectedFile) {
+      const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+      if (!allowedTypes.includes(selectedFile.type)) {
+        toast.error("Only JPEG, PNG, or WEBP images are allowed.");
+        return;
+      }
+
+      const maxSizeMB = 2;
+      const sizeInMB = selectedFile.size / (1024 * 1024);
+      if (sizeInMB > maxSizeMB) {
+        toast.error("Image size must be less than 2MB.");
+        return;
+      }
+    }
+
     setIsSubmitting(true);
 
     let imageUrl = formData.photo;
 
     if (selectedFile) {
-      const compressedFile = await imageCompression(selectedFile, {
-        maxSizeMB: 0.2,
-        maxWidthOrHeight: 800,
-        useWebWorker: true,
-        fileType: "image/webp",
-      });
-
-      const data = new FormData();
-      data.append("file", compressedFile);
-      data.append("upload_preset", "StudentProfile");
-      data.append("cloud_name", "dzr8vw5rf");
-
       try {
+        const compressedFile = await imageCompression(selectedFile, {
+          maxSizeMB: 0.2,
+          maxWidthOrHeight: 800,
+          useWebWorker: true,
+          fileType: "image/webp",
+        });
+
+        const data = new FormData();
+        data.append("file", compressedFile);
+        data.append("upload_preset", "StudentProfile");
+        data.append("cloud_name", "dzr8vw5rf");
+
         const res = await fetch(
           "https://api.cloudinary.com/v1_1/dzr8vw5rf/image/upload",
           {
@@ -94,17 +153,26 @@ const EditStudentModal = ({ onClose, studentData, onUpdate, classes }) => {
         imageUrl = cloudinaryData.secure_url;
       } catch (error) {
         console.error("Image upload failed", error);
+        toast.error("Image upload failed. Please try again.");
+        setIsSubmitting(false);
         return;
       }
     }
 
     const updatedData = {
       ...formData,
-      profile: imageUrl, // match backend field
+      profile: imageUrl, // Make sure your backend expects this field
     };
 
-    onUpdate && onUpdate(studentData._id, updatedData);
-    onClose();
+    try {
+      onUpdate && onUpdate(studentData._id, updatedData);
+      toast.success("Student updated successfully!");
+      onClose();
+    } catch (err) {
+      console.error("Update failed", err);
+      toast.error("Failed to update student. Please try again.");
+    }
+
     setIsSubmitting(false);
   };
 
@@ -253,7 +321,8 @@ const EditStudentModal = ({ onClose, studentData, onUpdate, classes }) => {
                 isSubmitting
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-[rgba(53,130,140,0.9)] hover:bg-[rgba(53,130,140,1)]"
-              } text-white rounded`}            >
+              } text-white rounded`}
+            >
               {isSubmitting ? (
                 <div className="flex items-center gap-2">
                   <svg
@@ -285,6 +354,7 @@ const EditStudentModal = ({ onClose, studentData, onUpdate, classes }) => {
           </div>
         </form>
       </div>
+      <ToastContainer position="top-right" autoClose={2000} hideProgressBar />
     </div>
   );
 };

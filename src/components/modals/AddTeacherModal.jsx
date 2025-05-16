@@ -1,7 +1,9 @@
 import React, { useRef, useState } from "react";
 import { FiUpload } from "react-icons/fi";
-import photo from "/defaultProfile/freepik__upload__39837.png"; 
+import photo from "/defaultProfile/freepik__upload__39837.png";
 import imageCompression from "browser-image-compression";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const AddTeacherModal = ({ onClose, onAdd }) => {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,6 +40,53 @@ const AddTeacherModal = ({ onClose, onAdd }) => {
   const handleAdd = async () => {
     setError(""); // clear previous errors
     if (isSubmitting) return;
+    const { name, phone, address, registerNumber, email, password, profile } =
+      formData;
+    if (
+      !name.trim() ||
+      !phone.trim() ||
+      !address.trim() ||
+      !registerNumber.trim() ||
+      !email.trim() ||
+      !password.trim()
+    ) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid email address.");
+      return;
+    }
+
+    // Phone number validation (10 digits only)
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(phone)) {
+      toast.error("Phone number must be 10 digits.");
+      return;
+    }
+
+    // Password validation (minimum 6 characters)
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters long.");
+      return;
+    }
+
+    // Image validation (if profile is selected and not a string)
+    if (profile && typeof profile !== "string") {
+      const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+      if (!allowedTypes.includes(profile.type)) {
+        toast.error("Only JPEG, PNG, or WEBP images are allowed.");
+        return;
+      }
+
+      const maxSizeInMB = 2;
+      const sizeInMB = profile.size / (1024 * 1024);
+      if (sizeInMB > maxSizeInMB) {
+        toast.error("Image size must be less than 2MB.");
+        return;
+      }
+    }
 
     setIsSubmitting(true);
     let imageUrl = photoPreview;
@@ -84,7 +133,6 @@ const AddTeacherModal = ({ onClose, onAdd }) => {
       console.error("Unexpected error occurred", error);
 
       if (error && error.message) {
-        console.log(error);
         setError(error.message, "qwerty"); // Set the specific error message
       } else {
         setError("Unexpected error occurred."); // Fallback message
@@ -229,6 +277,7 @@ const AddTeacherModal = ({ onClose, onAdd }) => {
           </button>
         </div>
       </div>
+      <ToastContainer position="top-right" autoClose={2000} hideProgressBar />
     </div>
   );
 };

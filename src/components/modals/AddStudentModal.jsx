@@ -1,6 +1,8 @@
 import React, { useState, useRef } from "react";
 import photo from "/defaultProfile/freepik__upload__39837.png"; // Default photo path
 import imageCompression from "browser-image-compression";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const AddStudentModal = ({ onAdd, onClose, classes }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -44,6 +46,65 @@ const AddStudentModal = ({ onAdd, onClose, classes }) => {
 
     if (isSubmitting) return;
 
+    const {
+      admissionNo,
+      name,
+      phone,
+      email,
+      password,
+      className,
+      address,
+      guardianName,
+      profile,
+    } = formData;
+
+    if (
+      !admissionNo.trim() ||
+      !name.trim() ||
+      !phone.trim() ||
+      !email.trim() ||
+      !password.trim() ||
+      !className.trim() ||
+      !address.trim() ||
+      !guardianName.trim()
+    ) {
+     
+
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid email address.");
+      return;
+    }
+
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(phone)) {
+      toast.error("Please enter a valid 10-digit phone number.");
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters long.");
+      return;
+    }
+
+    if (profile && typeof profile !== "string") {
+      const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+      if (!allowedTypes.includes(profile.type)) {
+        toast.error("Only JPEG, PNG, or WEBP images are allowed.");
+        return;
+      }
+
+      const maxSizeInMB = 2;
+      const sizeInMB = profile.size / (1024 * 1024);
+      if (sizeInMB > maxSizeInMB) {
+        toast.error("Image size should be less than 2MB.");
+        return;
+      }
+    }
+
     setIsSubmitting(true);
 
     let imageUrl = photoPreview;
@@ -73,6 +134,8 @@ const AddStudentModal = ({ onAdd, onClose, classes }) => {
         imageUrl = cloudinaryData.secure_url;
       } catch (error) {
         console.error("Image upload failed", error);
+        toast.error("Image upload failed. Please try again.");
+        setIsSubmitting(false);
 
         return;
       }
@@ -247,6 +310,7 @@ const AddStudentModal = ({ onAdd, onClose, classes }) => {
           </div>
         </form>
       </div>
+      <ToastContainer position="top-right" autoClose={2000} hideProgressBar />
     </div>
   );
 };
