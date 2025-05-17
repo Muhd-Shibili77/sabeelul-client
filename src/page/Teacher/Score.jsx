@@ -196,7 +196,7 @@ const Score = () => {
                     className="p-4 bg-[rgba(53,130,140,0.1)] rounded-xl"
                   >
                     <p className="font-medium text-gray-700">
-                      AdmNo: {student.admissionNo} - {student.name}{" "}
+                      Ad No: {student.admissionNo} - {student.name}{" "}
                     </p>
 
                     {scoreType === "CCE" ? (
