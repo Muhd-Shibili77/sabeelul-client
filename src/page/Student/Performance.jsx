@@ -13,10 +13,12 @@ const Performance = () => {
   const [showAllActivities, setShowAllActivities] = useState(false);
   const [isCCEModalOpen, setIsCCEModalOpen] = useState(false);
   const [cceData, setCceData] = useState(null);
+  console.log(data);
   const performanceData = {
     cceMark: data?.cceScore,
     penaltyMarks: 0,
     creditMarks: data?.creditScore,
+    mentorMarks: data?.mentorMark,
     level: getLevelData(data?.totalScore),
     yourScore: `${data?.totalScore}`,
     activities:
@@ -65,7 +67,7 @@ const Performance = () => {
             </h2>
 
             {/* Your Score and Level */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-[rgba(53,130,140,0.1)] p-6 rounded-lg shadow">
                 <h3 className="text-lg font-semibold text-gray-700">
                   Your Score
@@ -75,6 +77,17 @@ const Performance = () => {
                 </p>
                 <p className="text-sm text-gray-600 mt-1">
                   Based on overall performance
+                </p>
+              </div>
+              <div className="bg-[rgba(53,130,140,0.1)] p-6 rounded-lg shadow">
+                <h3 className="text-lg font-semibold text-gray-700">
+                  Your Mentor Score
+                </h3>
+                <p className={`text-3xl font-bold ${theme.text} mt-2`}>
+                  {performanceData.mentorMarks}
+                </p>
+                <p className="text-sm text-gray-600 mt-1">
+                  Evaluated on holistic development
                 </p>
               </div>
               <div className="bg-[rgba(53,130,140,0.1)] p-6 rounded-lg shadow relative">
@@ -108,7 +121,7 @@ const Performance = () => {
 
             {/* Conditional Rendering of Details */}
             {showMore && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 transition-all">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 transition-all">
                 <div className="bg-gray-50 p-4 rounded-lg shadow-md">
                   <h4 className="text-md font-semibold text-gray-700">
                     Credit Score
@@ -127,13 +140,22 @@ const Performance = () => {
                     </p>
                   </div>
                   <button
-                      onClick={openCCEModal}
+                    onClick={openCCEModal}
                     className={`text-sm ${theme.color} text-white px-3 py-1.5 rounded-md ${theme.hoverBg} transition`}
                   >
                     View Details
                   </button>
                 </div>
 
+                <div className="bg-gray-50 p-4 rounded-lg shadow-md">
+                  <h4 className="text-md font-semibold text-gray-700">
+                    Mentor Score
+                  </h4>
+                  <p className="text-2xl text-gray-600 font-bold mt-1">
+                    {performanceData.mentorMarks}
+                  </p>
+                </div>
+                
                 <div className="bg-gray-50 p-4 rounded-lg shadow-md">
                   <h4 className="text-md font-semibold text-gray-700">
                     Penalty Score
