@@ -63,12 +63,16 @@ const Score = () => {
         const studentMarks = marks[studentId];
         for (const phase of ["Phase 1", "Phase 2", "Phase 3"]) {
           const mark = studentMarks[phase];
-          if (mark && mark > 20) {
-            toast.error("CCE marks should be out of 20.");
+          if (mark && mark > 10) {
+            toast.error("CCE marks should be out of 10.");
+            return 
+          }
+          if (mark && mark < 0) {
+            toast.error("CCE marks should greater than 0.");
             return 
           }
 
-          if (mark && mark <= 20) {
+          if (mark && mark <= 10 && mark >= 0) {
             const data = {
               classId: selectedClass,
               subjectName: selectedSubject,
