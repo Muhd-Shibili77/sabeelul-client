@@ -83,43 +83,56 @@ const LandingPage = () => {
       <div className="p-6 md:p-10 space-y-10">
         {/* Highlights */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white rounded-2xl shadow-xl p-6 flex items-center space-x-4">
+          <div className="bg-white rounded-2xl shadow-xl p-6 flex items-center space-x-6">
             {data?.starPerformer ? (
               <>
                 <img
                   src={data?.starPerformer?.profileImage}
                   alt="profile"
-                  className="h-16 w-16 rounded-full border-2 border-yellow-400"
+                  className="h-20 w-20 rounded-full border-4  object-cover"
+                  style={{ border: '5 px solid rgba(53, 130, 140, 0.4)' }}
                 />
 
-                <div>
-                  <h2 className="text-xl font-bold">Star Performer</h2>
-                  <p className="text-lg ">{data?.starPerformer?.name}</p>
-                  <p className="text-lg ">
-                    {data?.starPerformer?.classId?.name}
+                <div className="flex flex-col space-y-1">
+                  <h2 className="text-2xl font-bold text-gray-800">
+                    Star Performer
+                  </h2>
+                  <p className="text-lg text-gray-700 font-semibold">
+                    {data?.starPerformer?.name}
                   </p>
-                  <p className="text-lg ">
-                    <strong>score: </strong>{" "}
-                    {Math.round(data?.starPerformer?.performanceScore)}
+                  <p className="text-md text-gray-600 italic">
+                    Class: {data?.starPerformer?.classId?.name}
+                  </p>
+                  <p className="text-md mt-2">
+                    <span className="inline-block bg-gradient-to-r from-yellow-400 to-orange-400 text-white font-bold px-3 py-1 rounded-full shadow-sm">
+                      Score:{" "}
+                      {Math.round(data?.starPerformer?.performanceScore) + 200}
+                    </span>
                   </p>
                 </div>
               </>
             ) : (
               <>
-                <span className="h-16 w-16 rounded-full border-2 border-yellow-400"></span>
-                <div>
-                  <h2 className="text-xl font-semibold">Star Performer</h2>
-                  <p className="text-lg font-bold">
-                    "Be the next Star Performer 💪"
+                <div className="h-20 w-20 rounded-full border-4 border-yellow-300 bg-gray-100 flex items-center justify-center text-yellow-400 text-2xl">
+                  ?
+                </div>
+                <div className="flex flex-col space-y-1">
+                  <h2 className="text-2xl font-bold text-gray-800">
+                    Star Performer
+                  </h2>
+                  <p className="text-md font-medium text-gray-600">
+                    Be the next Star Performer 💪
                   </p>
                 </div>
               </>
             )}
           </div>
+
           <div className="bg-white rounded-2xl shadow-xl p-6 flex items-center space-x-4">
             <img
-              src={`${import.meta.env.VITE_API_URL}/${data?.bestPerformerClass?.classLogo}`}
-              
+              src={`${import.meta.env.VITE_API_URL}/${
+                data?.bestPerformerClass?.classLogo
+              }`}
               className="h-16 w-16 rounded-full border-2 border-yellow-400"
             />
             <div>
@@ -137,8 +150,10 @@ const LandingPage = () => {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {/* Leaderboard */}
           <div className="bg-white rounded-3xl shadow-2xl md:p-8 p-2 border border-gray-200 md:pl-10 md:pr-10">
-            <h2 className="md:text-3xl text-2xl font-bold text-gray-700 mb-6 mt-2">
-              Top 10 Students Leaderboard
+            <h2 className="md:text-3xl text-lg font-bold text-gray-700 mb-6 mt-2">
+              {`Students`}
+              <br />
+              {`Leaderboard`}
             </h2>
             <div className="overflow-x-auto">
               <table className="min-w-full text-sm sm:text-base border-separate border-spacing-y-2">
@@ -188,7 +203,7 @@ const LandingPage = () => {
                           </td>
                           <td className="p-4 sm:text-xs text-gray-700 text-center">
                             {student
-                              ? Math.round(student.performanceScore)
+                              ? Math.round(student.performanceScore) + 200
                               : "--"}
                           </td>
                         </tr>
@@ -202,7 +217,9 @@ const LandingPage = () => {
           {/* class leaderboard */}
           <div className="bg-white rounded-3xl shadow-2xl md:p-8 p-2 border border-gray-200 md:pl-10 md:pr-10">
             <h2 className="md:text-3xl text-xl font-bold text-gray-700 mb-6 mt-2">
-              Top 10 Classes Leaderboard
+              {`Classes`}
+              <br />
+              {`Leaderboard`}
             </h2>
             <div className="overflow-x-auto">
               <table className="min-w-full text-sm sm:text-base border-separate border-spacing-y-2">
@@ -216,46 +233,44 @@ const LandingPage = () => {
                     <th className="p-4 rounded-r-2xl">Mark</th>
                   </tr>
                 </thead>
-                 <tbody>
-                    {classLeaderboardLoading ? (
-                      <tr>
-                        <td colSpan="3" className="text-center p-4">
-                          Loading leaderboard data...
-                        </td>
-                      </tr>
-                    ) : Classleaderboard && Classleaderboard.length > 0 ? (
-                      [...Array(10)].map((_, index) => {
-                        const classes = Classleaderboard?.[index];
+                <tbody>
+                  {classLeaderboardLoading ? (
+                    <tr>
+                      <td colSpan="3" className="text-center p-4">
+                        Loading leaderboard data...
+                      </td>
+                    </tr>
+                  ) : Classleaderboard && Classleaderboard.length > 0 ? (
+                    [...Array(10)].map((_, index) => {
+                      const classes = Classleaderboard?.[index];
 
-                        return (
-                          <tr
-                            key={classes?._id || index}
-                            className="bg-white shadow-md rounded-xl hover:shadow-lg transition-all duration-300 text-center"
-                          >
-                            <td className="p-4 font-semibold text-teal-600">
-                              <span className="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-sm">
-                                #{index + 1}
-                              </span>
-                            </td>
-                            <td className="p-4 font-bold text-lg text-gray-800">
-                              {classes ? classes.className : "--"}
-                            </td>
-                            <td className="p-4 text-gray-700">
-                              {classes
-                                ? Math.round(classes.totalScore)
-                                : "--"}
-                            </td>
-                          </tr>
-                        );
-                      })
-                    ) : (
-                      <tr>
-                        <td colSpan="3" className="text-center p-4">
-                          No class found 
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
+                      return (
+                        <tr
+                          key={classes?._id || index}
+                          className="bg-white shadow-md rounded-xl hover:shadow-lg transition-all duration-300 text-center"
+                        >
+                          <td className="p-4 font-semibold text-teal-600">
+                            <span className="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-sm">
+                              #{index + 1}
+                            </span>
+                          </td>
+                          <td className="p-4 font-bold text-lg text-gray-800">
+                            {classes ? classes.className : "--"}
+                          </td>
+                          <td className="p-4 text-gray-700">
+                            {classes ? Math.round(classes.totalScore) : "--"}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan="3" className="text-center p-4">
+                        No class found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
               </table>
             </div>
           </div>
@@ -264,7 +279,7 @@ const LandingPage = () => {
           <div className="bg-white rounded-3xl shadow-2xl md:p-8 p-2 border border-gray-200 md:pl-10 md:pr-10">
             <div className="flex justify-between items-center mb-6 mt-2">
               <h2 className="md:text-3xl text-2xl font-bold text-gray-700">
-                Class-Wise Leaderboard
+                Classwise Leaderboard
               </h2>
               <select
                 className="p-2 px-4 border border-gray-300 rounded-xl shadow-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-400"
@@ -317,7 +332,7 @@ const LandingPage = () => {
                             </td>
                             <td className="p-4 text-gray-700">
                               {student
-                                ? Math.round(student.performanceScore)
+                                ? Math.round(student.performanceScore) + 200
                                 : "--"}
                             </td>
                           </tr>
