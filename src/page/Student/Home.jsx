@@ -19,7 +19,7 @@ const Home = () => {
     },
     latestAchievement: {
       title: data?.latestAchievement?.name,
-      score: `${data?.latestAchievement?.mark} / 10`,
+      score: `${data?.latestAchievement?.mark}`,
       date: data?.latestAchievement?.date ? new Date(data?.latestAchievement?.date).toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
