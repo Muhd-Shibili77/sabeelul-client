@@ -4,7 +4,7 @@ import imageCompression from "browser-image-compression";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 const EditTeacherModal = ({ teacher, onClose, onUpdate }) => {
-  const [registerNumber, setRegisterNumber] = useState(1552525);
+  const [registerNumber, setRegisterNumber] = useState(teacher.registerNo);
   const [name, setName] = useState(teacher.name);
   const [phone, setPhone] = useState(teacher.phone);
   const [address, setAddress] = useState(teacher.address);
@@ -24,123 +24,120 @@ const EditTeacherModal = ({ teacher, onClose, onUpdate }) => {
     }
   };
 
- const handleUpdate = async () => {
-  if (isSubmitting) return;
+  const handleUpdate = async () => {
+    if (isSubmitting) return;
 
-  // Validate all fields
-  if (
-    !registerNumber ||
-    !name.trim() ||
-    !phone.trim() ||
-    !address.trim() ||
-    !email.trim()
-  ) {
-    toast.error("Please fill in all required fields.");
-    return;
-  }
-
-  // Validate email format
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    toast.error("Please enter a valid email address.");
-    return;
-  }
-
-  // Validate phone number (10 digits)
-  const phoneRegex = /^\d{10}$/;
-  if (!phoneRegex.test(phone)) {
-    toast.error("Phone number must be exactly 10 digits.");
-    return;
-  }
-
-
-
-  // Validate image if selected
-  if (selectedFile) {
-    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
-    if (!allowedTypes.includes(selectedFile.type)) {
-      toast.error("Only JPEG, PNG, or WEBP images are allowed.");
+    // Validate all fields
+    if (
+      !registerNumber ||
+      !name.trim() ||
+      !address.trim() ||
+      !email.trim()
+    ) {
+      toast.error("Please fill in all required fields.");
       return;
     }
 
-    const maxSizeMB = 2;
-    const sizeInMB = selectedFile.size / (1024 * 1024);
-    if (sizeInMB > maxSizeMB) {
-      toast.error("Image size must be less than 2MB.");
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid email address.");
       return;
     }
-  }
 
-  setIsSubmitting(true);
-  let imageUrl = previewImage;
+    // Validate phone number (10 digits)
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(phone)) {
+      toast.error("Phone number must be exactly 10 digits.");
+      return;
+    }
 
-  if (selectedFile !== null) {
+    // Validate image if selected
+    if (selectedFile) {
+      const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+      if (!allowedTypes.includes(selectedFile.type)) {
+        toast.error("Only JPEG, PNG, or WEBP images are allowed.");
+        return;
+      }
+
+      const maxSizeMB = 2;
+      const sizeInMB = selectedFile.size / (1024 * 1024);
+      if (sizeInMB > maxSizeMB) {
+        toast.error("Image size must be less than 2MB.");
+        return;
+      }
+    }
+
+    setIsSubmitting(true);
+    let imageUrl = previewImage;
+
+    if (selectedFile !== null) {
+      try {
+        const compressedFile = await imageCompression(selectedFile, {
+          maxSizeMB: 0.2,
+          maxWidthOrHeight: 800,
+          useWebWorker: true,
+          fileType: "image/webp",
+        });
+
+        const data = new FormData();
+        data.append("file", compressedFile);
+        data.append("upload_preset", "TeacherProfile");
+        data.append("cloud_name", "dzr8vw5rf");
+
+        const res = await fetch(
+          "https://api.cloudinary.com/v1_1/dzr8vw5rf/image/upload",
+          {
+            method: "POST",
+            body: data,
+          }
+        );
+
+        const cloudinaryData = await res.json();
+        imageUrl = cloudinaryData.secure_url;
+      } catch (error) {
+        console.error("Image upload failed", error);
+        toast.error("Image upload failed. Please try again.");
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
+    const updatedTeacher = {
+      ...teacher,
+      registerNumber,
+      name,
+      phone,
+      address,
+      email,
+      password,
+      profile: imageUrl,
+    };
+
     try {
-      const compressedFile = await imageCompression(selectedFile, {
-        maxSizeMB: 0.2,
-        maxWidthOrHeight: 800,
-        useWebWorker: true,
-        fileType: "image/webp",
-      });
-
-      const data = new FormData();
-      data.append("file", compressedFile);
-      data.append("upload_preset", "TeacherProfile");
-      data.append("cloud_name", "dzr8vw5rf");
-
-      const res = await fetch(
-        "https://api.cloudinary.com/v1_1/dzr8vw5rf/image/upload",
-        {
-          method: "POST",
-          body: data,
-        }
-      );
-
-      const cloudinaryData = await res.json();
-      imageUrl = cloudinaryData.secure_url;
+      await onUpdate(updatedTeacher._id, updatedTeacher);
+      toast.success("Teacher updated successfully!");
     } catch (error) {
-      console.error("Image upload failed", error);
-      toast.error("Image upload failed. Please try again.");
-      setIsSubmitting(false);
-      return;
+      console.error("Unexpected error occurred", error);
+      if (error && error.message) {
+        toast.error(error.message);
+      } else {
+        toast.error("Unexpected error occurred.");
+      }
     }
-  }
 
-  const updatedTeacher = {
-    ...teacher,
-    registerNumber,
-    name,
-    phone,
-    address,
-    email,
-    password,
-    profile: imageUrl,
+    setIsSubmitting(false);
   };
-
-  try {
-    await onUpdate(updatedTeacher._id, updatedTeacher);
-    toast.success("Teacher updated successfully!");
-  } catch (error) {
-    console.error("Unexpected error occurred", error);
-    if (error && error.message) {
-      toast.error(error.message);
-    } else {
-      toast.error("Unexpected error occurred.");
-    }
-  }
-
-  setIsSubmitting(false);
-};
-
 
   return (
     <div className="fixed inset-0 bg-transparent backdrop-blur-sm bg-opacity-30 flex justify-center items-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-xl w-[90%] max-w-lg">
+      <div className="bg-white p-6 rounded-lg shadow-xl w-[90%] max-w-2xl">
         <h2 className="text-xl font-semibold mb-4 text-[rgba(53,130,140,1)]">
           Edit Teacher
         </h2>
 
         {/* Circular Image Upload */}
+        
         <div className="flex justify-center mb-4 relative">
           <label className="cursor-pointer relative">
             <input
@@ -161,50 +158,83 @@ const EditTeacherModal = ({ teacher, onClose, onUpdate }) => {
         </div>
 
         {/* Form Fields */}
-        <input
-          type="text"
-          placeholder="Register number"
-          value={registerNumber}
-          disabled
-          className="w-full mb-3 px-3 py-2 border rounded bg-gray-200"
-        />
-        <input
-          type="text"
-          placeholder="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full mb-3 px-3 py-2 border rounded"
-        />
-        <input
-          type="text"
-          placeholder="Phone Number"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          className="w-full mb-3 px-3 py-2 border rounded"
-        />
-        <input
-          type="text"
-          placeholder="Address"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          className="w-full mb-3 px-3 py-2 border rounded"
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full mb-3 px-3 py-2 border rounded"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full mb-4 px-3 py-2 border rounded"
-        />
+        <div className="grid grid-cols-2 gap-3">
+        
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Staff ID
+            </label>
+            <input
+              type="text"
+              value={registerNumber}
+              onChange={(e) => setRegisterNumber(e.target.value)}
+              className="w-full px-3 py-2 border rounded"
+            />
+          </div>
 
-        <div className="flex justify-end gap-2">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Name
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full px-3 py-2 border rounded"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Phone Number
+            </label>
+            <input
+              type="text"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="w-full px-3 py-2 border rounded"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Address
+            </label>
+            <input
+              type="text"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              className="w-full px-3 py-2 border rounded"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-3 py-2 border rounded"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Password
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-3 py-2 border rounded"
+            />
+          </div>
+        </div>
+        
+
+        <div className="flex justify-end gap-3 mt-5 ">
           <button
             onClick={onClose}
             className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"

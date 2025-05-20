@@ -179,7 +179,7 @@ const AddTeacherModal = ({ onClose, onAdd }) => {
         <input
           type="text"
           name="registerNumber"
-          placeholder="Register number"
+          placeholder="Staff ID"
           value={formData.registerNumber}
           onChange={handleChange}
           className="w-full mb-3 px-3 py-2 border rounded"

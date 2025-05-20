@@ -22,7 +22,7 @@ const TeacherDetailsModal = ({ teacher, onClose }) => {
         {/* Teacher Info */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-gray-700 text-[15px]">
           <div>
-            <p><strong className="text-[rgba(53,130,140,1)]">Register No:</strong> {teacher.registerNo}</p>
+            <p><strong className="text-[rgba(53,130,140,1)]">Staff Id:</strong> {teacher.registerNo}</p>
           </div>
           <div>
             <p><strong className="text-[rgba(53,130,140,1)]">Name:</strong> {teacher.name}</p>

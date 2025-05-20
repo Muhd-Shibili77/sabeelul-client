@@ -43,7 +43,7 @@ const TeacherInfo = () => {
                 <div className="space-y-4">
                   {[
                     { label: 'Name', value: teacherData.name },
-                    { label: 'Registration Number', value: teacherData.registrationNumber },
+                    { label: 'Staff ID', value: teacherData.registrationNumber },
                     { label: 'Email', value: teacherData.email },
                     { label: 'Phone Number', value: teacherData.phone },
                     { label: 'Address', value: teacherData.address },

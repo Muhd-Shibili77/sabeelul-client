@@ -153,10 +153,10 @@ const AdminStudents = () => {
           <div className="flex gap-2 flex-wrap">
             <input
               type="text"
-              placeholder="Search by name"
+              placeholder="Search by Name/Ad.No"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="border rounded px-3 py-2"
+              className="border rounded px-4 py-2"
             />
 
             <button
