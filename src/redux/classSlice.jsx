@@ -88,6 +88,7 @@ export const deleteSubject = createAsyncThunk(
 export const addScore = createAsyncThunk(
   "addScore",
   async ({ id, newScore }, { rejectWithValue }) => {
+    
     try {
       const response = await api.post(`/class/score/${id}`, newScore);
       return { newScore: response.data.newScore }; // adjust key if API returns differently

@@ -26,11 +26,15 @@ const AdminScore = () => {
   const [customItem, setCustomItem] = useState("");
   const [admissionNo, setAdmissionNo] = useState("");
   const [studentMarks, setStudentMarks] = useState("");
+  const [studentDiscription, setStudentDiscription] = useState("");
+  const [editStudentDiscription, setEditStudentDiscription] = useState("");
   const [classMarks, setClassMark] = useState("");
+  const [classDiscription, setClassDiscription] = useState("");
   const [selectedClassData, setSelectedClassData] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [editMarkId, setEditMarkId] = useState(null);
   const [editItem, setEditItem] = useState("");
+  const [editdiscription, setEditdiscription] = useState("");
   const [editScore, setEditScore] = useState("");
   const [editExtraMode, setExtraEditMode] = useState(false);
   const [editExtraMarkId, setEditExtraMarkId] = useState(null);
@@ -61,6 +65,7 @@ const AdminScore = () => {
   useEffect(() => {
     if (selectedClass) {
       const classData = classes.find((cls) => cls._id === selectedClass);
+      console.log(classData);
       setSelectedClassData(classData);
     } else {
       setSelectedClassData(null);
@@ -71,9 +76,11 @@ const AdminScore = () => {
 
   const handleSubmitClassScore = async () => {
     const itemToSubmit = selectedItem === "other" ? customItem : selectedItem;
+
     const data = {
       item: itemToSubmit,
       score: classMarks,
+      discription: classDiscription,
     };
 
     try {
@@ -84,6 +91,7 @@ const AdminScore = () => {
       setSelectedItem("");
       setCustomItem("");
       setClassMark("");
+      setClassDiscription("");
 
       // Update selected class data to show new mark immediately
       refreshList();
@@ -96,10 +104,12 @@ const AdminScore = () => {
     setEditMode(true);
     setEditMarkId(mark._id);
     setEditItem(mark.item);
+    setEditdiscription(mark.discription)
     setEditScore(mark.score.toString());
     setSelectedItem("");
     setCustomItem("");
     setClassMark("");
+    setClassDiscription("");
   };
   const handleExtraEditMark = (mark) => {
     setExtraEditMode(true);
@@ -122,7 +132,8 @@ const AdminScore = () => {
       await dispatch(
         editExtraMark({
           id: editExtraMarkId,
-          mark:editExtraScore,
+          mark: editExtraScore,
+          discription: editStudentDiscription,
         })
       ).unwrap();
       toast.success("Student mark updated successfully!");
@@ -130,6 +141,7 @@ const AdminScore = () => {
       setEditExtraMarkId(null);
       setEditExtraItem("");
       setEditExtraScore("");
+      setEditStudentDiscription("");
       // Refresh the student data to show updated marks
       fetchStudent(admissionNo);
     } catch (err) {
@@ -141,6 +153,7 @@ const AdminScore = () => {
     setEditMode(false);
     setEditMarkId(null);
     setEditItem("");
+    setEditdiscription("")
     setEditScore("");
   };
 
@@ -150,6 +163,7 @@ const AdminScore = () => {
     const data = {
       item: editItem,
       score: editScore,
+      discription:editdiscription,
     };
 
     try {
@@ -165,6 +179,7 @@ const AdminScore = () => {
       setEditMode(false);
       setEditMarkId(null);
       setEditItem("");
+      setEditdiscription("")
       setEditScore("");
     } catch (err) {
       toast.error(err.message || "Failed to update mark");
@@ -212,6 +227,7 @@ const AdminScore = () => {
     const data = {
       programName: itemToSubmit,
       mark: studentMarks,
+      discription: studentDiscription,
     };
     try {
       await dispatch(addExtraMark({ id: foundStudent._id, data })).unwrap();
@@ -220,6 +236,7 @@ const AdminScore = () => {
       setSelectedItem("");
       setCustomItem("");
       setStudentMarks("");
+      setStudentDiscription("");
       // Optionally, you might want to refetch the student to show updated marks
       fetchStudent(admissionNo);
     } catch (err) {
@@ -273,96 +290,8 @@ const AdminScore = () => {
               </select>
             </div>
 
-            {selectedClassData &&
-              selectedClassData.marks &&
-              selectedClassData.marks.length > 0 && (
-                <div className="mb-4">
-                  <h3 className="text-lg font-medium mb-2">
-                    Existing Class Marks
-                  </h3>
-                  <div className="bg-gray-50 p-3 rounded">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead>
-                        <tr>
-                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Item
-                          </th>
-                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Score
-                          </th>
-                          
-                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Actions
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-200">
-                        {selectedClassData.marks.map((mark, index) => (
-                          <tr
-                            key={index}
-                            className={
-                              editMarkId === mark._id ? "bg-blue-50" : ""
-                            }
-                          >
-                            <td className="px-3 py-2 text-sm text-gray-900">
-                              {mark.item}
-                            </td>
-                            <td className="px-3 py-2 text-sm text-gray-900">
-                              {mark.score}
-                            </td>
-                            
-                            <td className="px-3 py-2 text-sm text-gray-900">
-                              <div className="flex space-x-2">
-                                <button
-                                  onClick={() => handleEditMark(mark)}
-                                  className="p-1 text-blue-600 hover:text-blue-800"
-                                  title="Edit"
-                                >
-                                  <PencilIcon size={16} />
-                                </button>
-                                <button
-                                  onClick={() => setConfirmDelete(mark._id)}
-                                  className="p-1 text-red-600 hover:text-red-800"
-                                  title="Delete"
-                                >
-                                  <TrashIcon size={16} />
-                                </button>
-
-                                {confirmDelete === mark._id && (
-                                  <div className="absolute bg-white shadow-lg p-2 rounded border">
-                                    <p className="text-xs mb-1">
-                                      Confirm delete?
-                                    </p>
-                                    <div className="flex space-x-2">
-                                      <button
-                                        onClick={() =>
-                                          handleDeleteMark(mark._id)
-                                        }
-                                        className="px-2 py-1 bg-red-500 text-white text-xs rounded"
-                                      >
-                                        Yes
-                                      </button>
-                                      <button
-                                        onClick={() => setConfirmDelete(null)}
-                                        className="px-2 py-1 bg-gray-300 text-gray-800 text-xs rounded"
-                                      >
-                                        No
-                                      </button>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-
-            {editMode ? (
-              // Edit form
+            {/* Show edit form when in edit mode */}
+            {editMode && (
               <div className="bg-blue-50 p-3 rounded border border-blue-200 mb-4">
                 <h3 className="text-lg font-medium mb-2">Edit Mark</h3>
                 <div className="mb-3">
@@ -372,6 +301,15 @@ const AdminScore = () => {
                     className="w-full p-2 border rounded"
                     value={editItem}
                     onChange={(e) => setEditItem(e.target.value)}
+                  />
+                </div>
+                <div className="mb-3">
+                  <input
+                    type="text"
+                    placeholder="Discription"
+                    className="w-full p-2 border rounded"
+                    value={editdiscription}
+                    onChange={(e) => setEditdiscription(e.target.value)}
                   />
                 </div>
                 <div className="mb-3">
@@ -399,9 +337,11 @@ const AdminScore = () => {
                   </button>
                 </div>
               </div>
-            ) : (
-              // Add new mark form
-              <>
+            )}
+
+            {/* Show add form only when NOT in edit mode */}
+            {!editMode && (
+              <div className="mt-4">
                 <h3 className="text-lg font-medium mb-2">Add New Mark</h3>
                 <div className="mb-3">
                   <select
@@ -419,40 +359,170 @@ const AdminScore = () => {
                   </select>
                 </div>
                 <div className="mb-3">
-                  <input
-                    type="number"
-                    placeholder="Enter Marks"
-                    className="w-full p-2 border rounded"
-                    value={classMarks}
-                    onChange={(e) => setClassMark(e.target.value)}
-                  />
-                </div>
-
-                {selectedItem === "other" && (
+                  {selectedItem === "other" ? (
+                    <div className="mb-3">
+                      <input
+                        type="text"
+                        placeholder="Description"
+                        className="w-full p-2 border rounded"
+                        value={customItem}
+                        onChange={(e) => setCustomItem(e.target.value)}
+                      />
+                    </div>
+                  ) : (
+                    <div className="mb-3">
+                      <input
+                        type="text"
+                        placeholder="Description"
+                        className="w-full p-2 border rounded"
+                        value={classDiscription}
+                        onChange={(e) => setClassDiscription(e.target.value)}
+                      />
+                    </div>
+                  )}
+                 
                   <div className="mb-3">
                     <input
-                      type="text"
-                      placeholder="Enter Custom Item"
+                      type="number"
+                      placeholder="Enter Marks"
                       className="w-full p-2 border rounded"
-                      value={customItem}
-                      onChange={(e) => setCustomItem(e.target.value)}
+                      value={classMarks}
+                      onChange={(e) => setClassMark(e.target.value)}
                     />
                   </div>
-                )}
+                </div>
 
                 <button
                   onClick={handleSubmitClassScore}
                   className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded"
-                  disabled={
-                    !selectedClass ||
-                    (!selectedItem && !customItem) ||
-                    !classMarks
-                  }
                 >
                   Submit Class Score
                 </button>
-              </>
+              </div>
             )}
+
+            {/* Display existing class marks AFTER add new mark section */}
+            {selectedClassData &&
+              selectedClassData.marks &&
+              selectedClassData.marks.length > 0 && (
+                <div className="mb-4 mt-4">
+                  <h3 className="text-lg font-medium mb-2">
+                    Existing Class Marks
+                  </h3>
+                  <div className="bg-gray-50 p-3 rounded">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead>
+                        <tr>
+                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Item
+                          </th>
+                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Score
+                          </th>
+                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Date
+                          </th>
+                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Description
+                          </th>
+                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {/* Sort marks by date before mapping */}
+                        {selectedClassData.marks
+                          .slice() 
+                          .sort((a, b) => {
+                            const dateA = a.date
+                              ? new Date(a.date)
+                              : new Date(0);
+                            const dateB = b.date
+                              ? new Date(b.date)
+                              : new Date(0);
+                            const dateDiff = dateB - dateA;
+                            if (dateDiff === 0) {
+                              const timeA = dateA.getTime();
+                              const timeB = dateB.getTime();
+                              if (timeA !== timeB) return timeB - timeA;
+                              if (a._id && b._id) {
+                                return b._id.localeCompare(a._id);
+                              }
+                              return b.score - a.score;
+                            }
+                            return dateDiff; 
+                          })
+                          .map((mark, index) => (
+                            <tr
+                              key={mark._id || index}
+                              className={
+                                editMarkId === mark._id ? "bg-blue-50" : ""
+                              }
+                            >
+                              <td className="px-3 py-2 text-sm text-gray-900">
+                                {mark.item}
+                              </td>
+                              <td className="px-3 py-2 text-sm text-gray-900">
+                                {mark.score}
+                              </td>
+                              <td className="px-3 py-2 text-sm text-gray-900">
+                                {mark.date
+                                  ? new Date(mark.date).toLocaleDateString()
+                                  : "N/A"}
+                              </td>
+                              <td className="px-3 py-2 text-sm text-gray-900">
+                                {mark.discription || ""}
+                              </td>
+                              <td className="px-3 py-2 text-sm text-gray-900">
+                                <div className="flex space-x-2">
+                                  <button
+                                    onClick={() => handleEditMark(mark)}
+                                    className="p-1 text-blue-600 hover:text-blue-800"
+                                    title="Edit"
+                                  >
+                                    <PencilIcon size={16} />
+                                  </button>
+                                  <button
+                                    onClick={() => setConfirmDelete(mark._id)}
+                                    className="p-1 text-red-600 hover:text-red-800"
+                                    title="Delete"
+                                  >
+                                    <TrashIcon size={16} />
+                                  </button>
+
+                                  {confirmDelete === mark._id && (
+                                    <div className="absolute bg-white shadow-lg p-2 rounded border">
+                                      <p className="text-xs mb-1">
+                                        Confirm delete?
+                                      </p>
+                                      <div className="flex space-x-2">
+                                        <button
+                                          onClick={() =>
+                                            handleDeleteMark(mark._id)
+                                          }
+                                          className="px-2 py-1 bg-red-500 text-white text-xs rounded"
+                                        >
+                                          Yes
+                                        </button>
+                                        <button
+                                          onClick={() => setConfirmDelete(null)}
+                                          className="px-2 py-1 bg-gray-300 text-gray-800 text-xs rounded"
+                                        >
+                                          No
+                                        </button>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
           </div>
         )}
 
@@ -477,12 +547,125 @@ const AdminScore = () => {
             {studentError && <p className="text-red-600">{studentError}</p>}
             {foundStudent && (
               <div className="mt-3">
-                <p className="mb-2 font-medium">{foundStudent.name}</p>
+                <p className="mb-2 font-medium">{foundStudent.name} - Ad No: {foundStudent.admissionNo}</p>
 
-                {/* Existing Student Marks Section */}
+                {/* Student edit form */}
+                {editExtraMode ? (
+                  <div className="bg-blue-50 p-3 rounded border border-blue-200 mb-4">
+                    <h3 className="text-lg font-medium mb-2">
+                      Edit Student Mark
+                    </h3>
+                    <div className="mb-3">
+                      <input
+                        type="text"
+                        placeholder="Program Name"
+                        className="w-full p-2 border bg-gray-300 rounded"
+                        value={editExtraItem}
+                        disabled
+                        onChange={(e) => setEditExtraItem(e.target.value)}
+                      />
+                    </div>
+                    <div className="mb-3">
+                      <input
+                        type="text"
+                        placeholder="Discription"
+                        className="w-full p-2 border rounded"
+                        value={editStudentDiscription}
+                        onChange={(e) => setEditStudentDiscription(e.target.value)}
+                      />
+                    </div>
+                    <div className="mb-3">
+                      <input
+                        type="number"
+                        placeholder="Mark"
+                        className="w-full p-2 border rounded"
+                        value={editExtraScore}
+                        onChange={(e) => setEditExtraScore(e.target.value)}
+                      />
+                    </div>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={handleUpdateExtraMark}
+                        className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded"
+                        disabled={!editExtraItem || !editExtraScore}
+                      >
+                        Update Mark
+                      </button>
+                      <button
+                        onClick={handleCancelExtraEdit}
+                        className="bg-gray-300 text-gray-800 px-4 py-2 rounded"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  // Only show add form when NOT in edit mode
+                    <div className="mt-4">
+                      <h3 className="text-lg font-medium mb-2">Add New Mark</h3>
+                      <div className="mb-3">
+                        <select
+                          className="w-full p-2 border rounded"
+                          value={selectedItem}
+                          onChange={(e) => setSelectedItem(e.target.value)}
+                        >
+                          <option value="">Select Item</option>
+                          {programs.map((item) => (
+                            <option key={item._id} value={item._id}>
+                              {item.name}
+                            </option>
+                          ))}
+                          <option value="other">Other</option>
+                        </select>
+                      </div>
+
+                      {selectedItem === "other" ? (
+                        <div className="mb-3">
+                          <input
+                            type="text"
+                            placeholder="Description"
+                            className="w-full p-2 border rounded"
+                            value={customItem}
+                            onChange={(e) => setCustomItem(e.target.value)}
+                          />
+                        </div>
+                      ):(
+                        <div className="mb-3">
+                        <input
+                          type="text"
+                          placeholder="Description"
+                          className="w-full p-2 border rounded"
+                          value={studentDiscription}
+                          onChange={(e) => setStudentDiscription(e.target.value)}
+                        />
+                      </div>
+                      )}
+
+                      
+                      <div className="mb-3">
+                        <input
+                          type="number"
+                          placeholder="Enter Marks"
+                          className="w-full p-2 border rounded"
+                          value={studentMarks}
+                          onChange={(e) => setStudentMarks(e.target.value)}
+                        />
+                      </div>
+
+                      <button
+                        onClick={handleSubmitStudentScore}
+                        className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded"
+                        disabled={(!selectedItem && !customItem) || !studentMarks}
+                      >
+                        Submit Student Score
+                      </button>
+                    </div>
+                )}
+
+                {/* Existing Student Marks Section MOVED BELOW the add mark section */}
                 {foundStudent.extraMarks &&
                   foundStudent.extraMarks.length > 0 && (
-                    <div className="mb-4">
+                    <div className="mb-4 mt-4">
                       <h3 className="text-lg font-medium mb-2">
                         Existing Student Marks
                       </h3>
@@ -496,9 +679,11 @@ const AdminScore = () => {
                               <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Mark
                               </th>
-                              
                               <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Date
+                              </th>
+                              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
                               </th>
                             </tr>
                           </thead>
@@ -511,22 +696,23 @@ const AdminScore = () => {
                                 <td className="px-3 py-2 text-sm text-gray-900">
                                   {mark.mark}
                                 </td>
-                             
                                 <td className="px-3 py-2 text-sm text-gray-900">
-                                  {new Date(mark.date).toLocaleDateString('en-GB')}
+                                  {new Date(mark.date).toLocaleDateString(
+                                    "en-GB"
+                                  )}
                                 </td>
                                 <td className="px-3 py-2 text-sm text-gray-900">
                                   <div className="flex space-x-2">
                                     <button
                                       onClick={() => handleExtraEditMark(mark)}
-                                      className=" text-blue-600 hover:text-blue-800"
+                                      className="text-blue-600 hover:text-blue-800"
                                       title="Edit"
                                     >
                                       <PencilIcon size={16} />
                                     </button>
                                     <button
                                       onClick={() => setConfirmDelete(mark._id)}
-                                      className=" text-red-600 hover:text-red-800"
+                                      className="text-red-600 hover:text-red-800"
                                       title="Delete"
                                     >
                                       <TrashIcon size={16} />
@@ -566,99 +752,6 @@ const AdminScore = () => {
                       </div>
                     </div>
                   )}
-
-                {editExtraMode ? (
-                  // Edit form for student mark
-                  <div className="bg-blue-50 p-3 rounded border border-blue-200 mb-4">
-                    <h3 className="text-lg font-medium mb-2">
-                      Edit Student Mark
-                    </h3>
-                    <div className="mb-3">
-                      <input
-                        type="text"
-                        placeholder="Program Name"
-                        className="w-full p-2 border bg-gray-300 rounded"
-                        value={editExtraItem}
-                        disabled
-                        onChange={(e) => setEditExtraItem(e.target.value)}
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <input
-                        type="number"
-                        placeholder="Mark"
-                        className="w-full p-2 border rounded"
-                        value={editExtraScore}
-                        onChange={(e) => setEditExtraScore(e.target.value)}
-                      />
-                    </div>
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={handleUpdateExtraMark}
-                        className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded"
-                        disabled={!editExtraItem || !editExtraScore}
-                      >
-                        Update Mark
-                      </button>
-                      <button
-                        onClick={handleCancelExtraEdit}
-                        className="bg-gray-300 text-gray-800 px-4 py-2 rounded"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  // The regular form for adding new marks would go here
-                  // Your existing code for adding student marks
-                  <>
-                    <div className="mb-3">
-                      <select
-                        className="w-full p-2 border rounded"
-                        value={selectedItem}
-                        onChange={(e) => setSelectedItem(e.target.value)}
-                      >
-                        <option value="">Select Item</option>
-                        {programs.map((item) => (
-                          <option key={item._id} value={item._id}>
-                            {item.name}
-                          </option>
-                        ))}
-                        <option value="other">Other</option>
-                      </select>
-                    </div>
-
-                    {selectedItem === "other" && (
-                      <div className="mb-3">
-                        <input
-                          type="text"
-                          placeholder="Enter Custom Item"
-                          className="w-full p-2 border rounded"
-                          value={customItem}
-                          onChange={(e) => setCustomItem(e.target.value)}
-                        />
-                      </div>
-                    )}
-
-                    <div className="mb-3">
-                      <input
-                        type="number"
-                        placeholder="Enter Marks"
-                        className="w-full p-2 border rounded"
-                        value={studentMarks}
-                        onChange={(e) => setStudentMarks(e.target.value)}
-                      />
-                    </div>
-
-                    <button
-                      onClick={handleSubmitStudentScore}
-                      className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded"
-                      disabled={(!selectedItem && !customItem) || !studentMarks}
-                    >
-                      Submit Student Score
-                    </button>
-                  </>
-                )}
               </div>
             )}
           </div>
