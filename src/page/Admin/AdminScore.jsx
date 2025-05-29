@@ -15,9 +15,8 @@ import {
   deleteExtraMark,
   editExtraMark,
 } from "../../redux/studentSlice";
-import { fetchProgram } from "../../redux/programSlice";
 import { PencilIcon, TrashIcon } from "lucide-react";
-
+import { fetchItems } from "../../redux/itemSlice";
 const AdminScore = () => {
   const dispatch = useDispatch();
   const [scoreType, setScoreType] = useState("Class");
@@ -43,7 +42,8 @@ const AdminScore = () => {
   const [confirmDelete, setConfirmDelete] = useState(null);
 
   const { classes } = useSelector((state) => state.class);
-  const { programs } = useSelector((state) => state.program);
+  const programs = useSelector((state)=>state.item.items)
+  // const { programs } = useSelector((state) => state.program);
   const {
     student: foundStudent,
     loading: studentLoading,
@@ -58,14 +58,13 @@ const AdminScore = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    dispatch(fetchProgram({ search: "", page: 1, limit: 1000 }));
+    dispatch(fetchItems({}));
   }, [dispatch]);
 
   // Update selectedClassData whenever selectedClass changes
   useEffect(() => {
     if (selectedClass) {
       const classData = classes.find((cls) => cls._id === selectedClass);
-      console.log(classData);
       setSelectedClassData(classData);
     } else {
       setSelectedClassData(null);
@@ -104,7 +103,7 @@ const AdminScore = () => {
     setEditMode(true);
     setEditMarkId(mark._id);
     setEditItem(mark.item);
-    setEditdiscription(mark.discription)
+    setEditdiscription(mark.description)
     setEditScore(mark.score.toString());
     setSelectedItem("");
     setCustomItem("");
@@ -112,10 +111,12 @@ const AdminScore = () => {
     setClassDiscription("");
   };
   const handleExtraEditMark = (mark) => {
+    
     setExtraEditMode(true);
     setEditExtraMarkId(mark._id);
     setEditExtraItem(getItemNameById(mark));
     setEditExtraScore(mark.mark.toString());
+    setEditStudentDiscription(mark.description)
   };
 
   const handleCancelExtraEdit = () => {
@@ -133,7 +134,7 @@ const AdminScore = () => {
         editExtraMark({
           id: editExtraMarkId,
           mark: editExtraScore,
-          discription: editStudentDiscription,
+          description: editStudentDiscription,
         })
       ).unwrap();
       toast.success("Student mark updated successfully!");
@@ -215,7 +216,7 @@ const AdminScore = () => {
     // If it's a program from the program collection
     if (mark.programId) {
       const program = programs.find((p) => p._id === mark.programId);
-      return program ? program.name : mark.programId;
+      return program ? program.item : mark.programId;
     }
 
     // If it's a custom program name
@@ -306,7 +307,7 @@ const AdminScore = () => {
                 <div className="mb-3">
                   <input
                     type="text"
-                    placeholder="Discription"
+                    placeholder="Description"
                     className="w-full p-2 border rounded"
                     value={editdiscription}
                     onChange={(e) => setEditdiscription(e.target.value)}
@@ -472,7 +473,7 @@ const AdminScore = () => {
                                   : "N/A"}
                               </td>
                               <td className="px-3 py-2 text-sm text-gray-900">
-                                {mark.discription || ""}
+                                {mark.description || ""}
                               </td>
                               <td className="px-3 py-2 text-sm text-gray-900">
                                 <div className="flex space-x-2">
@@ -612,7 +613,7 @@ const AdminScore = () => {
                           <option value="">Select Item</option>
                           {programs.map((item) => (
                             <option key={item._id} value={item._id}>
-                              {item.name}
+                              {item.item}
                             </option>
                           ))}
                           <option value="other">Other</option>
@@ -683,6 +684,9 @@ const AdminScore = () => {
                                 Date
                               </th>
                               <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Discription
+                              </th>
+                              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Actions
                               </th>
                             </tr>
@@ -700,6 +704,9 @@ const AdminScore = () => {
                                   {new Date(mark.date).toLocaleDateString(
                                     "en-GB"
                                   )}
+                                </td>
+                                <td className="px-3 py-2 text-sm text-gray-900">
+                                  {mark.description}
                                 </td>
                                 <td className="px-3 py-2 text-sm text-gray-900">
                                   <div className="flex space-x-2">

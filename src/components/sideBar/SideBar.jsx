@@ -12,6 +12,7 @@ import {
   FaSignOutAlt,
   FaThLarge,
   FaBars,
+  FaCog, 
 } from "react-icons/fa";
 import { TbReport } from "react-icons/tb";
 import { PiMicrophoneStageFill } from "react-icons/pi";
@@ -50,6 +51,12 @@ function SideBar(props) {
       route: "programs",
       icon: <PiMicrophoneStageFill />,
       key: "Programs",
+    },
+    {
+      name: "Settings",
+      route: "settings",
+      icon: <FaCog />,
+      key: "Settings",
     },
     { name: "Logout", icon: <FaSignOutAlt />, key: "Logout" },
   ];

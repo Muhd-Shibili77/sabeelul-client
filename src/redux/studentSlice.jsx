@@ -68,9 +68,9 @@ export const fetchStudent = createAsyncThunk(
    
   export const editExtraMark = createAsyncThunk(
     "editExtraMark",
-    async ({ id, mark }, { rejectWithValue }) => {  
+    async ({ id, mark,description }, { rejectWithValue }) => {  
       try {
-        const response = await api.put(`/student/score/${id}`, {mark:mark});
+        const response = await api.put(`/student/score/${id}`, {mark:mark,description:description});
         return response.data;
       } catch (error) {
         return rejectWithValue(error.response.data);

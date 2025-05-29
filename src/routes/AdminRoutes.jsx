@@ -7,6 +7,7 @@ import AdminPrograms from '../page/Admin/AdminPrograms'
 import AdminReport from '../page/Admin/AdminReport'
 import AdminScore from '../page/Admin/AdminScore'
 import AdminClasses from '../page/Admin/AdminClasses'
+import AdminSettings from '../page/Admin/AdminSettings'
 import NotFound from '../components/404/404'
 
 const AdminRoutes = () => {
@@ -20,6 +21,7 @@ const AdminRoutes = () => {
             <Route path='/programs' element={<AdminPrograms/>}/>
             <Route path='/report' element={<AdminReport/>}/>
             <Route path='/classes' element={<AdminClasses/>}/>
+            <Route path='/settings' element={<AdminSettings/>}/>
             <Route path='*' element={<NotFound />} />
         </Routes>
     </>
