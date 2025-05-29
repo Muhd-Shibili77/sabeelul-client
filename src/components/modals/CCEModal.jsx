@@ -4,13 +4,12 @@ import { useStudentContext } from "../../context/StudentContext";
 import { transformCCEData } from "../../utils/transformCCEData ";
 const CCEModal = ({ isOpen, onClose, cceData }) => {
   const { theme } = useStudentContext();
-  const [activePhase, setActivePhase] = useState("Phase 1");
-
+  const [activeSem, setActiveSem] = useState("Ramadan Semester");
 
 
   useEffect(() => {
-    if (data?.phases?.length > 0) {
-      setActivePhase(data.phases[0]);
+    if (data?.semester?.length > 0) {
+      setActiveSem(data.semester[0]);
     }
   }, [isOpen, cceData]);
 
@@ -19,7 +18,7 @@ const CCEModal = ({ isOpen, onClose, cceData }) => {
   // Helper function to determine if a phase is a formative assessment (FA) or summative assessment (SA)
 
   // Max marks for different assessment types
-  const getMaxMarks = () => 20;
+  const getMaxMarks = () => 30;
 
   if (!isOpen) return null;
 
@@ -42,17 +41,17 @@ const CCEModal = ({ isOpen, onClose, cceData }) => {
         {/* Phase Tabs */}
         <div className="border-b border-gray-200">
           <div className="flex overflow-x-auto px-4 py-2">
-            {data.phases.map((phase) => (
+            {data.semester.map((sem) => (
               <button
-                key={phase}
-                onClick={() => setActivePhase(phase)}
+                key={sem}
+                onClick={() => setActiveSem(sem)}
                 className={`px-4 py-2 mr-2 rounded-t-lg font-medium transition ${
-                  activePhase === phase
+                  activeSem === sem
                     ? `${theme.color} text-white`
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                {phase}
+                {sem}
               </button>
             ))}
           </div>
@@ -68,7 +67,7 @@ const CCEModal = ({ isOpen, onClose, cceData }) => {
 
           <div className="space-y-6">
             {data.subjects.map((subject, index) => {
-              const mark = subject.marks[activePhase];
+              const mark = subject.marks[activeSem];
               const maxMark = getMaxMarks();
               const percentage = (mark / maxMark) * 100;
 

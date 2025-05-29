@@ -7,16 +7,22 @@ import "react-toastify/dist/ReactToastify.css";
 import { addCceMark, addMentorMark } from "../../redux/studentSlice";
 import useFetchStudents from "../../hooks/fetch/useFetchStudents";
 import { getCurrentAcademicYear } from "../../utils/academicYear";
+
 const Score = () => {
   const dispatch = useDispatch();
   const [subjects, setSubjects] = useState([]);
   const [scoreType, setScoreType] = useState("CCE");
   const [selectedClass, setSelectedClass] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("");
+  const [selectedSemester, setSelectedSemester] = useState("");
+  const [selectedStudent, setSelectedStudent] = useState("");
   const { classes } = useSelector((state) => state.class);
   const { students } = useFetchStudents(selectedClass);
   const [marks, setMarks] = useState({});
   const academicYear = getCurrentAcademicYear();
+
+  // Semester options
+  const semesters = ["Rabee Semester", "Ramadan Semester"];
 
   useEffect(() => {
     dispatch(fetchClass({ search: "", page: 1, limit: 1000 }));
@@ -48,7 +54,13 @@ const Score = () => {
       for (const studentId in marks) {
         const mark = marks[studentId]["Mentor"];
         if (mark) {
-          await dispatch(addMentorMark({ id: studentId, data: { mark } }));
+          await dispatch(addMentorMark({ 
+            id: studentId, 
+            data: { 
+              mark,
+              semester: selectedSemester 
+            } 
+          }));
         }
       }
       toast.success("Mentor marks submitted successfully!");
@@ -61,21 +73,27 @@ const Score = () => {
     try {
       for (const studentId in marks) {
         const studentMarks = marks[studentId];
+        
+        // Check if total mark exceeds 30
+        const totalMark = calculateTotalMark(studentId);
+        if (totalMark > 30) {
+          toast.error(`Total mark for a student cannot exceed 30. Current total: ${totalMark}`);
+          return;
+        }
+
         for (const phase of ["Phase 1", "Phase 2", "Phase 3"]) {
           const mark = studentMarks[phase];
-          if (mark && mark > 10) {
-            toast.error("CCE marks should be out of 10.");
-            return 
-          }
+          
           if (mark && mark < 0) {
-            toast.error("CCE marks should greater than 0.");
+            toast.error("CCE marks should be greater than 0.");
             return 
           }
 
-          if (mark && mark <= 10 && mark >= 0) {
+          if (mark && mark >= 0) {
             const data = {
               classId: selectedClass,
               subjectName: selectedSubject,
+              semester: selectedSemester,
               phase,
               mark: Number(mark),
             };
@@ -99,14 +117,20 @@ const Score = () => {
       }
 
       // Otherwise look in the student's existing saved marks
-      const savedMark = students
-        .find((s) => s._id === studentId)
-        ?.cceMarks?.find((m) => m.academicYear === academicYear)
-        ?.subjects?.find(
-          (s) => s.subjectName === selectedSubject && s.phase === phase
-        )?.mark;
+      const student = students.find((s) => s._id === studentId);
+      if (!student) return 0;
 
-      return savedMark ? Number(savedMark) : 0;
+      const cceRecord = student.cceMarks?.find(
+        (m) => m.academicYear === academicYear && m.semester === selectedSemester
+      );
+      
+      if (!cceRecord) return 0;
+
+      const subjectMark = cceRecord.subjects?.find(
+        (s) => s.subjectName === selectedSubject && s.phase === phase
+      );
+
+      return subjectMark ? Number(subjectMark.mark) : 0;
     };
 
     // Calculate sum of all phases
@@ -115,6 +139,64 @@ const Score = () => {
     const phase3 = getPhaseValue("Phase 3");
 
     return phase1 + phase2 + phase3;
+  };
+
+  // Check if we should show students list
+  const shouldShowStudents = () => {
+    if (scoreType === "CCE") {
+      return selectedClass && selectedSubject && selectedSemester;
+    } else {
+      return selectedClass && selectedSemester && selectedStudent;
+    }
+  };
+
+  // Handle keyboard navigation for CCE table
+  const handleKeyDown = (e, studentIndex, phase) => {
+    if (e.key === 'Tab') {
+      // Default tab behavior for phase navigation
+      return;
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      // Move to the same phase of the next student
+      const nextStudentIndex = studentIndex + 1;
+      if (nextStudentIndex < students.length) {
+        const nextInputId = `${students[nextStudentIndex]._id}-${phase}`;
+        const nextInput = document.getElementById(nextInputId);
+        if (nextInput) {
+          nextInput.focus();
+        }
+      }
+    }
+  };
+
+  // Get existing mark value for display
+  const getExistingMark = (student, phase) => {
+    // First check current marks state
+    if (marks[student._id]?.[phase] !== undefined) {
+      return marks[student._id][phase];
+    }
+
+    if (scoreType === "CCE") {
+      // Check saved CCE data
+      const cceRecord = student.cceMarks?.find(
+        (m) => m.academicYear === academicYear && m.semester === selectedSemester
+      );
+      
+      if (cceRecord) {
+        const subjectMark = cceRecord.subjects?.find(
+          (s) => s.subjectName === selectedSubject && s.phase === phase
+        );
+        return subjectMark ? subjectMark.mark : "";
+      }
+    } else if (phase === "Mentor") {
+      // Check saved Mentor data
+      const mentorRecord = student.mentorMarks?.find(
+        (m) => m.academicYear === academicYear && m.semester === selectedSemester
+      );
+      return mentorRecord ? mentorRecord.mark : "";
+    }
+
+    return "";
   };
 
   return (
@@ -148,8 +230,8 @@ const Score = () => {
           </button>
         </div>
 
-        {/* Class & Subject Selection */}
-        <div className="flex gap-4 mb-4">
+        {/* Class, Subject & Semester Selection */}
+        <div className="flex gap-4 mb-4 flex-wrap">
           <select
             className="px-4 py-2 rounded-lg border border-gray-300 shadow-sm"
             value={selectedClass}
@@ -168,7 +250,6 @@ const Score = () => {
               className="px-4 py-2 rounded-lg border border-gray-300 shadow-sm"
               value={selectedSubject}
               onChange={(e) => setSelectedSubject(e.target.value)}
-              disabled={scoreType === "Mentor"}
             >
               <option value="">Select Subject</option>
               {subjects.map((sub) => (
@@ -178,101 +259,171 @@ const Score = () => {
               ))}
             </select>
           )}
+
+          <select
+            className="px-4 py-2 rounded-lg border border-gray-300 shadow-sm"
+            value={selectedSemester}
+            onChange={(e) => setSelectedSemester(e.target.value)}
+          >
+            <option value="">Select Semester</option>
+            {semesters.map((semester) => (
+              <option key={semester} value={semester}>
+                {semester}
+              </option>
+            ))}
+          </select>
+
+          {scoreType === "Mentor" && (
+            <select
+              className="px-4 py-2 rounded-lg border border-gray-300 shadow-sm"
+              value={selectedStudent}
+              onChange={(e) => setSelectedStudent(e.target.value)}
+            >
+              <option value="">Select Student</option>
+              {students.map((student) => (
+                <option key={student._id} value={student._id}>
+                  {student.admissionNo} - {student.name}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
 
-        {/* Show student list based on selected score type */}
-        {(scoreType === "Mentor" && selectedClass) ||
-        (scoreType === "CCE" && selectedClass && selectedSubject) ? (
+        {/* Show student list based on selected score type and semester */}
+        {shouldShowStudents() ? (
           <div className="bg-white rounded-2xl shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
-              Student List - {scoreType} Marks
-            </h2>
+            {scoreType === "CCE" ? (
+              <>
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                  Student List - CCE Marks ({selectedSemester})
+                </h2>
 
-            {students.length === 0 ? (
-              <p className="text-gray-500 italic">
-                No students available for this class.
-              </p>
-            ) : (
-              <div className="grid grid-cols-1 gap-4">
-                {students.map((student) => (
-                  <div
-                    key={student._id}
-                    className="p-4 bg-[rgba(53,130,140,0.1)] rounded-xl"
-                  >
-                    <p className="font-medium text-gray-700">
-                      Ad No: {student.admissionNo} - {student.name}{" "}
-                    </p>
-
-                    {scoreType === "CCE" ? (
-                      <div className="flex gap-4 mt-2">
-                        {["Phase 1", "Phase 2", "Phase 3"].map((phase) => {
-                          const existingMark =
-                            marks[student._id]?.[phase] ??
-                            student.cceMarks
-                              ?.find((m) => m.academicYear === academicYear)
-                              ?.subjects?.find(
-                                (s) =>
-                                  s.subjectName === selectedSubject &&
-                                  s.phase === phase
-                              )?.mark ??
-                            "";
-
-                          return (
-                            <div
-                              key={phase}
-                              className="flex flex-col items-start gap-1"
-                            >
-                              <input
-                                id={`mark-${student._id}-${phase}`}
-                                type="number"
-                                className="px-3 py-2 border border-gray-300 rounded-md md:w-24 w-18"
-                                value={existingMark}
-                                onChange={(e) =>
-                                  handleMarkChange(
-                                    student._id,
-                                    phase,
-                                    e.target.value
-                                  )
-                                }
-                              />
-                              <label
-                                htmlFor={`mark-${student._id}-${phase}`}
-                                className="text-sm font-medium text-gray-700"
-                              >
-                                {phase}
-                              </label>
-                            </div>
-                          );
-                        })}
-                        <div className="flex flex-col items-start gap-1">
-                          <input
-                            id={`total-mark-${student._id}`}
-                            type="number"
-                            value={calculateTotalMark(student._id)}
-                            disabled
-                            className="px-3 py-2 border border-gray-300 rounded-md md:w-24 w-18 bg-gray-100"
-                          />
-                          <label
-                            htmlFor={`total-mark-${student._id}`}
-                            className="text-sm font-medium text-gray-700"
+                {students.length === 0 ? (
+                  <p className="text-gray-500 italic">
+                    No students available for this class.
+                  </p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full bg-white border border-gray-200 rounded-lg">
+                      <thead className="bg-[rgba(53,130,140,0.1)]">
+                        <tr>
+                          <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200">
+                            Sl No
+                          </th>
+                          <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200">
+                            Ad No
+                          </th>
+                          <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200">
+                            Name
+                          </th>
+                          <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b border-gray-200">
+                            Phase 1
+                          </th>
+                          <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b border-gray-200">
+                            Phase 2
+                          </th>
+                          <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b border-gray-200">
+                            Phase 3
+                          </th>
+                          <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b border-gray-200">
+                            Total
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {students.map((student, index) => (
+                          <tr
+                            key={student._id}
+                            className="hover:bg-gray-50 transition-colors"
                           >
-                            Total Mark
-                          </label>
-                        </div>
+                            <td className="px-4 py-3 text-sm text-gray-700 border-b border-gray-100">
+                              {index + 1}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-700 border-b border-gray-100">
+                              {student.admissionNo}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-700 border-b border-gray-100">
+                              {student.name}
+                            </td>
+                            {["Phase 1", "Phase 2", "Phase 3"].map((phase) => (
+                              <td
+                                key={phase}
+                                className="px-4 py-3 text-center border-b border-gray-100"
+                              >
+                                <input
+                                  id={`${student._id}-${phase}`}
+                                  type="number"
+                                  className="w-16 px-2 py-1 border border-gray-300 rounded text-center text-sm focus:outline-none focus:ring-2 focus:ring-[rgba(53,130,140,0.5)]"
+                                  value={getExistingMark(student, phase)}
+                                  onChange={(e) =>
+                                    handleMarkChange(
+                                      student._id,
+                                      phase,
+                                      e.target.value
+                                    )
+                                  }
+                                  onKeyDown={(e) => handleKeyDown(e, index, phase)}
+                                  min="0"
+                                />
+                              </td>
+                            ))}
+                            <td className="px-4 py-3 text-center border-b border-gray-100">
+                              <input
+                                type="number"
+                                value={calculateTotalMark(student._id)}
+                                disabled
+                                className={`w-16 px-2 py-1 border border-gray-300 rounded text-center text-sm bg-gray-100 cursor-not-allowed ${
+                                  calculateTotalMark(student._id) > 30 ? 'text-red-600 font-semibold' : ''
+                                }`}
+                              />
+                              {calculateTotalMark(student._id) > 30 && (
+                                <div className="text-xs text-red-500 mt-1">Max: 30</div>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {students.length > 0 && (
+                  <button
+                    onClick={handleCCESubmit}
+                    className="mt-6 bg-[rgba(53,130,140,0.9)] text-white px-6 py-2 rounded-lg shadow hover:bg-[rgba(53,130,140,1)] transition duration-200"
+                  >
+                    Submit Marks
+                  </button>
+                )}
+              </>
+            ) : (
+              <>
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                  Mentor Marks ({selectedSemester})
+                </h2>
+
+                {(() => {
+                  const student = students.find((s) => s._id === selectedStudent);
+                  return student ? (
+                    <div className="bg-[rgba(53,130,140,0.1)] rounded-xl p-6">
+                      <div className="mb-4">
+                        <p className="font-medium text-gray-700 text-lg">
+                          <span className="text-[rgba(53,130,140,0.9)]">Ad No:</span> {student.admissionNo}
+                        </p>
+                        <p className="font-medium text-gray-700 text-lg">
+                          <span className="text-[rgba(53,130,140,0.9)]">Name:</span> {student.name}
+                        </p>
                       </div>
-                    ) : (
-                      <div className="mt-2">
+                      
+                      <div className="flex flex-col gap-2">
+                        <label htmlFor="mentor-mark" className="text-sm font-medium text-gray-700">
+                          Mentor Mark
+                        </label>
                         <input
+                          id="mentor-mark"
                           type="number"
-                          placeholder="Mentor mark"
-                          className="px-3 py-2 border border-gray-300 rounded-md w-36"
-                          value={
-                            marks[student._id]?.Mentor ??
-                            student.mentorMarks?.find(
-                              (m) => m.academicYear === academicYear
-                            )?.mark ??
-                            ""
-                          }
+                          className="w-40 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[rgba(53,130,140,0.5)]"
+                          value={getExistingMark(student, "Mentor")}
                           onChange={(e) =>
                             handleMarkChange(
                               student._id,
@@ -280,26 +431,31 @@ const Score = () => {
                               e.target.value
                             )
                           }
+                          placeholder="Enter mark"
                         />
                       </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
 
-            {students.length > 0 && (
-              <button
-                onClick={
-                  scoreType === "CCE" ? handleCCESubmit : handleMentorSubmit
-                }
-                className="mt-6 bg-[rgba(53,130,140,0.9)] text-white px-6 py-2 rounded-lg shadow hover:bg-[rgba(53,130,140,1.5)] transition"
-              >
-                Submit Marks
-              </button>
+                      <button
+                        onClick={handleMentorSubmit}
+                        className="mt-6 bg-[rgba(53,130,140,0.9)] text-white px-6 py-2 rounded-lg shadow hover:bg-[rgba(53,130,140,1)] transition duration-200"
+                      >
+                        Submit Mark
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 italic">Please select a student to enter marks.</p>
+                  );
+                })()}
+              </>
             )}
           </div>
-        ) : null}
+        ) : (
+          <div className="bg-white rounded-2xl shadow-md p-6">
+            <p className="text-gray-500 italic text-center">
+              Please select {scoreType === "CCE" ? "class, subject, and semester" : "class, semester, and student"} to {scoreType === "CCE" ? "view students" : "enter marks"}.
+            </p>
+          </div>
+        )}
       </div>
       <ToastContainer position="top-right" autoClose={2000} hideProgressBar />
     </div>

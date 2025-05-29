@@ -1,24 +1,21 @@
 export const transformCCEData = (subjectWiseMarks) => {
-  const phasesSet = new Set();
   const subjectMap = new Map();
 
-  subjectWiseMarks.forEach(({ subjectName, phase, mark }) => {
-    phasesSet.add(phase);
+  subjectWiseMarks.forEach(({ subjectName,semester, mark }) => {
 
     if (!subjectMap.has(subjectName)) {
       subjectMap.set(subjectName, {});
     }
 
-    subjectMap.get(subjectName)[phase] = mark;
+    subjectMap.get(subjectName)[semester] = (subjectMap.get(subjectName)[semester] || 0)+mark;
   });
 
   const subjects = Array.from(subjectMap.entries()).map(([name, marks]) => ({
     name,
     marks,
   }));
-
   return {
-    phases: Array.from(phasesSet),
+    semester: ['Rabee’ Semester','Ramadan Semester'],
     subjects,
   };
 };

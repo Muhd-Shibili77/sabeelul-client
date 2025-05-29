@@ -13,18 +13,18 @@ const Performance = () => {
   const [showAllActivities, setShowAllActivities] = useState(false);
   const [isCCEModalOpen, setIsCCEModalOpen] = useState(false);
   const [cceData, setCceData] = useState(null);
-  console.log(data);
   const performanceData = {
     cceMark: data?.cceScore,
-    penaltyMarks: 0,
+    penaltyMarks: data?.penaltyScore,
     creditMarks: data?.creditScore,
     mentorMarks: data?.mentorMark,
     level: getLevelData(data?.totalScore),
     yourScore: `${data?.totalScore}`,
-    activities:
-      data?.achievments?.map((item) => ({
-        title: item.name || "Untitled",
-        score: `${item.mark}`,
+    recentInputs:
+      data?.recentInputs[0]?.marks?.map((item) => ({
+        title: item.title || "Untitled",
+        score: `${item.score}`,
+        scoreType:item.scoreType,
         date: item.date
           ? new Date(item.date).toLocaleDateString("en-US", {
               year: "numeric",
@@ -36,8 +36,8 @@ const Performance = () => {
   };
 
   const displayedActivities = showAllActivities
-    ? performanceData.activities
-    : performanceData.activities.slice(0, 10);
+    ? performanceData.recentInputs
+    : performanceData.recentInputs.slice(0, 10);
 
   const openCCEModal = () => {
     setCceData(data?.subjectWiseMarks);
@@ -173,10 +173,10 @@ const Performance = () => {
                 Recent Inputs
               </h3>
               <ul className="space-y-4">
-                {performanceData.activities.length === 0 ? (
+                {performanceData.recentInputs.length === 0 ? (
                   <div className="flex justify-center items-center h-40">
                     <p className="text-gray-500 font-medium">
-                      No achievements yet
+                      No Inputs yet
                     </p>
                   </div>
                 ) : (
@@ -187,15 +187,16 @@ const Performance = () => {
                     >
                       <div className="flex justify-between items-center">
                         <div>
-                          <h4 className="text-md font-semibold text-gray-700">
+                          <h3 className="text-md font-bold text-gray-700">
                             {activity.title}
-                          </h4>
+                          </h3>
+                            
                           <p className="text-sm text-gray-500">
                             {activity.date}
                           </p>
                         </div>
                         <span className={`${theme.text} font-bold text-lg`}>
-                          {activity.score}
+                          {activity.scoreType}
                         </span>
                       </div>
                     </li>
@@ -203,7 +204,7 @@ const Performance = () => {
                 )}
               </ul>
 
-              {performanceData.activities.length > 10 && (
+              {performanceData.recentInputs.length > 10 && (
                 <div className="text-center mt-4">
                   <button
                     onClick={() => setShowAllActivities(!showAllActivities)}

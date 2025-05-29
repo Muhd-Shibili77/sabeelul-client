@@ -105,7 +105,7 @@ export const fetchStudent = createAsyncThunk(
   export const addCceMark = createAsyncThunk(
     "addCceMark",
     async ({ id, data }, { rejectWithValue }) => {
-    
+      console.log(data)
       try {
         const response = await api.post(`/student/cce/${id}`, data);
         return response.data;

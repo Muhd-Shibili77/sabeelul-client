@@ -77,7 +77,7 @@ const AdminDashboard = () => {
                     <span className="block text-sm text-gray-600">
                       Mark:{" "}
                       <span className="font-medium text-[rgba(53,130,140,0.9)]">
-                        {item.mark}
+                         {Math.round(item.mark)}
                       </span>
                     </span>
                   </div>
