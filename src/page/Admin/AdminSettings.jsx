@@ -6,19 +6,14 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
+import { fetchTheme, updateTheme } from "../../redux/themeSlice";
 
 const AdminSettings = () => {
-  const [levels, setLevels] = useState([
-    { label: "Green", min: 600, max: 1000 },
-    { label: "Blue", min: 500, max: 599 },
-    { label: "Purple", min: 400, max: 499 },
-    { label: "Orange", min: 300, max: 399 },
-    { label: "Red", min: 200, max: 299 },
-    { label: "Below Level", min: 0, max: 199 },
-  ]);
+  const [levels, setLevels] = useState([]);
 
   const dispatch = useDispatch();
   const { items, loading, error } = useSelector((state) => state.item);
+  const { themes, loading: themeLoading, error: themeError } = useSelector((state) => state.theme);
 
   const [editingLevels, setEditingLevels] = useState(false);
   const [editingItems, setEditingItems] = useState(false);
@@ -28,7 +23,21 @@ const AdminSettings = () => {
 
   useEffect(() => {
     dispatch(fetchItems());
+    dispatch(fetchTheme());
   }, [dispatch]);
+
+  // Update levels when themes data is loaded
+  useEffect(() => {
+    if (themes && themes.length > 0) {
+      const formattedLevels = themes.map(theme => ({
+        _id: theme._id,
+        label: theme.label,
+        min: theme.minMark,
+        max: theme.maxMark
+      }));
+      setLevels(formattedLevels);
+    }
+  }, [themes]);
 
   useEffect(() => {
     if (error) {
@@ -36,9 +45,15 @@ const AdminSettings = () => {
     }
   }, [error]);
 
+  useEffect(() => {
+    if (themeError) {
+      toast.error(themeError.message || "Failed to load themes");
+    }
+  }, [themeError]);
+
   const handleLevelChange = (index, field, value) => {
     const newLevels = [...levels];
-    newLevels[index][field] = parseInt(value) || 0;
+    newLevels[index][field] = parseInt(value);
     setLevels(newLevels);
   };
 
@@ -195,7 +210,7 @@ const AdminSettings = () => {
     }
   };
 
-  const saveLevels = () => {
+  const saveLevels = async () => {
     // Validate levels
     const hasOverlap = levels.some((level, index) => {
       return levels.some((otherLevel, otherIndex) => {
@@ -209,9 +224,27 @@ const AdminSettings = () => {
       return;
     }
 
-    setEditingLevels(false);
-    toast.success("Levels saved successfully!");
-    console.log("Saved Levels", levels);
+    try {
+      // Update all theme levels
+      const updatePromises = levels.map(level => 
+        dispatch(updateTheme({
+          id: level._id,
+          minMark: level.min,
+          maxMark: level.max
+        }))
+      );
+
+      await Promise.all(updatePromises);
+      
+      setEditingLevels(false);
+      toast.success("Levels updated successfully!");
+      
+      // Refresh theme data to ensure consistency
+      dispatch(fetchTheme());
+    } catch (error) {
+      toast.error("Failed to update levels. Please try again.");
+      console.error("Update levels error:", error);
+    }
   };
 
   return (
@@ -227,7 +260,7 @@ const AdminSettings = () => {
               <h2 className="text-xl font-semibold text-gray-700">
                 🎯 Mark Level Management
               </h2>
-              {!editingLevels && (
+              {!editingLevels && !themeLoading && levels.length > 0 && (
                 <button
                   onClick={() => setEditingLevels(true)}
                   className="text-sm px-3 py-1 bg-blue-100 text-blue-800 rounded hover:bg-blue-200"
@@ -237,47 +270,61 @@ const AdminSettings = () => {
               )}
             </div>
 
-            <div className="space-y-4">
-              {levels.map((level, index) => (
-                <div
-                  key={index}
-                  className={`p-4 rounded-lg border flex flex-col md:flex-row items-center justify-between shadow-sm transition-all`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`w-4 h-4 rounded-full ${getDotColor(
-                        level.label
-                      )}`}
-                    />
-                    <span className="font-medium text-gray-700">
-                      {level.label}
-                    </span>
+            {themeLoading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="text-gray-500 mt-2">Loading levels...</p>
+              </div>
+            ) : levels.length === 0 ? (
+              <div className="text-center py-8">
+                <h3 className="text-lg font-medium text-gray-600 mb-2">No Levels Available</h3>
+                <p className="text-gray-500 text-sm">
+                  Unable to load mark levels. Please try refreshing the page.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {levels.map((level, index) => (
+                  <div
+                    key={level._id || index}
+                    className={`p-4 rounded-lg border flex flex-col md:flex-row items-center justify-between shadow-sm transition-all`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-4 h-4 rounded-full ${getDotColor(
+                          level.label
+                        )}`}
+                      />
+                      <span className="font-medium text-gray-700">
+                        {level.label}
+                      </span>
+                    </div>
+                    <div className="flex gap-3 mt-2 md:mt-0">
+                      <input
+                        type="number"
+                        disabled={!editingLevels}
+                        value={level.min}
+                        onChange={(e) =>
+                          handleLevelChange(index, "min", e.target.value)
+                        }
+                        className="px-3 py-1 rounded border text-sm w-24"
+                        placeholder="Min"
+                      />
+                      <input
+                        type="number"
+                        disabled={!editingLevels}
+                        value={level.max}
+                        onChange={(e) =>
+                          handleLevelChange(index, "max", e.target.value)
+                        }
+                        className="px-3 py-1 rounded border text-sm w-24"
+                        placeholder="Max"
+                      />
+                    </div>
                   </div>
-                  <div className="flex gap-3 mt-2 md:mt-0">
-                    <input
-                      type="number"
-                      disabled={!editingLevels}
-                      value={level.min}
-                      onChange={(e) =>
-                        handleLevelChange(index, "min", e.target.value)
-                      }
-                      className="px-3 py-1 rounded border text-sm w-24"
-                      placeholder="Min"
-                    />
-                    <input
-                      type="number"
-                      disabled={!editingLevels}
-                      value={level.max}
-                      onChange={(e) =>
-                        handleLevelChange(index, "max", e.target.value)
-                      }
-                      className="px-3 py-1 rounded border text-sm w-24"
-                      placeholder="Max"
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
 
             {editingLevels && (
               <div className="text-right mt-5">
@@ -289,9 +336,10 @@ const AdminSettings = () => {
                 </button>
                 <button
                   onClick={saveLevels}
-                  className="px-5 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition"
+                  disabled={themeLoading}
+                  className="px-5 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition disabled:opacity-50"
                 >
-                  Save Levels
+                  {themeLoading ? "Saving..." : "Save Levels"}
                 </button>
               </div>
             )}

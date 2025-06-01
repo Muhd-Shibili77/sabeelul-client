@@ -6,7 +6,7 @@ import { getLevelData } from "../../utils/studentLevel";
 import useStudentDashboardData from "../../hooks/fetch/useStudentDashboard";
 import { useStudentContext } from "../../context/StudentContext";
 const Home = () => {
-  const { totalMark, theme } = useStudentContext();
+  const {  theme } = useStudentContext();
   const {data,loading,error } = useStudentDashboardData()
   const dashboardData = {
    
@@ -39,7 +39,7 @@ const Home = () => {
       <div className="flex-1 p-9 md:ml-68 transition-all duration-300 overflow-y-auto mt-8">
         {loading ? (
           <div className="flex justify-center items-center h-full">
-            <Loader />
+            <Loader color={theme.color} />
           </div>
         ) : error ? (
           <div className="flex justify-center items-center h-full">

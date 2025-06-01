@@ -7,7 +7,7 @@ import { useStudentContext } from "../../context/StudentContext";
 import CCEModal from "../../components/modals/CCEModal";
 const Performance = () => {
   const { data, loading, error } = useStudentPerformanceData();
-  const { totalMark, theme } = useStudentContext();
+  const { theme } = useStudentContext();
 
   const [showMore, setShowMore] = useState(false);
   const [showAllActivities, setShowAllActivities] = useState(false);
@@ -52,7 +52,7 @@ const Performance = () => {
       <div className="flex-1 p-1 md:ml-60 md:mt-8 mt-16 transition-all duration-300 overflow-y-auto">
         {loading ? (
           <div className="flex justify-center items-center h-full">
-            <Loader />
+            <Loader color={theme.color} />
           </div>
         ) : error ? (
           <div className="flex justify-center items-center h-full">

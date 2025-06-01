@@ -27,7 +27,7 @@ const Profile = () => {
       <div className="flex-1 p-4 md:ml-60 mt-8 transition-all duration-300 overflow-y-auto">
       {loading ? (
           <div className="flex justify-center mt-10 items-center h-[60vh]">
-            <Loader />
+             <Loader color={theme.color} />
           </div>
         ) : error ? (
           <div className="flex justify-center items-center h-[60vh]">

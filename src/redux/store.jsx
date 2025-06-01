@@ -4,6 +4,7 @@ import teacherReducer from './teacherSlice.jsx'
 import studentReducer from './studentSlice.jsx'
 import programReducer from './programSlice.jsx'
 import itemReducer from './itemSlice.jsx'
+import themeReducer from './themeSlice.jsx'
 const store = configureStore({
     reducer:{
       class:classReducer,
@@ -11,6 +12,7 @@ const store = configureStore({
       student:studentReducer,
       program:programReducer,
       item:itemReducer,
+      theme:themeReducer
     }
 })
 

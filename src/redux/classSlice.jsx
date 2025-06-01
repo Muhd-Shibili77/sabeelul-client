@@ -130,6 +130,53 @@ export const deleteScore = createAsyncThunk(
     }
   }
 );
+export const addPenaltyScore = createAsyncThunk(
+  "class/addPenaltyScore",
+  async ({ id, reason, penaltyScore, description }, { rejectWithValue }) => {
+    try {
+      const response = await api.post(`class/penalty/${id}`, {
+        reason,
+        penaltyScore,
+        description
+      });
+      return response.data; // adjust based on actual response
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Failed to add penalty score");
+    }
+  }
+);
+
+export const updatePenaltyScore = createAsyncThunk(
+  "class/updatePenaltyScore",
+  async ({ id,markId, reason, penaltyScore, description }, { rejectWithValue }) => {
+    
+    try {
+      const response = await api.put(`class/penalty/${id}`, {
+        markId,
+        reason,
+        penaltyScore,
+        description,
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Failed to update penalty mark");
+    }
+  }
+);
+export const deletePenaltyScore = createAsyncThunk(
+  "class/deletePenaltyScore",
+  async ({ classId, markId }, { rejectWithValue }) => {
+    
+    try {
+      const response = await api.delete(`class/penalty/${classId}`, {
+        data: { markId },
+      });
+      return { classId, markId };
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Failed to delete penalty mark");
+    }
+  }
+);
 
 const classSlice = createSlice({
   name: "class",

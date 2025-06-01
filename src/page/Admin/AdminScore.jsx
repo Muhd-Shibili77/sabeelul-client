@@ -5,6 +5,9 @@ import {
   addScore,
   updateScore,
   deleteScore,
+  addPenaltyScore,
+  updatePenaltyScore,
+  deletePenaltyScore
 } from "../../redux/classSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
@@ -14,6 +17,9 @@ import {
   addExtraMark,
   deleteExtraMark,
   editExtraMark,
+  addStudentPenalty,
+  updateStudentPenalty,
+  deleteStudentPenalty
 } from "../../redux/studentSlice";
 import { PencilIcon, TrashIcon } from "lucide-react";
 import { fetchItems } from "../../redux/itemSlice";
