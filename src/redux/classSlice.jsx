@@ -132,13 +132,9 @@ export const deleteScore = createAsyncThunk(
 );
 export const addPenaltyScore = createAsyncThunk(
   "class/addPenaltyScore",
-  async ({ id, reason, penaltyScore, description }, { rejectWithValue }) => {
+  async ({ id, newMark }, { rejectWithValue }) => {
     try {
-      const response = await api.post(`class/penalty/${id}`, {
-        reason,
-        penaltyScore,
-        description
-      });
+      const response = await api.post(`class/penalty/${id}`,newMark);
       return response.data; // adjust based on actual response
     } catch (error) {
       return rejectWithValue(error.response?.data || "Failed to add penalty score");

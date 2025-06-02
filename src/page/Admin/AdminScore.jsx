@@ -7,7 +7,7 @@ import {
   deleteScore,
   addPenaltyScore,
   updatePenaltyScore,
-  deletePenaltyScore
+  deletePenaltyScore,
 } from "../../redux/classSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
@@ -19,7 +19,7 @@ import {
   editExtraMark,
   addStudentPenalty,
   updateStudentPenalty,
-  deleteStudentPenalty
+  deleteStudentPenalty,
 } from "../../redux/studentSlice";
 import { PencilIcon, TrashIcon } from "lucide-react";
 import { fetchItems } from "../../redux/itemSlice";
@@ -47,14 +47,49 @@ const AdminScore = () => {
   const [editExtraScore, setEditExtraScore] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(null);
 
+  const [selectedClassPenalty, setSelectedClassPenalty] = useState("");
+  const [editClassPenaltyMode, setEditClassPenaltyMode] = useState(false);
+  const [selectedPenaltyClassData, setSelectedPenaltyClassData] =
+    useState(null);
+  const [classPenalty, setClassPenalty] = useState({
+    reason: "",
+    description: "",
+    penaltyScore: "",
+  });
+  const [editClassPenalty, setEditClassPenalty] = useState({
+    id: "",
+    reason: "",
+    description: "",
+    penaltyScore: "",
+  });
+
+  const [admNo, setAdmNo] = useState("");
+  const [editStudentPenaltyMode, setEditStudentPenaltyMode] = useState(false);
+  const [studentPenalty, setStudentPenalty] = useState({
+    reason: "",
+    description: "",
+    penaltyScore: "",
+  });
+  const [editStudentPenalty, setEditStudentPenalty] = useState({
+    id: "",
+    reason: "",
+    description: "",
+    penaltyScore: "",
+  });
+
   const { classes } = useSelector((state) => state.class);
-  const programs = useSelector((state)=>state.item.items)
-  // const { programs } = useSelector((state) => state.program);
+  const programs = useSelector((state) => state.item.items);
   const {
     student: foundStudent,
     loading: studentLoading,
     error: studentError,
     fetchStudent,
+  } = useStudentByAdmissionNo();
+  const {
+    student: foundStudentPenalty,
+    loading: studentLoadingPenalty,
+    error: studentErrorPenalty,
+    fetchStudent: fetchStudentPenalty,
   } = useStudentByAdmissionNo();
 
   const refreshList = () =>
@@ -67,7 +102,6 @@ const AdminScore = () => {
     dispatch(fetchItems({}));
   }, [dispatch]);
 
-  // Update selectedClassData whenever selectedClass changes
   useEffect(() => {
     if (selectedClass) {
       const classData = classes.find((cls) => cls._id === selectedClass);
@@ -77,11 +111,26 @@ const AdminScore = () => {
     }
   }, [selectedClass, classes]);
 
+  useEffect(() => {
+    if (selectedClassPenalty) {
+      const classData = classes.find((cls) => cls._id === selectedClassPenalty);
+      setSelectedPenaltyClassData(classData);
+    } else {
+      setSelectedPenaltyClassData(null);
+    }
+  }, [selectedClassPenalty, classes]);
+
   const items = ["Discipline", "Cleaning", "Participation"];
-
   const handleSubmitClassScore = async () => {
+    if (!selectedClass) {
+      toast.warning("Select a class!");
+      return;
+    }
     const itemToSubmit = selectedItem === "other" ? customItem : selectedItem;
-
+    if (itemToSubmit.trim() === "" || classDiscription.trim() === "") {
+      toast.warning("All fields are required");
+      return;
+    }
     const data = {
       item: itemToSubmit,
       score: classMarks,
@@ -104,12 +153,11 @@ const AdminScore = () => {
       toast.error(err.message || "Failed to submit class score");
     }
   };
-
   const handleEditMark = (mark) => {
     setEditMode(true);
     setEditMarkId(mark._id);
     setEditItem(mark.item);
-    setEditdiscription(mark.description)
+    setEditdiscription(mark.description);
     setEditScore(mark.score.toString());
     setSelectedItem("");
     setCustomItem("");
@@ -117,21 +165,18 @@ const AdminScore = () => {
     setClassDiscription("");
   };
   const handleExtraEditMark = (mark) => {
-    
     setExtraEditMode(true);
     setEditExtraMarkId(mark._id);
     setEditExtraItem(getItemNameById(mark));
     setEditExtraScore(mark.mark.toString());
-    setEditStudentDiscription(mark.description)
+    setEditStudentDiscription(mark.description);
   };
-
   const handleCancelExtraEdit = () => {
     setExtraEditMode(false);
     setEditExtraMarkId(null);
     setEditExtraItem("");
     setEditExtraScore("");
   };
-
   const handleUpdateExtraMark = async () => {
     if (!editExtraMarkId) return;
 
@@ -155,22 +200,20 @@ const AdminScore = () => {
       toast.error(err.message || "Failed to update student mark");
     }
   };
-
   const handleCancelEdit = () => {
     setEditMode(false);
     setEditMarkId(null);
     setEditItem("");
-    setEditdiscription("")
+    setEditdiscription("");
     setEditScore("");
   };
-
   const handleUpdateMark = async () => {
     if (!editMarkId) return;
 
     const data = {
       item: editItem,
       score: editScore,
-      discription:editdiscription,
+      discription: editdiscription,
     };
 
     try {
@@ -186,13 +229,12 @@ const AdminScore = () => {
       setEditMode(false);
       setEditMarkId(null);
       setEditItem("");
-      setEditdiscription("")
+      setEditdiscription("");
       setEditScore("");
     } catch (err) {
       toast.error(err.message || "Failed to update mark");
     }
   };
-
   const handleDeleteMark = async (markId) => {
     try {
       await dispatch(deleteScore({ classId: selectedClass, markId })).unwrap();
@@ -212,12 +254,18 @@ const AdminScore = () => {
       toast.error(err.message || "Failed to delete mark");
     }
   };
+  const handleSearchStudent = (e) => {
+    if (e && e.preventDefault) e.preventDefault();
 
-  const handleSearchStudent = () => {
-    if (!admissionNo) return toast.warning("Please enter an admission number");
-    fetchStudent(admissionNo);
+    const input = admissionNo;
+
+    if (!input?.trim()) {
+      toast.warning("Please enter a valid admission number.");
+      return;
+    }
+
+    fetchStudent(input.trim());
   };
-
   const getItemNameById = (mark) => {
     // If it's a program from the program collection
     if (mark.programId) {
@@ -228,7 +276,6 @@ const AdminScore = () => {
     // If it's a custom program name
     return mark.customProgramName || "N/A";
   };
-
   const handleSubmitStudentScore = async () => {
     const itemToSubmit = selectedItem === "other" ? customItem : selectedItem;
     const data = {
@@ -239,7 +286,6 @@ const AdminScore = () => {
     try {
       await dispatch(addExtraMark({ id: foundStudent._id, data })).unwrap();
       toast.success("Student score submitted successfully!");
-      setAdmissionNo("");
       setSelectedItem("");
       setCustomItem("");
       setStudentMarks("");
@@ -251,6 +297,203 @@ const AdminScore = () => {
     }
   };
 
+  const handleSubmitClassPenaltyScore = async () => {
+    if (!selectedClassPenalty) {
+      toast.warning("Select a class!");
+      return;
+    }
+    if (
+      classPenalty.reason.trim() === "" ||
+      classPenalty.description.trim() === ""
+    ) {
+      toast.warning("All fields are required");
+      return;
+    }
+    const newMark = {
+      reason: classPenalty.reason,
+      description: classPenalty.description,
+      penaltyScore: Number(classPenalty.penaltyScore),
+    };
+
+    try {
+      await dispatch(
+        addPenaltyScore({ id: selectedClassPenalty, newMark })
+      ).unwrap();
+      toast.success("class penalty score submitted successfully!");
+      setClassPenalty({ reason: "", description: "", penaltyScore: "" });
+
+      refreshList();
+    } catch (err) {
+      toast.error(err.message || "Failed to submit class penalty score");
+    }
+  };
+  const handleEditClassPenalty = (mark) => {
+    setEditClassPenaltyMode(true);
+    setEditClassPenalty({
+      id: mark._id,
+      reason: mark.reason,
+      description: mark.description,
+      penaltyScore: mark.penaltyScore,
+    });
+    setClassPenalty({ reason: "", description: "", penaltyScore: "" });
+  };
+  const handleCancelEditClassPenalty = () => {
+    setEditClassPenaltyMode(false);
+    setEditClassPenalty({
+      id: "",
+      reason: "",
+      description: "",
+      penaltyScore: "",
+    });
+  };
+  const handleUpdateClassPenalty = async () => {
+    if (!editClassPenalty.id) {
+      toast.warning("id missing!");
+      return;
+    }
+    if (
+      editClassPenalty.reason.trim() === "" ||
+      editClassPenalty.description.trim() === ""
+    ) {
+      toast.warning("All fields are required");
+      return;
+    }
+
+    try {
+      await dispatch(
+        updatePenaltyScore({
+          id: selectedClassPenalty,
+          markId: editClassPenalty.id,
+          reason: editClassPenalty.reason,
+          penaltyScore: editClassPenalty.penaltyScore,
+          description: editClassPenalty.description,
+        })
+      ).unwrap();
+      toast.success("Penalty Mark updated successfully!");
+      refreshList();
+      handleCancelEditClassPenalty();
+    } catch (error) {
+      toast.error(error.message || "Failed to update penalty mark");
+    }
+  };
+  const handleDeleteClassPenalty = async (markId) => {
+    try {
+      await dispatch(
+        deletePenaltyScore({ classId: selectedClassPenalty, markId })
+      ).unwrap();
+      toast.success("Mark deleted successfully!");
+      setConfirmDelete(null);
+      refreshList();
+    } catch (error) {
+      toast.error(error.message || "Failed to delete mark");
+    }
+  };
+
+  const handleSubmitStudentPenalty = async () => {
+    const id = foundStudentPenalty._id
+    if(!id){
+      toast.warning("id required!");
+      return;
+    }
+    console.log(studentPenalty)
+     if (
+      studentPenalty.reason.trim() === "" ||
+      studentPenalty.description.trim() === ""
+    ) {
+      toast.warning("All fields are required");
+      return;
+    }
+     const newMark = {
+      reason: studentPenalty.reason,
+      description: studentPenalty.description,
+      penaltyScore: Number(studentPenalty.penaltyScore),
+    };
+    try {
+      await dispatch(
+        addStudentPenalty({ id: id, newMark })
+      ).unwrap();
+      toast.success("student penalty score submitted successfully!");
+      setStudentPenalty({ reason: "", description: "", penaltyScore: "" });
+      fetchStudentPenalty(admNo);
+    } catch (error) {
+      toast.error(error.message || "Failed to submit student penalty score");
+    }
+  };
+  const handleEditStudentPenalty = (mark) => {
+    setEditStudentPenaltyMode(true);
+    setEditStudentPenalty({
+      id: mark._id,
+      reason: mark.reason,
+      description: mark.description,
+      penaltyScore: mark.penaltyScore,
+    });
+  };
+  const handleCancelEditStudentPenalty = () => {
+    setEditStudentPenaltyMode(false);
+    setEditStudentPenalty({
+      id: "",
+      reason: "",
+      description: "",
+      penaltyScore: "",
+    });
+  };
+  const handleUpdateStudentPenalty = async () => {
+    const id = foundStudentPenalty._id
+    if(!id){
+      toast.warning("id required!");
+      return;
+    }
+    if (
+      editStudentPenalty.reason.trim() === "" ||
+      editStudentPenalty.description.trim() === ""
+    ) {
+      toast.warning("All fields are required");
+      return;
+    }
+
+    try {
+      await dispatch(
+        updateStudentPenalty({
+          id: id,
+          markId: editStudentPenalty.id,
+          reason: editStudentPenalty.reason,
+          penaltyScore: editStudentPenalty.penaltyScore,
+          description: editStudentPenalty.description,
+        })
+      ).unwrap();
+      toast.success("Penalty Mark updated successfully!");
+      fetchStudentPenalty(admNo);
+      handleCancelEditStudentPenalty();
+    } catch (error) {
+      toast.error(error.message || "Failed to update penalty mark");
+    }
+
+  };
+  const handleDeleteStudentPenalty = async (markId) => {
+    const id = foundStudentPenalty._id
+    if(!id)return
+    try {
+      await dispatch(
+        deleteStudentPenalty({ id: id, markId: markId })
+      ).unwrap();
+      toast.success("Mark deleted successfully!");
+      handleSearchStudentPenalty();
+    } catch (error) {
+      toast.error(error.message || "Failed to delete mark");
+    }
+  };
+  const handleSearchStudentPenalty = (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+
+    const input = admNo;
+
+    if (!input?.trim()) {
+      toast.warning("Please enter a valid admission number.");
+      return;
+    }
+
+    fetchStudentPenalty(input.trim());
+  };
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-100 to-[rgba(53,130,140,0.4)]">
       <SideBar page="Score" />
@@ -281,333 +524,614 @@ const AdminScore = () => {
         </div>
 
         {scoreType === "Class" && (
-          <div className="bg-white p-4 rounded shadow-md">
-            <div className="mb-3">
-              <select
-                className="w-full p-2 border rounded"
-                value={selectedClass}
-                onChange={(e) => setSelectedClass(e.target.value)}
-              >
-                <option value="">Select Class</option>
-                {classes.map((cls) => (
-                  <option key={cls._id} value={cls._id}>
-                    {cls.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Show edit form when in edit mode */}
-            {editMode && (
-              <div className="bg-blue-50 p-3 rounded border border-blue-200 mb-4">
-                <h3 className="text-lg font-medium mb-2">Edit Mark</h3>
-                <div className="mb-3">
-                  <input
-                    type="text"
-                    placeholder="Item Name"
-                    className="w-full p-2 border rounded"
-                    value={editItem}
-                    onChange={(e) => setEditItem(e.target.value)}
-                  />
-                </div>
-                <div className="mb-3">
-                  <input
-                    type="text"
-                    placeholder="Description"
-                    className="w-full p-2 border rounded"
-                    value={editdiscription}
-                    onChange={(e) => setEditdiscription(e.target.value)}
-                  />
-                </div>
-                <div className="mb-3">
-                  <input
-                    type="number"
-                    placeholder="Score"
-                    className="w-full p-2 border rounded"
-                    value={editScore}
-                    onChange={(e) => setEditScore(e.target.value)}
-                  />
-                </div>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={handleUpdateMark}
-                    className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded"
-                    disabled={!editItem || !editScore}
-                  >
-                    Update Mark
-                  </button>
-                  <button
-                    onClick={handleCancelEdit}
-                    className="bg-gray-300 text-gray-800 px-4 py-2 rounded"
-                  >
-                    Cancel
-                  </button>
-                </div>
+          <div className={"grid md:grid-cols-2 gap-5"}>
+            <div className="bg-white p-4 rounded-2xl shadow-md">
+              <h1 className={`font-bold text-lg mb-3 p-1`}>Regular Score</h1>
+              <div className="mb-3">
+                <select
+                  className="w-full p-2 border rounded"
+                  value={selectedClass}
+                  onChange={(e) => setSelectedClass(e.target.value)}
+                >
+                  <option value="">Select Class</option>
+                  {classes.map((cls) => (
+                    <option key={cls._id} value={cls._id}>
+                      {cls.name}
+                    </option>
+                  ))}
+                </select>
               </div>
-            )}
 
-            {/* Show add form only when NOT in edit mode */}
-            {!editMode && (
-              <div className="mt-4">
-                <h3 className="text-lg font-medium mb-2">Add New Mark</h3>
-                <div className="mb-3">
-                  <select
-                    className="w-full p-2 border rounded"
-                    value={selectedItem}
-                    onChange={(e) => setSelectedItem(e.target.value)}
-                  >
-                    <option value="">Select Item</option>
-                    {items.map((item, i) => (
-                      <option key={i} value={item}>
-                        {item}
-                      </option>
-                    ))}
-                    <option value="other">Other</option>
-                  </select>
+              {/* Show edit form when in edit mode */}
+              {editMode && (
+                <div className="bg-blue-50 p-3 rounded border border-blue-200 mb-4">
+                  <h3 className="text-lg font-medium mb-2">Edit Mark</h3>
+                  <div className="mb-3">
+                    <input
+                      type="text"
+                      placeholder="Item Name"
+                      className="w-full p-2 border rounded"
+                      value={editItem}
+                      onChange={(e) => setEditItem(e.target.value)}
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <input
+                      type="text"
+                      placeholder="Description"
+                      className="w-full p-2 border rounded"
+                      value={editdiscription}
+                      onChange={(e) => setEditdiscription(e.target.value)}
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <input
+                      type="number"
+                      placeholder="Score"
+                      className="w-full p-2 border rounded"
+                      value={editScore}
+                      onChange={(e) => setEditScore(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={handleUpdateMark}
+                      className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded"
+                      disabled={!editItem || !editScore}
+                    >
+                      Update Mark
+                    </button>
+                    <button
+                      onClick={handleCancelEdit}
+                      className="bg-gray-300 text-gray-800 px-4 py-2 rounded"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
-                <div className="mb-3">
-                  {selectedItem === "other" ? (
+              )}
+
+              {/* Show add form only when NOT in edit mode */}
+              {!editMode && (
+                <div className="mt-4">
+                  <h3 className="text-lg font-medium mb-2">Add New Mark</h3>
+                  <div className="mb-3">
+                    <select
+                      className="w-full p-2 border rounded"
+                      value={selectedItem}
+                      onChange={(e) => setSelectedItem(e.target.value)}
+                    >
+                      <option value="">Select Item</option>
+                      {items.map((item, i) => (
+                        <option key={i} value={item}>
+                          {item}
+                        </option>
+                      ))}
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                  <div className="mb-3">
+                    {selectedItem === "other" ? (
+                      <div className="mb-3">
+                        <input
+                          type="text"
+                          placeholder="Description"
+                          className="w-full p-2 border rounded"
+                          value={customItem}
+                          onChange={(e) => setCustomItem(e.target.value)}
+                        />
+                      </div>
+                    ) : (
+                      <div className="mb-3">
+                        <input
+                          type="text"
+                          placeholder="Description"
+                          className="w-full p-2 border rounded"
+                          value={classDiscription}
+                          onChange={(e) => setClassDiscription(e.target.value)}
+                        />
+                      </div>
+                    )}
+
                     <div className="mb-3">
                       <input
-                        type="text"
-                        placeholder="Description"
+                        type="number"
+                        placeholder="Enter Marks"
                         className="w-full p-2 border rounded"
-                        value={customItem}
-                        onChange={(e) => setCustomItem(e.target.value)}
+                        value={classMarks}
+                        onChange={(e) => setClassMark(e.target.value)}
                       />
                     </div>
-                  ) : (
-                    <div className="mb-3">
-                      <input
-                        type="text"
-                        placeholder="Description"
-                        className="w-full p-2 border rounded"
-                        value={classDiscription}
-                        onChange={(e) => setClassDiscription(e.target.value)}
-                      />
+                  </div>
+
+                  <button
+                    onClick={handleSubmitClassScore}
+                    className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded"
+                  >
+                    Submit Class Score
+                  </button>
+                </div>
+              )}
+
+              {/* Display existing class marks AFTER add new mark section */}
+              {selectedClassData &&
+                selectedClassData.marks &&
+                selectedClassData.marks.length > 0 && (
+                  <div className="mb-4 mt-4">
+                    <h3 className="text-lg font-medium mb-2">
+                      Existing Class Marks
+                    </h3>
+                    <div className="bg-gray-50 p-3 rounded">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead>
+                          <tr>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Item
+                            </th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Score
+                            </th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Date
+                            </th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Description
+                            </th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Actions
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                          {/* Sort marks by date before mapping */}
+                          {selectedClassData.marks
+                            .slice()
+                            .sort((a, b) => {
+                              const dateA = a.date
+                                ? new Date(a.date)
+                                : new Date(0);
+                              const dateB = b.date
+                                ? new Date(b.date)
+                                : new Date(0);
+                              const dateDiff = dateB - dateA;
+                              if (dateDiff === 0) {
+                                const timeA = dateA.getTime();
+                                const timeB = dateB.getTime();
+                                if (timeA !== timeB) return timeB - timeA;
+                                if (a._id && b._id) {
+                                  return b._id.localeCompare(a._id);
+                                }
+                                return b.score - a.score;
+                              }
+                              return dateDiff;
+                            })
+                            .map((mark, index) => (
+                              <tr
+                                key={mark._id || index}
+                                className={
+                                  editMarkId === mark._id ? "bg-blue-50" : ""
+                                }
+                              >
+                                <td className="px-3 py-2 text-sm text-gray-900">
+                                  {mark.item}
+                                </td>
+                                <td className="px-3 py-2 text-sm text-gray-900">
+                                  {mark.score}
+                                </td>
+                                <td className="px-3 py-2 text-sm text-gray-900">
+                                  {mark.date
+                                    ? new Date(mark.date).toLocaleDateString()
+                                    : "N/A"}
+                                </td>
+                                <td className="px-3 py-2 text-sm text-gray-900">
+                                  {mark.description || ""}
+                                </td>
+                                <td className="px-3 py-2 text-sm text-gray-900">
+                                  <div className="flex space-x-2">
+                                    <button
+                                      onClick={() => handleEditMark(mark)}
+                                      className="p-1 text-blue-600 hover:text-blue-800"
+                                      title="Edit"
+                                    >
+                                      <PencilIcon size={16} />
+                                    </button>
+                                    <button
+                                      onClick={() => setConfirmDelete(mark._id)}
+                                      className="p-1 text-red-600 hover:text-red-800"
+                                      title="Delete"
+                                    >
+                                      <TrashIcon size={16} />
+                                    </button>
+
+                                    {confirmDelete === mark._id && (
+                                      <div className="absolute bg-white shadow-lg p-2 rounded border">
+                                        <p className="text-xs mb-1">
+                                          Confirm delete?
+                                        </p>
+                                        <div className="flex space-x-2">
+                                          <button
+                                            onClick={() =>
+                                              handleDeleteMark(mark._id)
+                                            }
+                                            className="px-2 py-1 bg-red-500 text-white text-xs rounded"
+                                          >
+                                            Yes
+                                          </button>
+                                          <button
+                                            onClick={() =>
+                                              setConfirmDelete(null)
+                                            }
+                                            className="px-2 py-1 bg-gray-300 text-gray-800 text-xs rounded"
+                                          >
+                                            No
+                                          </button>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </table>
                     </div>
-                  )}
-                 
+                  </div>
+                )}
+            </div>
+            <div className="bg-white p-4 rounded-2xl shadow-md">
+              <h1 className={`font-bold text-lg mb-3 p-1 text-red-500`}>
+                Penalty Score
+              </h1>
+              <div className="mb-3">
+                <select
+                  className="w-full p-2 border rounded"
+                  value={selectedClassPenalty}
+                  onChange={(e) => setSelectedClassPenalty(e.target.value)}
+                >
+                  <option value="">Select Class</option>
+                  {classes.map((cls) => (
+                    <option key={cls._id} value={cls._id}>
+                      {cls.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Show edit form when in edit mode */}
+              {editClassPenaltyMode && (
+                <div className="bg-red-100 p-3 rounded border border-red-200 mb-4">
+                  <h3 className="text-lg font-medium mb-2">Edit Mark</h3>
+                  <div className="mb-3">
+                    <input
+                      type="text"
+                      placeholder="Reason"
+                      className="w-full p-2 border rounded"
+                      value={editClassPenalty.reason}
+                      onChange={(e) =>
+                        setEditClassPenalty((prev) => ({
+                          ...prev,
+                          reason: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <input
+                      type="text"
+                      placeholder="Description"
+                      className="w-full p-2 border rounded"
+                      value={editClassPenalty.description}
+                      onChange={(e) =>
+                        setEditClassPenalty((prev) => ({
+                          ...prev,
+                          description: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <input
+                      type="number"
+                      placeholder="Score"
+                      className="w-full p-2 border rounded"
+                      value={editClassPenalty.penaltyScore}
+                      onChange={(e) =>
+                        setEditClassPenalty((prev) => ({
+                          ...prev,
+                          penaltyScore: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={handleUpdateClassPenalty}
+                      className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded"
+                    >
+                      Update Mark
+                    </button>
+                    <button
+                      onClick={handleCancelEditClassPenalty}
+                      className="bg-gray-300 text-gray-800 px-4 py-2 rounded"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Show add form only when NOT in edit mode */}
+              {!editClassPenaltyMode && (
+                <div className="mt-4">
+                  <h3 className="text-lg font-medium mb-2">Add New Mark</h3>
+                  <div className="mb-3">
+                    <input
+                      type="text"
+                      placeholder="Reason"
+                      className="w-full p-2 border rounded"
+                      value={classPenalty.reason}
+                      onChange={(e) =>
+                        setClassPenalty((prev) => ({
+                          ...prev,
+                          reason: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <input
+                      type="text"
+                      placeholder="Description"
+                      className="w-full p-2 border rounded"
+                      value={classPenalty.description}
+                      onChange={(e) =>
+                        setClassPenalty((prev) => ({
+                          ...prev,
+                          description: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
                   <div className="mb-3">
                     <input
                       type="number"
                       placeholder="Enter Marks"
                       className="w-full p-2 border rounded"
-                      value={classMarks}
-                      onChange={(e) => setClassMark(e.target.value)}
+                      value={classPenalty.penaltyScore}
+                      onChange={(e) =>
+                        setClassPenalty((prev) => ({
+                          ...prev,
+                          penaltyScore: e.target.value,
+                        }))
+                      }
                     />
                   </div>
-                </div>
-
-                <button
-                  onClick={handleSubmitClassScore}
-                  className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded"
-                >
-                  Submit Class Score
-                </button>
-              </div>
-            )}
-
-            {/* Display existing class marks AFTER add new mark section */}
-            {selectedClassData &&
-              selectedClassData.marks &&
-              selectedClassData.marks.length > 0 && (
-                <div className="mb-4 mt-4">
-                  <h3 className="text-lg font-medium mb-2">
-                    Existing Class Marks
-                  </h3>
-                  <div className="bg-gray-50 p-3 rounded">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead>
-                        <tr>
-                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Item
-                          </th>
-                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Score
-                          </th>
-                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Date
-                          </th>
-                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Description
-                          </th>
-                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Actions
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-200">
-                        {/* Sort marks by date before mapping */}
-                        {selectedClassData.marks
-                          .slice() 
-                          .sort((a, b) => {
-                            const dateA = a.date
-                              ? new Date(a.date)
-                              : new Date(0);
-                            const dateB = b.date
-                              ? new Date(b.date)
-                              : new Date(0);
-                            const dateDiff = dateB - dateA;
-                            if (dateDiff === 0) {
-                              const timeA = dateA.getTime();
-                              const timeB = dateB.getTime();
-                              if (timeA !== timeB) return timeB - timeA;
-                              if (a._id && b._id) {
-                                return b._id.localeCompare(a._id);
-                              }
-                              return b.score - a.score;
-                            }
-                            return dateDiff; 
-                          })
-                          .map((mark, index) => (
-                            <tr
-                              key={mark._id || index}
-                              className={
-                                editMarkId === mark._id ? "bg-blue-50" : ""
-                              }
-                            >
-                              <td className="px-3 py-2 text-sm text-gray-900">
-                                {mark.item}
-                              </td>
-                              <td className="px-3 py-2 text-sm text-gray-900">
-                                {mark.score}
-                              </td>
-                              <td className="px-3 py-2 text-sm text-gray-900">
-                                {mark.date
-                                  ? new Date(mark.date).toLocaleDateString()
-                                  : "N/A"}
-                              </td>
-                              <td className="px-3 py-2 text-sm text-gray-900">
-                                {mark.description || ""}
-                              </td>
-                              <td className="px-3 py-2 text-sm text-gray-900">
-                                <div className="flex space-x-2">
-                                  <button
-                                    onClick={() => handleEditMark(mark)}
-                                    className="p-1 text-blue-600 hover:text-blue-800"
-                                    title="Edit"
-                                  >
-                                    <PencilIcon size={16} />
-                                  </button>
-                                  <button
-                                    onClick={() => setConfirmDelete(mark._id)}
-                                    className="p-1 text-red-600 hover:text-red-800"
-                                    title="Delete"
-                                  >
-                                    <TrashIcon size={16} />
-                                  </button>
-
-                                  {confirmDelete === mark._id && (
-                                    <div className="absolute bg-white shadow-lg p-2 rounded border">
-                                      <p className="text-xs mb-1">
-                                        Confirm delete?
-                                      </p>
-                                      <div className="flex space-x-2">
-                                        <button
-                                          onClick={() =>
-                                            handleDeleteMark(mark._id)
-                                          }
-                                          className="px-2 py-1 bg-red-500 text-white text-xs rounded"
-                                        >
-                                          Yes
-                                        </button>
-                                        <button
-                                          onClick={() => setConfirmDelete(null)}
-                                          className="px-2 py-1 bg-gray-300 text-gray-800 text-xs rounded"
-                                        >
-                                          No
-                                        </button>
-                                      </div>
-                                    </div>
-                                  )}
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
-                  </div>
+                  <button
+                    onClick={handleSubmitClassPenaltyScore}
+                    className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded mb-4"
+                  >
+                    Submit Class Score
+                  </button>
                 </div>
               )}
+
+              {/* Display existing class marks AFTER add new mark section */}
+              {selectedPenaltyClassData &&
+                selectedPenaltyClassData?.penaltyMarks &&
+                selectedPenaltyClassData?.penaltyMarks?.length > 0 && (
+                  <div className="mb-4 mt-4">
+                    <h3 className="text-lg font-medium mb-2">
+                      Existing Class Marks
+                    </h3>
+                    <div className="bg-gray-50 p-3 rounded">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead>
+                          <tr>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Reason
+                            </th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Score
+                            </th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Date
+                            </th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Description
+                            </th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Actions
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                          {/* Sort marks by date before mapping */}
+                          {selectedPenaltyClassData.penaltyMarks
+                            .slice()
+                            .sort((a, b) => {
+                              const dateA = a.date
+                                ? new Date(a.date)
+                                : new Date(0);
+                              const dateB = b.date
+                                ? new Date(b.date)
+                                : new Date(0);
+                              const dateDiff = dateB - dateA;
+                              if (dateDiff === 0) {
+                                const timeA = dateA.getTime();
+                                const timeB = dateB.getTime();
+                                if (timeA !== timeB) return timeB - timeA;
+                                if (a._id && b._id) {
+                                  return b._id.localeCompare(a._id);
+                                }
+                                return b.score - a.score;
+                              }
+                              return dateDiff;
+                            })
+                            .map((mark, index) => (
+                              <tr
+                                key={mark._id || index}
+                                className={
+                                  editClassPenalty.id === mark._id
+                                    ? "bg-red-100"
+                                    : ""
+                                }
+                              >
+                                <td className="px-3 py-2 text-sm text-gray-900">
+                                  {mark.reason}
+                                </td>
+                                <td className="px-3 py-2 text-sm text-gray-900">
+                                  {mark.penaltyScore}
+                                </td>
+                                <td className="px-3 py-2 text-sm text-gray-900">
+                                  {mark.date
+                                    ? new Date(mark.date).toLocaleDateString()
+                                    : "N/A"}
+                                </td>
+                                <td className="px-3 py-2 text-sm text-gray-900">
+                                  {mark.description || ""}
+                                </td>
+                                <td className="px-3 py-2 text-sm text-gray-900">
+                                  <div className="flex space-x-2">
+                                    <button
+                                      onClick={() =>
+                                        handleEditClassPenalty(mark)
+                                      }
+                                      className="p-1 text-blue-600 hover:text-blue-800"
+                                      title="Edit"
+                                    >
+                                      <PencilIcon size={16} />
+                                    </button>
+                                    <button
+                                      onClick={() => setConfirmDelete(mark._id)}
+                                      className="p-1 text-red-600 hover:text-red-800"
+                                      title="Delete"
+                                    >
+                                      <TrashIcon size={16} />
+                                    </button>
+
+                                    {confirmDelete === mark._id && (
+                                      <div className="absolute bg-white shadow-lg p-2 rounded border">
+                                        <p className="text-xs mb-1">
+                                          Confirm delete?
+                                        </p>
+                                        <div className="flex space-x-2">
+                                          <button
+                                            onClick={() =>
+                                              handleDeleteClassPenalty(mark._id)
+                                            }
+                                            className="px-2 py-1 bg-red-500 text-white text-xs rounded"
+                                          >
+                                            Yes
+                                          </button>
+                                          <button
+                                            onClick={() =>
+                                              setConfirmDelete(null)
+                                            }
+                                            className="px-2 py-1 bg-gray-300 text-gray-800 text-xs rounded"
+                                          >
+                                            No
+                                          </button>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+            </div>
           </div>
         )}
 
         {scoreType === "Student" && (
-          <div className="bg-white p-4 rounded shadow-md">
-            <div className="mb-3 flex gap-2">
-              <input
-                type="text"
-                placeholder="Enter Admission No"
-                className="w-full md:w-1/2 p-2 border rounded"
-                value={admissionNo}
-                onChange={(e) => setAdmissionNo(e.target.value)}
-              />
-              <button
-                onClick={handleSearchStudent}
-                className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded"
-              >
-                {studentLoading ? "Searching..." : "Search"}
-              </button>
-            </div>
+          <div className={`grid md:grid-cols-2 gap-5`}>
+            <div className="bg-white p-4 rounded-2xl shadow-md">
+              <div className="mb-3 flex-row gap-2">
+                <h1 className={`font-bold text-lg mb-3 p-1`}>Regular Score</h1>
+                {/* <label htmlFor="">Admission No</label> */}
+                <form onSubmit={handleSearchStudent}>
+                  <input
+                    type="text"
+                    placeholder="Enter Admission No"
+                    className="w-full md:w-1/2 p-2 border rounded"
+                    value={admissionNo}
+                    onChange={(e) => setAdmissionNo(e.target.value)}
+                  />
+                  <button
+                    type="submit"
+                    // onClick={handleSearchStudent}
+                    className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded ml-2"
+                  >
+                    {studentLoading ? "Searching..." : "Search"}
+                  </button>
+                </form>
+              </div>
 
-            {studentError && <p className="text-red-600">{studentError}</p>}
-            {foundStudent && (
-              <div className="mt-3">
-                <p className="mb-2 font-medium">{foundStudent.name} - Ad No: {foundStudent.admissionNo}</p>
+              {studentError && <p className="text-red-600">{studentError}</p>}
+              {foundStudent && (
+                <div className="mt-3">
+                  <p className="mb-2 font-medium">
+                    {foundStudent.name} - Ad No: {foundStudent.admissionNo}
+                  </p>
 
-                {/* Student edit form */}
-                {editExtraMode ? (
-                  <div className="bg-blue-50 p-3 rounded border border-blue-200 mb-4">
-                    <h3 className="text-lg font-medium mb-2">
-                      Edit Student Mark
-                    </h3>
-                    <div className="mb-3">
-                      <input
-                        type="text"
-                        placeholder="Program Name"
-                        className="w-full p-2 border bg-gray-300 rounded"
-                        value={editExtraItem}
-                        disabled
-                        onChange={(e) => setEditExtraItem(e.target.value)}
-                      />
+                  {/* Student edit form */}
+                  {editExtraMode ? (
+                    <div className="bg-blue-50 p-3 rounded border border-blue-200 mb-4">
+                      <h3 className="text-lg font-medium mb-2">
+                        Edit Student Mark
+                      </h3>
+                      <div className="mb-3">
+                        <input
+                          type="text"
+                          placeholder="Program Name"
+                          className="w-full p-2 border bg-gray-300 rounded"
+                          value={editExtraItem}
+                          disabled
+                          onChange={(e) => setEditExtraItem(e.target.value)}
+                        />
+                      </div>
+                      <div className="mb-3">
+                        <input
+                          type="text"
+                          placeholder="Discription"
+                          className="w-full p-2 border rounded"
+                          value={editStudentDiscription}
+                          onChange={(e) =>
+                            setEditStudentDiscription(e.target.value)
+                          }
+                        />
+                      </div>
+                      <div className="mb-3">
+                        <input
+                          type="number"
+                          placeholder="Mark"
+                          className="w-full p-2 border rounded"
+                          value={editExtraScore}
+                          onChange={(e) => setEditExtraScore(e.target.value)}
+                        />
+                      </div>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={handleUpdateExtraMark}
+                          className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded"
+                          disabled={!editExtraItem || !editExtraScore}
+                        >
+                          Update Mark
+                        </button>
+                        <button
+                          onClick={handleCancelExtraEdit}
+                          className="bg-gray-300 text-gray-800 px-4 py-2 rounded"
+                        >
+                          Cancel
+                        </button>
+                      </div>
                     </div>
-                    <div className="mb-3">
-                      <input
-                        type="text"
-                        placeholder="Discription"
-                        className="w-full p-2 border rounded"
-                        value={editStudentDiscription}
-                        onChange={(e) => setEditStudentDiscription(e.target.value)}
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <input
-                        type="number"
-                        placeholder="Mark"
-                        className="w-full p-2 border rounded"
-                        value={editExtraScore}
-                        onChange={(e) => setEditExtraScore(e.target.value)}
-                      />
-                    </div>
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={handleUpdateExtraMark}
-                        className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded"
-                        disabled={!editExtraItem || !editExtraScore}
-                      >
-                        Update Mark
-                      </button>
-                      <button
-                        onClick={handleCancelExtraEdit}
-                        className="bg-gray-300 text-gray-800 px-4 py-2 rounded"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  // Only show add form when NOT in edit mode
+                  ) : (
+                    // Only show add form when NOT in edit mode
                     <div className="mt-4">
                       <h3 className="text-lg font-medium mb-2">Add New Mark</h3>
                       <div className="mb-3">
@@ -636,19 +1160,20 @@ const AdminScore = () => {
                             onChange={(e) => setCustomItem(e.target.value)}
                           />
                         </div>
-                      ):(
+                      ) : (
                         <div className="mb-3">
-                        <input
-                          type="text"
-                          placeholder="Description"
-                          className="w-full p-2 border rounded"
-                          value={studentDiscription}
-                          onChange={(e) => setStudentDiscription(e.target.value)}
-                        />
-                      </div>
+                          <input
+                            type="text"
+                            placeholder="Description"
+                            className="w-full p-2 border rounded"
+                            value={studentDiscription}
+                            onChange={(e) =>
+                              setStudentDiscription(e.target.value)
+                            }
+                          />
+                        </div>
                       )}
 
-                      
                       <div className="mb-3">
                         <input
                           type="number"
@@ -662,111 +1187,371 @@ const AdminScore = () => {
                       <button
                         onClick={handleSubmitStudentScore}
                         className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded"
-                        disabled={(!selectedItem && !customItem) || !studentMarks}
+                        disabled={
+                          (!selectedItem && !customItem) || !studentMarks
+                        }
                       >
                         Submit Student Score
                       </button>
                     </div>
-                )}
+                  )}
 
-                {/* Existing Student Marks Section MOVED BELOW the add mark section */}
-                {foundStudent.extraMarks &&
-                  foundStudent.extraMarks.length > 0 && (
-                    <div className="mb-4 mt-4">
-                      <h3 className="text-lg font-medium mb-2">
-                        Existing Student Marks
-                      </h3>
-                      <div className="bg-gray-50 p-3 rounded">
-                        <table className="min-w-full divide-y divide-gray-200">
-                          <thead>
-                            <tr>
-                              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Program
-                              </th>
-                              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Mark
-                              </th>
-                              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Date
-                              </th>
-                              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Discription
-                              </th>
-                              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Actions
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-gray-200">
-                            {foundStudent.extraMarks.map((mark) => (
-                              <tr key={mark._id}>
-                                <td className="px-3 py-2 text-sm text-gray-900">
-                                  {getItemNameById(mark)}
-                                </td>
-                                <td className="px-3 py-2 text-sm text-gray-900">
-                                  {mark.mark}
-                                </td>
-                                <td className="px-3 py-2 text-sm text-gray-900">
-                                  {new Date(mark.date).toLocaleDateString(
-                                    "en-GB"
-                                  )}
-                                </td>
-                                <td className="px-3 py-2 text-sm text-gray-900">
-                                  {mark.description}
-                                </td>
-                                <td className="px-3 py-2 text-sm text-gray-900">
-                                  <div className="flex space-x-2">
-                                    <button
-                                      onClick={() => handleExtraEditMark(mark)}
-                                      className="text-blue-600 hover:text-blue-800"
-                                      title="Edit"
-                                    >
-                                      <PencilIcon size={16} />
-                                    </button>
-                                    <button
-                                      onClick={() => setConfirmDelete(mark._id)}
-                                      className="text-red-600 hover:text-red-800"
-                                      title="Delete"
-                                    >
-                                      <TrashIcon size={16} />
-                                    </button>
-
-                                    {confirmDelete === mark._id && (
-                                      <div className="absolute bg-white shadow-lg p-2 rounded border">
-                                        <p className="text-xs mb-1">
-                                          Confirm delete?
-                                        </p>
-                                        <div className="flex space-x-2">
-                                          <button
-                                            onClick={() =>
-                                              handleDeleteExtraMark(mark._id)
-                                            }
-                                            className="px-2 py-1 bg-red-500 text-white text-xs rounded"
-                                          >
-                                            Yes
-                                          </button>
-                                          <button
-                                            onClick={() =>
-                                              setConfirmDelete(null)
-                                            }
-                                            className="px-2 py-1 bg-gray-300 text-gray-800 text-xs rounded"
-                                          >
-                                            No
-                                          </button>
-                                        </div>
-                                      </div>
-                                    )}
-                                  </div>
-                                </td>
+                  {/* Existing Student Marks Section MOVED BELOW the add mark section */}
+                  {foundStudent.extraMarks &&
+                    foundStudent.extraMarks.length > 0 && (
+                      <div className="mb-4 mt-4">
+                        <h3 className="text-lg font-medium mb-2">
+                          Existing Student Marks
+                        </h3>
+                        <div className="bg-gray-50 p-3 rounded">
+                          <table className="min-w-full divide-y divide-gray-200">
+                            <thead>
+                              <tr>
+                                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  Program
+                                </th>
+                                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  Mark
+                                </th>
+                                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  Date
+                                </th>
+                                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  Discription
+                                </th>
+                                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  Actions
+                                </th>
                               </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                            </thead>
+                            <tbody className="divide-y divide-gray-200">
+                              {foundStudent.extraMarks.map((mark) => (
+                                <tr key={mark._id}>
+                                  <td className="px-3 py-2 text-sm text-gray-900">
+                                    {getItemNameById(mark)}
+                                  </td>
+                                  <td className="px-3 py-2 text-sm text-gray-900">
+                                    {mark.mark}
+                                  </td>
+                                  <td className="px-3 py-2 text-sm text-gray-900">
+                                    {new Date(mark.date).toLocaleDateString(
+                                      "en-GB"
+                                    )}
+                                  </td>
+                                  <td className="px-3 py-2 text-sm text-gray-900">
+                                    {mark.description}
+                                  </td>
+                                  <td className="px-3 py-2 text-sm text-gray-900">
+                                    <div className="flex space-x-2">
+                                      <button
+                                        onClick={() =>
+                                          handleExtraEditMark(mark)
+                                        }
+                                        className="text-blue-600 hover:text-blue-800"
+                                        title="Edit"
+                                      >
+                                        <PencilIcon size={16} />
+                                      </button>
+                                      <button
+                                        onClick={() =>
+                                          setConfirmDelete(mark._id)
+                                        }
+                                        className="text-red-600 hover:text-red-800"
+                                        title="Delete"
+                                      >
+                                        <TrashIcon size={16} />
+                                      </button>
+
+                                      {confirmDelete === mark._id && (
+                                        <div className="absolute bg-white shadow-lg p-2 rounded border">
+                                          <p className="text-xs mb-1">
+                                            Confirm delete?
+                                          </p>
+                                          <div className="flex space-x-2">
+                                            <button
+                                              onClick={() =>
+                                                handleDeleteExtraMark(mark._id)
+                                              }
+                                              className="px-2 py-1 bg-red-500 text-white text-xs rounded"
+                                            >
+                                              Yes
+                                            </button>
+                                            <button
+                                              onClick={() =>
+                                                setConfirmDelete(null)
+                                              }
+                                              className="px-2 py-1 bg-gray-300 text-gray-800 text-xs rounded"
+                                            >
+                                              No
+                                            </button>
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+                </div>
+              )}
+            </div>
+            <div className="bg-white p-4 rounded-2xl shadow-md">
+              <div className="mb-3 flex-row gap-2">
+                <h1 className={`font-bold text-lg mb-3 p-1 text-red-400`}>
+                  Penalty Score
+                </h1>
+                <form action={handleSearchStudentPenalty}>
+                  <input
+                    type="text"
+                    placeholder="Enter Admission No"
+                    className="w-full md:w-1/2 p-2 border rounded"
+                    value={admNo}
+                    onChange={(e) => setAdmNo(e.target.value)}
+                  />
+                  <button className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded ml-2">
+                    {studentLoadingPenalty ? "Searching..." : "Search"}
+                  </button>
+                </form>
+              </div>
+
+              {studentErrorPenalty && (
+                <p className="text-red-600">{studentErrorPenalty}</p>
+              )}
+              {foundStudentPenalty && (
+                <div className="mt-3">
+                  <p className="mb-2 font-medium">
+                    {foundStudentPenalty.name} - Ad No:{" "}
+                    {foundStudentPenalty.admissionNo}
+                  </p>
+
+                  {/* Student edit form */}
+                  {editStudentPenaltyMode ? (
+                    <div className="bg-red-100 p-3 rounded border border-red-200 mb-4">
+                      <h3 className="text-lg font-medium mb-2">
+                        Edit Student Mark
+                      </h3>
+                      <div className="mb-3">
+                        <input
+                          type="text"
+                          placeholder="Reason"
+                          className="w-full p-2 border rounded"
+                          value={editStudentPenalty.reason}
+                          onChange={(e) =>
+                            setEditStudentPenalty((prev) => ({
+                              ...prev,
+                              reason: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                      <div className="mb-3">
+                        <input
+                          type="text"
+                          placeholder="Discription"
+                          className="w-full p-2 border rounded"
+                          value={editStudentPenalty.description}
+                          onChange={(e) =>
+                            setEditStudentPenalty((prev) => ({
+                              ...prev,
+                              description: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                      <div className="mb-3">
+                        <input
+                          type="number"
+                          placeholder="Mark"
+                          className="w-full p-2 border rounded"
+                          value={editStudentPenalty.penaltyScore}
+                          onChange={(e) =>
+                            setEditStudentPenalty((prev) => ({
+                              ...prev,
+                              penaltyScore: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={handleUpdateStudentPenalty}
+                          className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded"
+                          
+                        >
+                          Update Mark
+                        </button>
+                        <button
+                          onClick={handleCancelEditStudentPenalty}
+                          className="bg-gray-300 text-gray-800 px-4 py-2 rounded"
+                        >
+                          Cancel
+                        </button>
                       </div>
                     </div>
+                  ) : (
+                    <div className="mt-4">
+                      <h3 className="text-lg font-medium mb-2">Add New Mark</h3>
+
+                      <div className="mb-3">
+                        <input
+                          type="text"
+                          placeholder="Reason"
+                          className="w-full p-2 border rounded"
+                          value={studentPenalty.reason}
+                          onChange={(e) =>
+                            setStudentPenalty((prev) => ({
+                              ...prev,
+                              reason: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                      <div className="mb-3">
+                        <input
+                          type="text"
+                          placeholder="Description"
+                          className="w-full p-2 border rounded"
+                          value={studentPenalty.description}
+                          onChange={(e) =>
+                            setStudentPenalty((prev) => ({
+                              ...prev,
+                              description: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+
+                      <div className="mb-3">
+                        <input
+                          type="number"
+                          placeholder="Enter Marks"
+                          className="w-full p-2 border rounded"
+                          value={studentPenalty.penaltyScore}
+                          onChange={(e) =>
+                            setStudentPenalty((prev) => ({
+                              ...prev,
+                              penaltyScore: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+
+                      <button
+                        onClick={handleSubmitStudentPenalty}
+                        className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded"
+                      >
+                        Submit Student Score
+                      </button>
+                    </div>
                   )}
-              </div>
-            )}
+
+                  {/* Existing Student Marks Section MOVED BELOW the add mark section */}
+                  {foundStudentPenalty.penaltyMarks &&
+                    foundStudentPenalty.penaltyMarks.length > 0 && (
+                      <div className="mb-4 mt-4">
+                        <h3 className="text-lg font-medium mb-2">
+                          Existing Marks
+                        </h3>
+                        <div className="bg-gray-50 p-3 rounded">
+                          <table className="min-w-full divide-y divide-gray-200">
+                            <thead>
+                              <tr>
+                                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  Reason
+                                </th>
+                                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  Mark
+                                </th>
+                                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  Date
+                                </th>
+                                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  Discription
+                                </th>
+                                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  Actions
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-200">
+                              {foundStudentPenalty.penaltyMarks.map((mark) => (
+                                <tr key={mark._id}>
+                                  <td className="px-3 py-2 text-sm text-gray-900">
+                                    {mark.reason}
+                                  </td>
+                                  <td className="px-3 py-2 text-sm text-gray-900">
+                                    {mark.penaltyScore}
+                                  </td>
+                                  <td className="px-3 py-2 text-sm text-gray-900">
+                                    {new Date(mark.date).toLocaleDateString(
+                                      "en-GB"
+                                    )}
+                                  </td>
+                                  <td className="px-3 py-2 text-sm text-gray-900">
+                                    {mark.description}
+                                  </td>
+                                  <td className="px-3 py-2 text-sm text-gray-900">
+                                    <div className="flex space-x-2">
+                                      <button
+                                        onClick={() =>
+                                          handleEditStudentPenalty(mark)
+                                        }
+                                        className="text-blue-600 hover:text-blue-800"
+                                        title="Edit"
+                                      >
+                                        <PencilIcon size={16} />
+                                      </button>
+                                      <button
+                                        onClick={() =>
+                                          setConfirmDelete(mark._id)
+                                        }
+                                        className="text-red-600 hover:text-red-800"
+                                        title="Delete"
+                                      >
+                                        <TrashIcon size={16} />
+                                      </button>
+
+                                      {confirmDelete === mark._id && (
+                                        <div className="absolute bg-white shadow-lg p-2 rounded border">
+                                          <p className="text-xs mb-1">
+                                            Confirm delete?
+                                          </p>
+                                          <div className="flex space-x-2">
+                                            <button
+                                              onClick={() =>
+                                                handleDeleteStudentPenalty(mark._id)
+                                              }
+                                              className="px-2 py-1 bg-red-500 text-white text-xs rounded"
+                                            >
+                                              Yes
+                                            </button>
+                                            <button
+                                              onClick={() =>
+                                                setConfirmDelete(null)
+                                              }
+                                              className="px-2 py-1 bg-gray-300 text-gray-800 text-xs rounded"
+                                            >
+                                              No
+                                            </button>
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>

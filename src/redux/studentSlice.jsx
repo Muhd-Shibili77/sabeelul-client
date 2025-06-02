@@ -114,9 +114,9 @@ export const fetchStudent = createAsyncThunk(
   );
   export const addStudentPenalty = createAsyncThunk(
     "addStudentPenalty",
-    async ({ id, data }, { rejectWithValue }) => {
+    async ({ id, newMark }, { rejectWithValue }) => {
       try {
-        const response = await api.post(`/student/cce/${id}`, data);
+        const response = await api.post(`/student/penalty/${id}`, newMark);
         return response.data;
       } catch (error) {
         return rejectWithValue(error.response.data);
@@ -125,9 +125,14 @@ export const fetchStudent = createAsyncThunk(
   );
   export const updateStudentPenalty = createAsyncThunk(
     "updateStudentPenalty",
-    async ({ id, data }, { rejectWithValue }) => {
+    async ({ id, markId, reason, penaltyScore, description  }, { rejectWithValue }) => {
       try {
-        const response = await api.post(`/student/cce/${id}`, data);
+        const response = await api.put(`/student/penalty/${id}`, {
+        markId,
+        reason,
+        penaltyScore,
+        description,
+      });
         return response.data;
       } catch (error) {
         return rejectWithValue(error.response.data);
@@ -136,9 +141,10 @@ export const fetchStudent = createAsyncThunk(
   );
   export const deleteStudentPenalty = createAsyncThunk(
     "deleteStudentPenalty",
-    async ({ id, data }, { rejectWithValue }) => {
+    async ({ id, markId }, { rejectWithValue }) => {
+  
       try {
-        const response = await api.post(`/student/cce/${id}`, data);
+        const response = await api.delete(`/student/penalty/${id}`, {data:{markId}});
         return response.data;
       } catch (error) {
         return rejectWithValue(error.response.data);
