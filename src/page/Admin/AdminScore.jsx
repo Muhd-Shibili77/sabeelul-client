@@ -545,7 +545,7 @@ const AdminScore = () => {
               {/* Show edit form when in edit mode */}
               {editMode && (
                 <div className="bg-blue-50 p-3 rounded border border-blue-200 mb-4">
-                  <h3 className="text-lg font-medium mb-2">Edit Mark</h3>
+                  <h3 className="text-lg font-medium mb-2">Edit Score</h3>
                   <div className="mb-3">
                     <input
                       type="text"
@@ -579,7 +579,7 @@ const AdminScore = () => {
                       className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded"
                       disabled={!editItem || !editScore}
                     >
-                      Update Mark
+                      Update Score
                     </button>
                     <button
                       onClick={handleCancelEdit}
@@ -594,7 +594,7 @@ const AdminScore = () => {
               {/* Show add form only when NOT in edit mode */}
               {!editMode && (
                 <div className="mt-4">
-                  <h3 className="text-lg font-medium mb-2">Add New Mark</h3>
+                  <h3 className="text-lg font-medium mb-2">Add New Score</h3>
                   <div className="mb-3">
                     <select
                       className="w-full p-2 border rounded"
@@ -636,7 +636,7 @@ const AdminScore = () => {
                     <div className="mb-3">
                       <input
                         type="number"
-                        placeholder="Enter Marks"
+                        placeholder="Enter Score"
                         className="w-full p-2 border rounded"
                         value={classMarks}
                         onChange={(e) => setClassMark(e.target.value)}
@@ -659,7 +659,7 @@ const AdminScore = () => {
                 selectedClassData.marks.length > 0 && (
                   <div className="mb-4 mt-4">
                     <h3 className="text-lg font-medium mb-2">
-                      Existing Class Marks
+                      Existing Class Score
                     </h3>
                     <div className="bg-gray-50 p-3 rounded">
                       <table className="min-w-full divide-y divide-gray-200">
@@ -800,7 +800,7 @@ const AdminScore = () => {
               {/* Show edit form when in edit mode */}
               {editClassPenaltyMode && (
                 <div className="bg-red-100 p-3 rounded border border-red-200 mb-4">
-                  <h3 className="text-lg font-medium mb-2">Edit Mark</h3>
+                  <h3 className="text-lg font-medium mb-2">Edit Score</h3>
                   <div className="mb-3">
                     <input
                       type="text"
@@ -848,7 +848,7 @@ const AdminScore = () => {
                       onClick={handleUpdateClassPenalty}
                       className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded"
                     >
-                      Update Mark
+                      Update Score
                     </button>
                     <button
                       onClick={handleCancelEditClassPenalty}
@@ -863,7 +863,7 @@ const AdminScore = () => {
               {/* Show add form only when NOT in edit mode */}
               {!editClassPenaltyMode && (
                 <div className="mt-4">
-                  <h3 className="text-lg font-medium mb-2">Add New Mark</h3>
+                  <h3 className="text-lg font-medium mb-2">Add New Score</h3>
                   <div className="mb-3">
                     <input
                       type="text"
@@ -895,7 +895,7 @@ const AdminScore = () => {
                   <div className="mb-3">
                     <input
                       type="number"
-                      placeholder="Enter Marks"
+                      placeholder="Enter Score"
                       className="w-full p-2 border rounded"
                       value={classPenalty.penaltyScore}
                       onChange={(e) =>
@@ -910,7 +910,7 @@ const AdminScore = () => {
                     onClick={handleSubmitClassPenaltyScore}
                     className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded mb-4"
                   >
-                    Submit Class Score
+                    Submit Penalty Score
                   </button>
                 </div>
               )}
@@ -921,7 +921,7 @@ const AdminScore = () => {
                 selectedPenaltyClassData?.penaltyMarks?.length > 0 && (
                   <div className="mb-4 mt-4">
                     <h3 className="text-lg font-medium mb-2">
-                      Existing Class Marks
+                      Existing Class Score
                     </h3>
                     <div className="bg-gray-50 p-3 rounded">
                       <table className="min-w-full divide-y divide-gray-200">
@@ -1082,7 +1082,7 @@ const AdminScore = () => {
                   {editExtraMode ? (
                     <div className="bg-blue-50 p-3 rounded border border-blue-200 mb-4">
                       <h3 className="text-lg font-medium mb-2">
-                        Edit Student Mark
+                        Edit Student Score
                       </h3>
                       <div className="mb-3">
                         <input
@@ -1120,7 +1120,7 @@ const AdminScore = () => {
                           className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded"
                           disabled={!editExtraItem || !editExtraScore}
                         >
-                          Update Mark
+                          Update Score
                         </button>
                         <button
                           onClick={handleCancelExtraEdit}
@@ -1133,7 +1133,7 @@ const AdminScore = () => {
                   ) : (
                     // Only show add form when NOT in edit mode
                     <div className="mt-4">
-                      <h3 className="text-lg font-medium mb-2">Add New Mark</h3>
+                      <h3 className="text-lg font-medium mb-2">Add New Score</h3>
                       <div className="mb-3">
                         <select
                           className="w-full p-2 border rounded"
@@ -1177,7 +1177,7 @@ const AdminScore = () => {
                       <div className="mb-3">
                         <input
                           type="number"
-                          placeholder="Enter Marks"
+                          placeholder="Enter Score"
                           className="w-full p-2 border rounded"
                           value={studentMarks}
                           onChange={(e) => setStudentMarks(e.target.value)}
@@ -1201,7 +1201,7 @@ const AdminScore = () => {
                     foundStudent.extraMarks.length > 0 && (
                       <div className="mb-4 mt-4">
                         <h3 className="text-lg font-medium mb-2">
-                          Existing Student Marks
+                          Existing Student Score
                         </h3>
                         <div className="bg-gray-50 p-3 rounded">
                           <table className="min-w-full divide-y divide-gray-200">
@@ -1211,7 +1211,7 @@ const AdminScore = () => {
                                   Program
                                 </th>
                                 <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                  Mark
+                                  Score
                                 </th>
                                 <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                   Date
@@ -1332,7 +1332,7 @@ const AdminScore = () => {
                   {editStudentPenaltyMode ? (
                     <div className="bg-red-100 p-3 rounded border border-red-200 mb-4">
                       <h3 className="text-lg font-medium mb-2">
-                        Edit Student Mark
+                        Edit Student Score
                       </h3>
                       <div className="mb-3">
                         <input
@@ -1382,7 +1382,7 @@ const AdminScore = () => {
                           className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded"
                           
                         >
-                          Update Mark
+                          Update Score
                         </button>
                         <button
                           onClick={handleCancelEditStudentPenalty}
@@ -1394,7 +1394,7 @@ const AdminScore = () => {
                     </div>
                   ) : (
                     <div className="mt-4">
-                      <h3 className="text-lg font-medium mb-2">Add New Mark</h3>
+                      <h3 className="text-lg font-medium mb-2">Add New Score</h3>
 
                       <div className="mb-3">
                         <input
@@ -1428,7 +1428,7 @@ const AdminScore = () => {
                       <div className="mb-3">
                         <input
                           type="number"
-                          placeholder="Enter Marks"
+                          placeholder="Enter Score"
                           className="w-full p-2 border rounded"
                           value={studentPenalty.penaltyScore}
                           onChange={(e) =>
@@ -1444,7 +1444,7 @@ const AdminScore = () => {
                         onClick={handleSubmitStudentPenalty}
                         className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded"
                       >
-                        Submit Student Score
+                        Submit Penalty Score
                       </button>
                     </div>
                   )}
@@ -1454,7 +1454,7 @@ const AdminScore = () => {
                     foundStudentPenalty.penaltyMarks.length > 0 && (
                       <div className="mb-4 mt-4">
                         <h3 className="text-lg font-medium mb-2">
-                          Existing Marks
+                          Existing Score
                         </h3>
                         <div className="bg-gray-50 p-3 rounded">
                           <table className="min-w-full divide-y divide-gray-200">
@@ -1464,7 +1464,7 @@ const AdminScore = () => {
                                   Reason
                                 </th>
                                 <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                  Mark
+                                  Score
                                 </th>
                                 <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                   Date

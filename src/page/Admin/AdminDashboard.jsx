@@ -75,7 +75,7 @@ const AdminDashboard = () => {
                       {item.student}
                     </span>
                     <span className="block text-sm text-gray-600">
-                      Mark:{" "}
+                      score:{" "}
                       <span className="font-medium text-[rgba(53,130,140,0.9)]">
                          {Math.round(item.mark)}
                       </span>

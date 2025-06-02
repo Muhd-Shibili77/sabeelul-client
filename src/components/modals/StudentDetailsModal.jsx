@@ -18,7 +18,6 @@ const StudentDetailsModal = ({ student, onClose }) => {
   const currentMentorMark = student.mentorMarks?.find(
     (item) => item.academicYear === academic
   );
-  console.log(currentMentorMark)
   const mentorMark = currentMentorMark ? currentMentorMark.mark : 0;
 
   const extraMarksForCurrentYear =
@@ -83,7 +82,7 @@ const StudentDetailsModal = ({ student, onClose }) => {
           </p>
           <p className="flex items-center gap-2">
             <FiAward className="text-[rgba(53,130,140,1)]" />
-            <strong>Total Mark:</strong> {totalMark}
+            <strong>Total Score:</strong> {totalMark}
           </p>
           <p className="flex items-center gap-2 ">
             <FiMapPin className="text-[rgba(53,130,140,1)]" />
@@ -98,7 +97,7 @@ const StudentDetailsModal = ({ student, onClose }) => {
         {subjectMarks.length > 0 && (
           <div className="bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200">
             <h3 className="text-md font-semibold mb-2 text-[rgba(53,130,140,1)]">
-              CCE Marks
+              CCE Score
             </h3>
             <ul className="text-sm text-gray-700 space-y-1 pl-2 list-disc">
               {subjectMarks.map((entry, idx) => (
@@ -114,9 +113,9 @@ const StudentDetailsModal = ({ student, onClose }) => {
         {mentorMark !== null && (
           <div className="bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200">
             <h3 className="text-md font-semibold mb-2 text-[rgba(53,130,140,1)]">
-              Mentor Mark
+              Mentor Score
             </h3>
-            <p className="text-sm">Mark: {mentorMark}</p>
+            <p className="text-sm">Score: {mentorMark}</p>
           </div>
         )}
      
@@ -125,11 +124,11 @@ const StudentDetailsModal = ({ student, onClose }) => {
         {extraMarksForCurrentYear.length > 0 && (
           <div className="bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200">
             <h3 className="text-md font-semibold mb-2 text-[rgba(53,130,140,1)]">
-              Extra Marks
+              Extra Score
             </h3>
             <ul className="text-sm text-gray-700 space-y-1 pl-2 list-disc">
               {extraMarksForCurrentYear.map((entry, idx) => (
-                <li key={idx}>Mark: {entry.mark}</li>
+                <li key={idx}>Score: {entry.mark}</li>
               ))}
             </ul>
           </div>

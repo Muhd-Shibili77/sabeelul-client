@@ -258,7 +258,7 @@ const AdminSettings = () => {
           <div className="bg-white shadow-xl rounded-3xl p-6 border border-gray-200 relative">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-semibold text-gray-700">
-                🎯 Mark Level Management
+                Mark Level Management
               </h2>
               {!editingLevels && !themeLoading && levels.length > 0 && (
                 <button
