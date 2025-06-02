@@ -63,9 +63,9 @@ const Score = () => {
           }));
         }
       }
-      toast.success("Mentor marks submitted successfully!");
+      toast.success("Mentor Score submitted successfully!");
     } catch (err) {
-      toast.error("Failed to submit mentor marks.");
+      toast.error("Failed to submit mentor Score.");
     }
   };
 
@@ -77,7 +77,7 @@ const Score = () => {
         // Check if total mark exceeds 30
         const totalMark = calculateTotalMark(studentId);
         if (totalMark > 30) {
-          toast.error(`Total mark for a student cannot exceed 30. Current total: ${totalMark}`);
+          toast.error(`Total Score for a student cannot exceed 30. Current total: ${totalMark}`);
           return;
         }
 
@@ -85,7 +85,7 @@ const Score = () => {
           const mark = studentMarks[phase];
           
           if (mark && mark < 0) {
-            toast.error("CCE marks should be greater than 0.");
+            toast.error("CCE Score should be greater than 0.");
             return 
           }
 
@@ -101,9 +101,9 @@ const Score = () => {
           }
         }
       }
-      toast.success("CCE marks submitted successfully!");
+      toast.success("CCE Score submitted successfully!");
     } catch (err) {
-      toast.error("Failed to submit CCE marks.");
+      toast.error("Failed to submit CCE Score.");
     }
   };
 
@@ -295,7 +295,7 @@ const Score = () => {
             {scoreType === "CCE" ? (
               <>
                 <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                  Student List - CCE Marks ({selectedSemester})
+                  Student List - CCE Score ({selectedSemester})
                 </h2>
 
                 {students.length === 0 ? (
@@ -392,14 +392,14 @@ const Score = () => {
                     onClick={handleCCESubmit}
                     className="mt-6 bg-[rgba(53,130,140,0.9)] text-white px-6 py-2 rounded-lg shadow hover:bg-[rgba(53,130,140,1)] transition duration-200"
                   >
-                    Submit Marks
+                    Submit Score
                   </button>
                 )}
               </>
             ) : (
               <>
                 <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                  Mentor Marks ({selectedSemester})
+                  Mentor Score ({selectedSemester})
                 </h2>
 
                 {(() => {
@@ -417,7 +417,7 @@ const Score = () => {
                       
                       <div className="flex flex-col gap-2">
                         <label htmlFor="mentor-mark" className="text-sm font-medium text-gray-700">
-                          Mentor Mark
+                          Mentor Score
                         </label>
                         <input
                           id="mentor-mark"
@@ -431,7 +431,7 @@ const Score = () => {
                               e.target.value
                             )
                           }
-                          placeholder="Enter mark"
+                          placeholder="Enter Score"
                         />
                       </div>
 
@@ -439,11 +439,11 @@ const Score = () => {
                         onClick={handleMentorSubmit}
                         className="mt-6 bg-[rgba(53,130,140,0.9)] text-white px-6 py-2 rounded-lg shadow hover:bg-[rgba(53,130,140,1)] transition duration-200"
                       >
-                        Submit Mark
+                        Submit Score
                       </button>
                     </div>
                   ) : (
-                    <p className="text-gray-500 italic">Please select a student to enter marks.</p>
+                    <p className="text-gray-500 italic">Please select a student to enter Score.</p>
                   );
                 })()}
               </>
@@ -452,7 +452,7 @@ const Score = () => {
         ) : (
           <div className="bg-white rounded-2xl shadow-md p-6">
             <p className="text-gray-500 italic text-center">
-              Please select {scoreType === "CCE" ? "class, subject, and semester" : "class, semester, and student"} to {scoreType === "CCE" ? "view students" : "enter marks"}.
+              Please select {scoreType === "CCE" ? "class, subject, and semester" : "class, semester, and student"} to {scoreType === "CCE" ? "view students" : "enter Score"}.
             </p>
           </div>
         )}

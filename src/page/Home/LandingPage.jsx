@@ -165,7 +165,7 @@ const LandingPage = () => {
                     <th className="p-4 rounded-l-2xl">Rank</th>
                     <th className="p-4">Student</th>
                     <th className="p-4">Class</th>
-                    <th className="p-4 rounded-r-2xl">Mark</th>
+                    <th className="p-4 rounded-r-2xl">Score</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -230,7 +230,7 @@ const LandingPage = () => {
                   >
                     <th className="p-4 rounded-l-2xl">Rank</th>
                     <th className="p-4">Class</th>
-                    <th className="p-4 rounded-r-2xl">Mark</th>
+                    <th className="p-4 rounded-r-2xl">Score</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -303,7 +303,7 @@ const LandingPage = () => {
                     >
                       <th className="p-4 rounded-l-2xl">Rank</th>
                       <th className="p-4">Student</th>
-                      <th className="p-4 rounded-r-2xl">Mark</th>
+                      <th className="p-4 rounded-r-2xl">Score</th>
                     </tr>
                   </thead>
                   <tbody>
