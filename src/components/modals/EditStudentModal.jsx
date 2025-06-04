@@ -6,10 +6,11 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const EditStudentModal = ({ onClose, studentData, onUpdate, classes }) => {
-  const fileInputRef = useRef()
+  const fileInputRef = useRef();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     admissionNo: "",
+    rank: "",
     name: "",
     phone: "",
     email: "",
@@ -27,6 +28,7 @@ const EditStudentModal = ({ onClose, studentData, onUpdate, classes }) => {
     if (studentData) {
       setFormData({
         admissionNo: studentData.admissionNo || "",
+        rank: studentData.rank || "",
         name: studentData.name || "",
         phone: studentData.phone || "",
         className: studentData.classId?._id || studentData.classId || "", // Supports object or id
@@ -70,6 +72,7 @@ const EditStudentModal = ({ onClose, studentData, onUpdate, classes }) => {
 
     const {
       admissionNo,
+      rank,
       name,
       phone,
       email,
@@ -106,7 +109,6 @@ const EditStudentModal = ({ onClose, studentData, onUpdate, classes }) => {
       toast.error("Phone number must be exactly 10 digits.");
       return;
     }
-
 
     // Image validation (optional)
     if (selectedFile) {
@@ -177,136 +179,175 @@ const EditStudentModal = ({ onClose, studentData, onUpdate, classes }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-transparent backdrop-blur-sm bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-6 w-full max-w-xl shadow-lg">
-        <div className="flex flex-col items-center mb-4 relative">
-          <label className="cursor-pointer relative">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handlePhotoChange}
-              className="hidden"
-            />
-            <img
-              src={photoPreview}
-              alt="Student"
-              className="w-24 h-24 rounded-full object-cover border-4 border-[rgba(53,130,140,0.6)] shadow"
-              onClick={handlePhotoClick}
-            />
-            <div className="absolute bottom-0 right-0 bg-[rgba(53,130,140,1)] p-1 rounded-full">
-              <FiUpload className="text-white text-sm" />
-            </div>
-          </label>
+    <div className="fixed inset-0 bg-transparent backdrop-blur-sm bg-opacity-40 flex items-center justify-center z-50 overflow-y-auto md:overflow-hidden px-4 py-8">
+      <div className="bg-white rounded-xl p-6 w-full max-w-3xl shadow-lg max-h-full overflow-y-auto md:overflow-visible md:max-h-none">
+        <div className="flex flex-col items-center mb-6">
+          <div className="relative">
+            <label className="cursor-pointer">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoChange}
+                className="hidden"
+              />
+              <div
+                className="w-28 h-28 rounded-full overflow-hidden shadow cursor-pointer"
+                onClick={handlePhotoClick}
+              >
+                <img
+                  src={photoPreview}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="absolute bottom-0 right-0 bg-[rgba(53,130,140,1)] p-2 rounded-full">
+                <FiUpload className="text-white text-sm" />
+              </div>
+            </label>
+          </div>
           <span className="text-sm text-gray-500 mt-2">
             Click to change photo
           </span>
         </div>
 
-        <h2 className="text-xl font-semibold mb-4 text-center">Edit Student</h2>
+        <h2 className="text-xl font-semibold mb-6 text-center">Edit Student</h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Row 1: 3 inputs - Admission No, Rank, Name */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block mb-1 font-medium">Admission No</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Admission No
+              </label>
               <input
                 type="text"
                 name="admissionNo"
                 value={formData.admissionNo}
                 disabled
-                className="w-full border rounded px-4 py-2 bg-gray-200 cursor-not-allowed"
+                className="w-full border rounded px-3 py-2 bg-gray-200 cursor-not-allowed"
               />
             </div>
-
             <div>
-              <label className="block mb-1 font-medium">Student Name</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Rank
+              </label>
+              <input
+                type="number"
+                name="rank"
+                value={formData.rank}
+                onChange={handleChange}
+                className="w-full border rounded px-3 py-2"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Name
+              </label>
               <input
                 type="text"
                 name="name"
                 value={formData.name}
                 required
                 onChange={handleChange}
-                className="w-full border rounded px-4 py-2"
+                className="w-full border rounded px-3 py-2"
               />
             </div>
+          </div>
 
+          {/* Row 2: 2 inputs - Phone, Guardian Name */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block mb-1 font-medium">Phone</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Phone
+              </label>
               <input
                 type="text"
                 name="phone"
                 value={formData.phone}
                 required
                 onChange={handleChange}
-                className="w-full border rounded px-4 py-2"
+                className="w-full border rounded px-3 py-2"
               />
             </div>
-
             <div>
-              <label className="block mb-1 font-medium">Guardian Name</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Guardian Name
+              </label>
               <input
                 type="text"
                 name="guardianName"
                 value={formData.guardianName}
                 required
                 onChange={handleChange}
-                className="w-full border rounded px-4 py-2"
+                className="w-full border rounded px-3 py-2"
               />
             </div>
+          </div>
 
-            <div>
-              <label className="block mb-1 font-medium">Address</label>
-              <input
-                type="text"
-                name="address"
-                value={formData.address}
-                required
-                onChange={handleChange}
-                className="w-full border rounded px-4 py-2"
-              />
-            </div>
+          {/* Row 3: 1 input - Address */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Address
+            </label>
+            <input
+              type="text"
+              name="address"
+              value={formData.address}
+              required
+              onChange={handleChange}
+              className="w-full border rounded px-3 py-2"
+            />
+          </div>
 
+          {/* Row 4: 3 inputs - Class, Email, Password */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block mb-1 font-medium">Class</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Class
+              </label>
               <select
                 name="className"
                 value={formData.className}
                 onChange={handleChange}
-                className="w-full border rounded px-4 py-2"
+                className="w-full border rounded px-3 py-2"
               >
                 <option value="">Select Class</option>
-                {classes.map((cls, idx) => (
-                  <option key={idx} value={cls._id}>
+                {classes.map((cls) => (
+                  <option key={cls._id} value={cls._id}>
                     {cls.name}
                   </option>
                 ))}
               </select>
             </div>
-
             <div>
-              <label className="block mb-1 font-medium">Email</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Email
+              </label>
               <input
                 type="email"
                 name="email"
                 value={formData.email}
                 required
                 onChange={handleChange}
-                className="w-full border rounded px-4 py-2"
+                className="w-full border rounded px-3 py-2"
               />
             </div>
-
             <div>
-              <label className="block mb-1 font-medium">Password</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Password
+              </label>
               <input
                 type="password"
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full border rounded px-4 py-2"
+                className="w-full border rounded px-3 py-2"
               />
             </div>
           </div>
 
-          <div className="flex justify-between pt-4">
+          {/* Buttons */}
+          <div className="flex justify-between items-center pt-4">
             <button
               type="button"
               onClick={onClose}
@@ -317,7 +358,7 @@ const EditStudentModal = ({ onClose, studentData, onUpdate, classes }) => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`px-4 py-2 flex justify-center items-center ${
+              className={`px-6 py-2 flex items-center justify-center ${
                 isSubmitting
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-[rgba(53,130,140,0.9)] hover:bg-[rgba(53,130,140,1)]"

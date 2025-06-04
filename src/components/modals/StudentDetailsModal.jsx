@@ -18,7 +18,7 @@ const StudentDetailsModal = ({ student, onClose }) => {
   const currentMentorMark = student.mentorMarks?.find(
     (item) => item.academicYear === academic
   );
-  const mentorMark = currentMentorMark ? currentMentorMark.mark : 0;
+  const mentorMark = currentMentorMark ? currentMentorMark.mark : null;
 
   const extraMarksForCurrentYear =
     student.extraMarks?.filter((entry) => entry.academicYear === academic) ||
@@ -82,7 +82,7 @@ const StudentDetailsModal = ({ student, onClose }) => {
           </p>
           <p className="flex items-center gap-2">
             <FiAward className="text-[rgba(53,130,140,1)]" />
-            <strong>Total Score:</strong> {totalMark}
+            <strong>Rank:</strong> {student.rank}
           </p>
           <p className="flex items-center gap-2 ">
             <FiMapPin className="text-[rgba(53,130,140,1)]" />

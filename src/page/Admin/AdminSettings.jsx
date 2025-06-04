@@ -366,6 +366,7 @@ const AdminSettings = () => {
               <div className="mb-6 p-4 rounded-xl border-2 border-dashed border-[rgba(53,130,140,0.9)] bg-[rgba(53,130,140,0.1)]">
                 <h3 className="text-sm font-semibold text-gray-700 mb-3">Add New Item</h3>
                 <div className="space-y-3">
+                  
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Item Name *

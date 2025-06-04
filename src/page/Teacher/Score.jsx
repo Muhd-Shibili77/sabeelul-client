@@ -49,7 +49,8 @@ const Score = () => {
     }));
   };
 
-  const handleMentorSubmit = async () => {
+  const handleMentorSubmit = async (e) => {
+    e.preventDefault()
     try {
       for (const studentId in marks) {
         const mark = marks[studentId]["Mentor"];
@@ -414,7 +415,7 @@ const Score = () => {
                           <span className="text-[rgba(53,130,140,0.9)]">Name:</span> {student.name}
                         </p>
                       </div>
-                      
+                      <form onSubmit={handleMentorSubmit}>
                       <div className="flex flex-col gap-2">
                         <label htmlFor="mentor-mark" className="text-sm font-medium text-gray-700">
                           Mentor Score
@@ -436,12 +437,15 @@ const Score = () => {
                       </div>
 
                       <button
-                        onClick={handleMentorSubmit}
+                        // onClick={handleMentorSubmit}
+                        type="submit"
                         className="mt-6 bg-[rgba(53,130,140,0.9)] text-white px-6 py-2 rounded-lg shadow hover:bg-[rgba(53,130,140,1)] transition duration-200"
                       >
                         Submit Score
                       </button>
+                      </form>
                     </div>
+                    
                   ) : (
                     <p className="text-gray-500 italic">Please select a student to enter Score.</p>
                   );

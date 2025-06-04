@@ -61,7 +61,7 @@ const CCEModal = ({ isOpen, onClose, cceData }) => {
         <div className="p-6 overflow-y-auto flex-1">
           <div className="mb-4">
             <p className="text-sm text-gray-600">
-              Maximum marks: {getMaxMarks()}
+              Maximum Score: {getMaxMarks()}
             </p>
           </div>
 

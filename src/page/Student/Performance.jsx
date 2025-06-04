@@ -67,7 +67,7 @@ const Performance = () => {
             </h2>
 
             {/* Your Score and Level */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-[rgba(53,130,140,0.1)] p-6 rounded-lg shadow">
                 <h3 className="text-lg font-semibold text-gray-700">
                   Your Score
@@ -79,17 +79,7 @@ const Performance = () => {
                   Based on overall performance
                 </p>
               </div>
-              <div className="bg-[rgba(53,130,140,0.1)] p-6 rounded-lg shadow">
-                <h3 className="text-lg font-semibold text-gray-700">
-                  Your Mentor Score
-                </h3>
-                <p className={`text-3xl font-bold ${theme.text} mt-2`}>
-                  {performanceData.mentorMarks}
-                </p>
-                <p className="text-sm text-gray-600 mt-1">
-                  Evaluated on holistic development
-                </p>
-              </div>
+              
               <div className="bg-[rgba(53,130,140,0.1)] p-6 rounded-lg shadow relative">
                 <h3 className="text-lg font-semibold text-gray-700">
                   Your Level
@@ -183,13 +173,16 @@ const Performance = () => {
                   displayedActivities.map((activity, index) => (
                     <li
                       key={index}
-                      className="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm"
+                      className={`${activity.scoreType === 'Penalty' ? "bg-red-100 border-red-200":"bg-gray-50 border-gray-200"} p-4 rounded-lg border  shadow-sm`}
                     >
                       <div className="flex justify-between items-center">
                         <div>
                           <h3 className="text-md font-bold text-gray-700">
                             {activity.title}
                           </h3>
+                          <h4 className="text-sm font-bold text-gray-700">
+                            Score: {activity.scoreType === 'Penalty' ? `-${activity.score}`:activity.score}
+                          </h4>
                             
                           <p className="text-sm text-gray-500">
                             {activity.date}

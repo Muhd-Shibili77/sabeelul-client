@@ -7,6 +7,7 @@ const AddStudentModal = ({ onAdd, onClose, classes }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     admissionNo: "",
+    rank: "",
     name: "",
     phone: "",
     email: "",
@@ -48,6 +49,7 @@ const AddStudentModal = ({ onAdd, onClose, classes }) => {
 
     const {
       admissionNo,
+      rank,
       name,
       phone,
       email,
@@ -60,6 +62,7 @@ const AddStudentModal = ({ onAdd, onClose, classes }) => {
 
     if (
       !admissionNo.trim() ||
+      !rank ||
       !name.trim() ||
       !phone.trim() ||
       !email.trim() ||
@@ -158,11 +161,11 @@ const AddStudentModal = ({ onAdd, onClose, classes }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-transparent backdrop-blur-sm bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-6 w-full max-w-xl shadow-lg">
-        <div className="flex flex-col items-center mb-4">
+    <div className="fixed inset-0 bg-transparent backdrop-blur-sm bg-opacity-40 flex items-center justify-center z-50 overflow-y-auto md:overflow-hidden px-4 py-8">
+      <div className="bg-white rounded-xl p-6 w-full max-w-3xl shadow-lg max-h-full overflow-y-auto md:overflow-visible md:max-h-none">
+        <div className="flex flex-col items-center mb-6">
           <div
-            className="w-30 h-30 rounded-full overflow-hidden shadow cursor-pointer"
+            className="w-28 h-28 rounded-full overflow-hidden shadow cursor-pointer"
             onClick={handlePhotoClick}
           >
             <img
@@ -183,85 +186,141 @@ const AddStudentModal = ({ onAdd, onClose, classes }) => {
           </span>
         </div>
 
-        <h2 className="text-xl font-semibold mb-4 text-center">Add Student</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <input
-              type="text"
-              name="admissionNo"
-              placeholder="Admission No"
-              required
-              onChange={handleChange}
-              className="w-full border rounded px-4 py-2"
-            />
-            <input
-              type="text"
-              name="name"
-              placeholder="Name"
-              required
-              onChange={handleChange}
-              className="w-full border rounded px-4 py-2"
-            />
+        <h2 className="text-xl font-semibold mb-6 text-center">Add Student</h2>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Row 1: 3 inputs */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Admission No
+              </label>
+              <input
+                type="text"
+                name="admissionNo"
+                required
+                onChange={handleChange}
+                className="w-full border rounded px-3 py-2"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Rank
+              </label>
+              <input
+                type="number"
+                name="rank"
+                required
+                onChange={handleChange}
+                className="w-full border rounded px-3 py-2"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Name
+              </label>
+              <input
+                type="text"
+                name="name"
+                required
+                onChange={handleChange}
+                className="w-full border rounded px-3 py-2"
+              />
+            </div>
+          </div>
 
-            <input
-              type="text"
-              name="phone"
-              placeholder="Phone"
-              required
-              onChange={handleChange}
-              className="w-full border rounded px-4 py-2"
-            />
-            <input
-              type="text"
-              name="guardianName"
-              placeholder="Guardian Name"
-              required
-              onChange={handleChange}
-              className="w-full border rounded px-4 py-2"
-            />
+          {/* Row 2: 2 inputs */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Phone
+              </label>
+              <input
+                type="text"
+                name="phone"
+                required
+                onChange={handleChange}
+                className="w-full border rounded px-3 py-2"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Guardian Name
+              </label>
+              <input
+                type="text"
+                name="guardianName"
+                required
+                onChange={handleChange}
+                className="w-full border rounded px-3 py-2"
+              />
+            </div>
+          </div>
 
+          {/* Row 3: 1 input */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Address
+            </label>
             <input
               type="text"
               name="address"
-              placeholder="Address"
               required
               onChange={handleChange}
-              className="w-full border rounded px-4 py-2"
-            />
-            <select
-              name="className"
-              value={formData.className}
-              required
-              onChange={handleChange}
-              className="w-full border rounded px-4 py-2"
-            >
-              <option value="" disabled>
-                Select Class
-              </option>
-              {classes.map((cls) => (
-                <option key={cls._id} value={cls._id}>
-                  {cls.name}
-                </option>
-              ))}
-            </select>
-            <input
-              type="text"
-              name="email"
-              placeholder="Email"
-              required
-              onChange={handleChange}
-              className="w-full border rounded px-4 py-2"
-            />
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              required
-              onChange={handleChange}
-              className="w-full border rounded px-4 py-2"
+              className="w-full border rounded px-3 py-2"
             />
           </div>
-          <div className="flex justify-between pt-2">
+
+          {/* Row 4: 3 inputs */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Class
+              </label>
+              <select
+                name="className"
+                value={formData.className}
+                required
+                onChange={handleChange}
+                className="w-full border rounded px-3 py-2"
+              >
+                <option value="" disabled>
+                  Select Class
+                </option>
+                {classes.map((cls) => (
+                  <option key={cls._id} value={cls._id}>
+                    {cls.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Email
+              </label>
+              <input
+                type="text"
+                name="email"
+                required
+                onChange={handleChange}
+                className="w-full border rounded px-3 py-2"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Password
+              </label>
+              <input
+                type="password"
+                name="password"
+                required
+                onChange={handleChange}
+                className="w-full border rounded px-3 py-2"
+              />
+            </div>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex justify-between items-center pt-4">
             <button
               type="button"
               onClick={onClose}
@@ -272,7 +331,7 @@ const AddStudentModal = ({ onAdd, onClose, classes }) => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`px-4 py-2 flex justify-center items-center ${
+              className={`px-6 py-2 flex items-center justify-center ${
                 isSubmitting
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-[rgba(53,130,140,0.9)] hover:bg-[rgba(53,130,140,1)]"

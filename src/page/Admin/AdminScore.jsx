@@ -46,7 +46,7 @@ const AdminScore = () => {
   const [editExtraItem, setEditExtraItem] = useState("");
   const [editExtraScore, setEditExtraScore] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(null);
-
+  const [editItemId,setEditItemId]=useState()
   const [selectedClassPenalty, setSelectedClassPenalty] = useState("");
   const [editClassPenaltyMode, setEditClassPenaltyMode] = useState(false);
   const [selectedPenaltyClassData, setSelectedPenaltyClassData] =
@@ -120,14 +120,14 @@ const AdminScore = () => {
     }
   }, [selectedClassPenalty, classes]);
 
-  const items = ["Discipline", "Cleaning", "Participation"];
-  const handleSubmitClassScore = async () => {
+  const handleSubmitClassScore = async (e) => {
+    e.preventDefault()
     if (!selectedClass) {
       toast.warning("Select a class!");
       return;
     }
     const itemToSubmit = selectedItem === "other" ? customItem : selectedItem;
-    if (itemToSubmit.trim() === "" || classDiscription.trim() === "") {
+    if (!itemToSubmit) {
       toast.warning("All fields are required");
       return;
     }
@@ -156,7 +156,8 @@ const AdminScore = () => {
   const handleEditMark = (mark) => {
     setEditMode(true);
     setEditMarkId(mark._id);
-    setEditItem(mark.item);
+    setEditItemId(mark.item._id)
+    setEditItem(getItemNameById({mark: mark,items: programs,itemIdKey: "item",customItemKey: "customItem"}));
     setEditdiscription(mark.description);
     setEditScore(mark.score.toString());
     setSelectedItem("");
@@ -167,7 +168,7 @@ const AdminScore = () => {
   const handleExtraEditMark = (mark) => {
     setExtraEditMode(true);
     setEditExtraMarkId(mark._id);
-    setEditExtraItem(getItemNameById(mark));
+    setEditExtraItem(getItemNameById({mark: mark,items: programs,itemIdKey:"programId",customItemKey: "customProgramName"}));
     setEditExtraScore(mark.mark.toString());
     setEditStudentDiscription(mark.description);
   };
@@ -177,7 +178,8 @@ const AdminScore = () => {
     setEditExtraItem("");
     setEditExtraScore("");
   };
-  const handleUpdateExtraMark = async () => {
+  const handleUpdateExtraMark = async (e) => {
+    e.preventDefault()
     if (!editExtraMarkId) return;
 
     try {
@@ -186,6 +188,7 @@ const AdminScore = () => {
           id: editExtraMarkId,
           mark: editExtraScore,
           description: editStudentDiscription,
+          userId:foundStudent._id 
         })
       ).unwrap();
       toast.success("Student mark updated successfully!");
@@ -204,14 +207,16 @@ const AdminScore = () => {
     setEditMode(false);
     setEditMarkId(null);
     setEditItem("");
+    setEditItemId("");
     setEditdiscription("");
     setEditScore("");
   };
-  const handleUpdateMark = async () => {
+  const handleUpdateMark = async (e) => {
+    e.preventDefault()
     if (!editMarkId) return;
 
     const data = {
-      item: editItem,
+      item: editItemId,
       score: editScore,
       discription: editdiscription,
     };
@@ -247,7 +252,7 @@ const AdminScore = () => {
   };
   const handleDeleteExtraMark = async (id) => {
     try {
-      await dispatch(deleteExtraMark({ id })).unwrap();
+      await dispatch(deleteExtraMark({ id,userId:foundStudent._id })).unwrap();
       toast.success("Extra Mark deleted successfully!");
       handleSearchStudent();
     } catch (err) {
@@ -266,17 +271,25 @@ const AdminScore = () => {
 
     fetchStudent(input.trim());
   };
-  const getItemNameById = (mark) => {
-    // If it's a program from the program collection
-    if (mark.programId) {
-      const program = programs.find((p) => p._id === mark.programId);
-      return program ? program.item : mark.programId;
-    }
+ 
+  const getItemNameById = ({
+  mark,
+  items,
+  itemIdKey = "item",
+  customItemKey = "customItem",
+  displayKey = "item", // key in the matched item to display
+}) => {
+  const itemId = mark[itemIdKey];
+  if (itemId) {
+    const foundItem = items.find((i) => i._id === itemId);
+    return foundItem ? foundItem[displayKey] : itemId;
+  }
 
-    // If it's a custom program name
-    return mark.customProgramName || "N/A";
-  };
-  const handleSubmitStudentScore = async () => {
+  return mark[customItemKey] || "N/A";
+};
+  
+  const handleSubmitStudentScore = async (e) => {
+    e.preventDefault()
     const itemToSubmit = selectedItem === "other" ? customItem : selectedItem;
     const data = {
       programName: itemToSubmit,
@@ -297,7 +310,8 @@ const AdminScore = () => {
     }
   };
 
-  const handleSubmitClassPenaltyScore = async () => {
+  const handleSubmitClassPenaltyScore = async (e) => {
+    e.preventDefault()
     if (!selectedClassPenalty) {
       toast.warning("Select a class!");
       return;
@@ -346,7 +360,8 @@ const AdminScore = () => {
       penaltyScore: "",
     });
   };
-  const handleUpdateClassPenalty = async () => {
+  const handleUpdateClassPenalty = async (e) => {
+    e.preventDefault()
     if (!editClassPenalty.id) {
       toast.warning("id missing!");
       return;
@@ -389,29 +404,28 @@ const AdminScore = () => {
     }
   };
 
-  const handleSubmitStudentPenalty = async () => {
-    const id = foundStudentPenalty._id
-    if(!id){
+  const handleSubmitStudentPenalty = async (e) => {
+    e.preventDefault()
+    const id = foundStudentPenalty._id;
+    if (!id) {
       toast.warning("id required!");
       return;
     }
-    console.log(studentPenalty)
-     if (
+    console.log(studentPenalty);
+    if (
       studentPenalty.reason.trim() === "" ||
       studentPenalty.description.trim() === ""
     ) {
       toast.warning("All fields are required");
       return;
     }
-     const newMark = {
+    const newMark = {
       reason: studentPenalty.reason,
       description: studentPenalty.description,
       penaltyScore: Number(studentPenalty.penaltyScore),
     };
     try {
-      await dispatch(
-        addStudentPenalty({ id: id, newMark })
-      ).unwrap();
+      await dispatch(addStudentPenalty({ id: id, newMark })).unwrap();
       toast.success("student penalty score submitted successfully!");
       setStudentPenalty({ reason: "", description: "", penaltyScore: "" });
       fetchStudentPenalty(admNo);
@@ -437,9 +451,10 @@ const AdminScore = () => {
       penaltyScore: "",
     });
   };
-  const handleUpdateStudentPenalty = async () => {
-    const id = foundStudentPenalty._id
-    if(!id){
+  const handleUpdateStudentPenalty = async (e) => {
+    e.preventDefault()
+    const id = foundStudentPenalty._id;
+    if (!id) {
       toast.warning("id required!");
       return;
     }
@@ -467,15 +482,12 @@ const AdminScore = () => {
     } catch (error) {
       toast.error(error.message || "Failed to update penalty mark");
     }
-
   };
   const handleDeleteStudentPenalty = async (markId) => {
-    const id = foundStudentPenalty._id
-    if(!id)return
+    const id = foundStudentPenalty._id;
+    if (!id) return;
     try {
-      await dispatch(
-        deleteStudentPenalty({ id: id, markId: markId })
-      ).unwrap();
+      await dispatch(deleteStudentPenalty({ id: id, markId: markId })).unwrap();
       toast.success("Mark deleted successfully!");
       handleSearchStudentPenalty();
     } catch (error) {
@@ -546,13 +558,15 @@ const AdminScore = () => {
               {editMode && (
                 <div className="bg-blue-50 p-3 rounded border border-blue-200 mb-4">
                   <h3 className="text-lg font-medium mb-2">Edit Score</h3>
+                   <form onSubmit={handleUpdateMark}>
                   <div className="mb-3">
                     <input
                       type="text"
                       placeholder="Item Name"
-                      className="w-full p-2 border rounded"
+                      className="w-full p-2 border rounded bg-gray-300"
                       value={editItem}
-                      onChange={(e) => setEditItem(e.target.value)}
+                      disabled
+                      // onChange={(e) => setEditItem(e.target.value)}
                     />
                   </div>
                   <div className="mb-3">
@@ -575,9 +589,10 @@ const AdminScore = () => {
                   </div>
                   <div className="flex space-x-2">
                     <button
-                      onClick={handleUpdateMark}
+                      // onClick={handleUpdateMark}
+                       type="submit"
                       className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded"
-                      disabled={!editItem || !editScore}
+                      
                     >
                       Update Score
                     </button>
@@ -588,6 +603,7 @@ const AdminScore = () => {
                       Cancel
                     </button>
                   </div>
+                  </form>
                 </div>
               )}
 
@@ -595,6 +611,7 @@ const AdminScore = () => {
               {!editMode && (
                 <div className="mt-4">
                   <h3 className="text-lg font-medium mb-2">Add New Score</h3>
+                  <form onSubmit={handleSubmitClassScore}>
                   <div className="mb-3">
                     <select
                       className="w-full p-2 border rounded"
@@ -602,9 +619,9 @@ const AdminScore = () => {
                       onChange={(e) => setSelectedItem(e.target.value)}
                     >
                       <option value="">Select Item</option>
-                      {items.map((item, i) => (
-                        <option key={i} value={item}>
-                          {item}
+                      {programs.map((item) => (
+                        <option key={item._id} value={item._id}>
+                          {item.item}
                         </option>
                       ))}
                       <option value="other">Other</option>
@@ -612,15 +629,26 @@ const AdminScore = () => {
                   </div>
                   <div className="mb-3">
                     {selectedItem === "other" ? (
+                      <>
                       <div className="mb-3">
                         <input
                           type="text"
-                          placeholder="Description"
+                          placeholder="Specify Item"
                           className="w-full p-2 border rounded"
                           value={customItem}
                           onChange={(e) => setCustomItem(e.target.value)}
                         />
                       </div>
+                      <div className="mb-3">
+                        <input
+                          type="text"
+                          placeholder="Description"
+                          className="w-full p-2 border rounded"
+                          value={classDiscription}
+                          onChange={(e) => setClassDiscription(e.target.value)}
+                        />
+                      </div>
+                      </>
                     ) : (
                       <div className="mb-3">
                         <input
@@ -645,11 +673,13 @@ const AdminScore = () => {
                   </div>
 
                   <button
-                    onClick={handleSubmitClassScore}
+                    // onClick={handleSubmitClassScore}
+                    type="submit"
                     className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded"
                   >
                     Submit Class Score
                   </button>
+                  </form>
                 </div>
               )}
 
@@ -713,7 +743,7 @@ const AdminScore = () => {
                                 }
                               >
                                 <td className="px-3 py-2 text-sm text-gray-900">
-                                  {mark.item}
+                                 {getItemNameById({mark: mark,items: programs,itemIdKey: "item",customItemKey: "customItem"})}
                                 </td>
                                 <td className="px-3 py-2 text-sm text-gray-900">
                                   {mark.score}
@@ -782,6 +812,9 @@ const AdminScore = () => {
               <h1 className={`font-bold text-lg mb-3 p-1 text-red-500`}>
                 Penalty Score
               </h1>
+             
+
+              
               <div className="mb-3">
                 <select
                   className="w-full p-2 border rounded"
@@ -801,6 +834,7 @@ const AdminScore = () => {
               {editClassPenaltyMode && (
                 <div className="bg-red-100 p-3 rounded border border-red-200 mb-4">
                   <h3 className="text-lg font-medium mb-2">Edit Score</h3>
+                   <form onSubmit={handleUpdateClassPenalty}>
                   <div className="mb-3">
                     <input
                       type="text"
@@ -845,18 +879,21 @@ const AdminScore = () => {
                   </div>
                   <div className="flex space-x-2">
                     <button
-                      onClick={handleUpdateClassPenalty}
+                      // onClick={handleUpdateClassPenalty}
+                       type="submit"
                       className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded"
                     >
                       Update Score
                     </button>
                     <button
                       onClick={handleCancelEditClassPenalty}
+                     
                       className="bg-gray-300 text-gray-800 px-4 py-2 rounded"
                     >
                       Cancel
                     </button>
                   </div>
+                    </form>
                 </div>
               )}
 
@@ -864,6 +901,7 @@ const AdminScore = () => {
               {!editClassPenaltyMode && (
                 <div className="mt-4">
                   <h3 className="text-lg font-medium mb-2">Add New Score</h3>
+                   <form onSubmit={handleSubmitClassPenaltyScore}>
                   <div className="mb-3">
                     <input
                       type="text"
@@ -907,11 +945,13 @@ const AdminScore = () => {
                     />
                   </div>
                   <button
-                    onClick={handleSubmitClassPenaltyScore}
+                    // onClick={handleSubmitClassPenaltyScore}
+                    type="submit"
                     className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded mb-4"
                   >
                     Submit Penalty Score
                   </button>
+                  </form>
                 </div>
               )}
 
@@ -1084,6 +1124,7 @@ const AdminScore = () => {
                       <h3 className="text-lg font-medium mb-2">
                         Edit Student Score
                       </h3>
+                      <form onSubmit={handleUpdateExtraMark}>
                       <div className="mb-3">
                         <input
                           type="text"
@@ -1116,7 +1157,8 @@ const AdminScore = () => {
                       </div>
                       <div className="flex space-x-2">
                         <button
-                          onClick={handleUpdateExtraMark}
+                          // onClick={handleUpdateExtraMark}
+                          type="submit"
                           className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded"
                           disabled={!editExtraItem || !editExtraScore}
                         >
@@ -1129,11 +1171,15 @@ const AdminScore = () => {
                           Cancel
                         </button>
                       </div>
+                      </form>
                     </div>
                   ) : (
                     // Only show add form when NOT in edit mode
                     <div className="mt-4">
-                      <h3 className="text-lg font-medium mb-2">Add New Score</h3>
+                      <h3 className="text-lg font-medium mb-2">
+                        Add New Score
+                      </h3>
+                      <form onSubmit={handleSubmitStudentScore}>
                       <div className="mb-3">
                         <select
                           className="w-full p-2 border rounded"
@@ -1151,15 +1197,26 @@ const AdminScore = () => {
                       </div>
 
                       {selectedItem === "other" ? (
+                        <>
                         <div className="mb-3">
                           <input
                             type="text"
-                            placeholder="Description"
+                            placeholder="Specify Item"
                             className="w-full p-2 border rounded"
                             value={customItem}
                             onChange={(e) => setCustomItem(e.target.value)}
                           />
                         </div>
+                        <div className="mb-3">
+                          <input
+                            type="text"
+                            placeholder="Description"
+                            className="w-full p-2 border rounded"
+                            value={studentDiscription}
+                            onChange={(e) => setStudentDiscription(e.target.value)}
+                          />
+                        </div>
+                        </>
                       ) : (
                         <div className="mb-3">
                           <input
@@ -1185,7 +1242,8 @@ const AdminScore = () => {
                       </div>
 
                       <button
-                        onClick={handleSubmitStudentScore}
+                      type="submit"
+                        // onClick={handleSubmitStudentScore}
                         className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded"
                         disabled={
                           (!selectedItem && !customItem) || !studentMarks
@@ -1193,6 +1251,7 @@ const AdminScore = () => {
                       >
                         Submit Student Score
                       </button>
+                      </form>
                     </div>
                   )}
 
@@ -1208,7 +1267,7 @@ const AdminScore = () => {
                             <thead>
                               <tr>
                                 <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                  Program
+                                  Item
                                 </th>
                                 <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                   Score
@@ -1225,10 +1284,31 @@ const AdminScore = () => {
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
-                              {foundStudent.extraMarks.map((mark) => (
+                              {foundStudent.extraMarks
+                              .slice()
+                              .sort((a, b) => {
+                              const dateA = a.date
+                                ? new Date(a.date)
+                                : new Date(0);
+                              const dateB = b.date
+                                ? new Date(b.date)
+                                : new Date(0);
+                              const dateDiff = dateB - dateA;
+                              if (dateDiff === 0) {
+                                const timeA = dateA.getTime();
+                                const timeB = dateB.getTime();
+                                if (timeA !== timeB) return timeB - timeA;
+                                if (a._id && b._id) {
+                                  return b._id.localeCompare(a._id);
+                                }
+                                return b.score - a.score;
+                              }
+                              return dateDiff;
+                            })
+                              .map((mark) => (
                                 <tr key={mark._id}>
                                   <td className="px-3 py-2 text-sm text-gray-900">
-                                    {getItemNameById(mark)}
+                                    {getItemNameById({mark: mark,items: programs,itemIdKey:"programId",customItemKey: "customProgramName"})}
                                   </td>
                                   <td className="px-3 py-2 text-sm text-gray-900">
                                     {mark.mark}
@@ -1334,6 +1414,7 @@ const AdminScore = () => {
                       <h3 className="text-lg font-medium mb-2">
                         Edit Student Score
                       </h3>
+                       <form onSubmit={handleUpdateStudentPenalty}>
                       <div className="mb-3">
                         <input
                           type="text"
@@ -1378,9 +1459,9 @@ const AdminScore = () => {
                       </div>
                       <div className="flex space-x-2">
                         <button
-                          onClick={handleUpdateStudentPenalty}
+                        type="submit"
+                          // onClick={handleUpdateStudentPenalty}
                           className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded"
-                          
                         >
                           Update Score
                         </button>
@@ -1391,11 +1472,14 @@ const AdminScore = () => {
                           Cancel
                         </button>
                       </div>
+                      </form>
                     </div>
                   ) : (
                     <div className="mt-4">
-                      <h3 className="text-lg font-medium mb-2">Add New Score</h3>
-
+                      <h3 className="text-lg font-medium mb-2">
+                        Add New Score
+                      </h3>
+                    <form onSubmit={handleSubmitStudentPenalty}>
                       <div className="mb-3">
                         <input
                           type="text"
@@ -1441,11 +1525,13 @@ const AdminScore = () => {
                       </div>
 
                       <button
-                        onClick={handleSubmitStudentPenalty}
+                      type="submit"
+                        // onClick={handleSubmitStudentPenalty}
                         className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded"
                       >
                         Submit Penalty Score
                       </button>
+                      </form>
                     </div>
                   )}
 
@@ -1478,7 +1564,28 @@ const AdminScore = () => {
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
-                              {foundStudentPenalty.penaltyMarks.map((mark) => (
+                              {foundStudentPenalty.penaltyMarks
+                              .slice()
+                              .sort((a, b) => {
+                              const dateA = a.date
+                                ? new Date(a.date)
+                                : new Date(0);
+                              const dateB = b.date
+                                ? new Date(b.date)
+                                : new Date(0);
+                              const dateDiff = dateB - dateA;
+                              if (dateDiff === 0) {
+                                const timeA = dateA.getTime();
+                                const timeB = dateB.getTime();
+                                if (timeA !== timeB) return timeB - timeA;
+                                if (a._id && b._id) {
+                                  return b._id.localeCompare(a._id);
+                                }
+                                return b.score - a.score;
+                              }
+                              return dateDiff;
+                            })
+                              .map((mark) => (
                                 <tr key={mark._id}>
                                   <td className="px-3 py-2 text-sm text-gray-900">
                                     {mark.reason}
@@ -1523,7 +1630,9 @@ const AdminScore = () => {
                                           <div className="flex space-x-2">
                                             <button
                                               onClick={() =>
-                                                handleDeleteStudentPenalty(mark._id)
+                                                handleDeleteStudentPenalty(
+                                                  mark._id
+                                                )
                                               }
                                               className="px-2 py-1 bg-red-500 text-white text-xs rounded"
                                             >

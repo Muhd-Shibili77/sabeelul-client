@@ -15,7 +15,7 @@ export const transformCCEData = (subjectWiseMarks) => {
     marks,
   }));
   return {
-    semester: ['Rabee’ Semester','Ramadan Semester'],
+    semester: ['Rabee Semester','Ramadan Semester'],
     subjects,
   };
 };
