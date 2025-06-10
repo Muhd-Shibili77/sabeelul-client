@@ -64,26 +64,31 @@ const AddStudentModal = ({ onAdd, onClose, classes }) => {
       !admissionNo.trim() ||
       !rank ||
       !name.trim() ||
-      !phone.trim() ||
-      !email.trim() ||
+      // !phone.trim() ||
+      // !email.trim() ||
       !password.trim() ||
-      !className.trim() ||
-      !address.trim() ||
-      !guardianName.trim()
+      // !address.trim() ||
+      // !guardianName.trim() ||
+      !className.trim()
     ) {
-      toast.error("Please fill in all required fields.");
+      toast.error("Please fill in all  fields.");
       return;
     }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      toast.error("Please enter a valid email address.");
-      return;
+    if (email && email.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email.trim())) {
+        toast.error("Please enter a valid email address.");
+        return;
+      }
     }
 
-    const phoneRegex = /^\d{10}$/;
-    if (!phoneRegex.test(phone)) {
-      toast.error("Please enter a valid 10-digit phone number.");
-      return;
+    // Validate phone only if provided
+    if (phone && phone.trim()) {
+      const phoneRegex = /^\d{10}$/;
+      if (!phoneRegex.test(phone.trim())) {
+        toast.error("Please enter a valid 10-digit phone number.");
+        return;
+      }
     }
 
     if (password.length < 6) {
@@ -197,7 +202,6 @@ const AddStudentModal = ({ onAdd, onClose, classes }) => {
               <input
                 type="text"
                 name="admissionNo"
-                required
                 onChange={handleChange}
                 className="w-full border rounded px-3 py-2"
               />
@@ -209,7 +213,6 @@ const AddStudentModal = ({ onAdd, onClose, classes }) => {
               <input
                 type="number"
                 name="rank"
-                required
                 onChange={handleChange}
                 className="w-full border rounded px-3 py-2"
               />
@@ -221,7 +224,6 @@ const AddStudentModal = ({ onAdd, onClose, classes }) => {
               <input
                 type="text"
                 name="name"
-                required
                 onChange={handleChange}
                 className="w-full border rounded px-3 py-2"
               />
@@ -237,7 +239,6 @@ const AddStudentModal = ({ onAdd, onClose, classes }) => {
               <input
                 type="text"
                 name="phone"
-                required
                 onChange={handleChange}
                 className="w-full border rounded px-3 py-2"
               />
@@ -249,7 +250,6 @@ const AddStudentModal = ({ onAdd, onClose, classes }) => {
               <input
                 type="text"
                 name="guardianName"
-                required
                 onChange={handleChange}
                 className="w-full border rounded px-3 py-2"
               />
@@ -264,7 +264,6 @@ const AddStudentModal = ({ onAdd, onClose, classes }) => {
             <input
               type="text"
               name="address"
-              required
               onChange={handleChange}
               className="w-full border rounded px-3 py-2"
             />
@@ -279,7 +278,6 @@ const AddStudentModal = ({ onAdd, onClose, classes }) => {
               <select
                 name="className"
                 value={formData.className}
-                required
                 onChange={handleChange}
                 className="w-full border rounded px-3 py-2"
               >
@@ -300,7 +298,6 @@ const AddStudentModal = ({ onAdd, onClose, classes }) => {
               <input
                 type="text"
                 name="email"
-                required
                 onChange={handleChange}
                 className="w-full border rounded px-3 py-2"
               />
@@ -312,7 +309,6 @@ const AddStudentModal = ({ onAdd, onClose, classes }) => {
               <input
                 type="password"
                 name="password"
-                required
                 onChange={handleChange}
                 className="w-full border rounded px-3 py-2"
               />

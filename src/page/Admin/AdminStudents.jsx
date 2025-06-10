@@ -112,10 +112,12 @@ const AdminStudents = () => {
       const response = await dispatch(
         updateStudent({ id, updatedData })
       ).unwrap();
-      toast.success(response.message || "updated successfully");
+      toast.success("Student updated successfully!");
       refreshList();
-      setSelectedStudent(null);
-      setShowEditModal(false);
+      setTimeout(() => {
+        setSelectedStudent(null);
+        setShowEditModal(false);
+      }, 100);
     } catch (error) {
       toast.error(error.message);
       console.error("Failed to update student:", error.message || error);
@@ -127,7 +129,9 @@ const AdminStudents = () => {
       const response = await dispatch(addStudent(studentData)).unwrap();
       toast.success(response.message || "Added successfully");
       refreshList();
-      setShowAddModal(false);
+      setTimeout(()=>{
+        setShowAddModal(false);
+      },100)
     } catch (error) {
       // Properly extract the error message based on the structure returned by rejectWithValue
       const errorMessage =

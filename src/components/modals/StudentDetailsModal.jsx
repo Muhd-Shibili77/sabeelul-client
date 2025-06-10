@@ -58,35 +58,35 @@ const StudentDetailsModal = ({ student, onClose }) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-800 mb-6">
           <p className="flex items-center gap-2">
             <FiUser className="text-[rgba(53,130,140,1)]" />
-            <strong>Admisson No:</strong> {student.admissionNo}
+            <strong>Admisson No:</strong> {student.admissionNo ? student.admissionNo:'Not Provided'}
           </p>
           <p className="flex items-center gap-2">
             <FiUser className="text-[rgba(53,130,140,1)]" />
-            <strong>Name:</strong> {student.name}
+            <strong>Name:</strong> {student.name ? student.name:'Not Provided'}
           </p>
           <p className="flex items-center gap-2">
             <FiBookOpen className="text-[rgba(53,130,140,1)]" />
-            <strong>Class:</strong> {student.classId.name}
+            <strong>Class:</strong> {student.classId.name ? student.classId.name:'Not Provided'} 
           </p>
           <p className="flex items-center gap-2">
             <FiPhone className="text-[rgba(53,130,140,1)]" />
-            <strong>Phone:</strong> {student.phone}
+            <strong>Phone:</strong> {student.phone ? student.phone:'Not Provided'}
           </p>
           <p className="flex items-center gap-2">
             <FiMail className="text-[rgba(53,130,140,1)]" />
-            <strong>Email:</strong> {student.email}
+            <strong>Email:</strong> {student.email ? student.email:'Not Provided'}
           </p>
           <p className="flex items-center gap-2">
             <FiUsers className="text-[rgba(53,130,140,1)]" />
-            <strong>Guardian:</strong> {student.guardianName}
+            <strong>Guardian:</strong> {student.guardianName ? student.guardianName:'Not Provided'}
           </p>
           <p className="flex items-center gap-2">
             <FiAward className="text-[rgba(53,130,140,1)]" />
-            <strong>Rank:</strong> {student.rank}
+            <strong>Rank:</strong> {student.rank ? student.rank:'Not Provided'}
           </p>
           <p className="flex items-center gap-2 ">
             <FiMapPin className="text-[rgba(53,130,140,1)]" />
-            <strong>Address:</strong> {student.address}
+            <strong>Address:</strong> {student.address ? student.address:'Not Provided'}
           </p>
         </div>
 

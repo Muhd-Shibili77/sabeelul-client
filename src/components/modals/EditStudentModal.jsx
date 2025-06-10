@@ -83,31 +83,27 @@ const EditStudentModal = ({ onClose, studentData, onUpdate, classes }) => {
       profile,
     } = formData;
 
-    // Required field check
-    if (
-      !admissionNo.trim() ||
-      !name.trim() ||
-      !email.trim() ||
-      !className.trim() ||
-      !address.trim() ||
-      !guardianName.trim()
-    ) {
+    if (!admissionNo.trim() || !rank || !name.trim() || !className.trim()) {
       toast.error("Please fill in all required fields.");
       return;
     }
 
     // Email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      toast.error("Please enter a valid email address.");
-      return;
+    if (email && email.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email.trim())) {
+        toast.error("Please enter a valid email address.");
+        return;
+      }
     }
 
     // Phone format
-    const phoneRegex = /^\d{10}$/;
-    if (!phoneRegex.test(phone)) {
-      toast.error("Phone number must be exactly 10 digits.");
-      return;
+    if (phone && phone.trim()) {
+      const phoneRegex = /^\d{10}$/;
+      if (!phoneRegex.test(phone.trim())) {
+        toast.error("Please enter a valid 10-digit phone number.");
+        return;
+      }
     }
 
     // Image validation (optional)
@@ -168,8 +164,7 @@ const EditStudentModal = ({ onClose, studentData, onUpdate, classes }) => {
 
     try {
       onUpdate && onUpdate(studentData._id, updatedData);
-      toast.success("Student updated successfully!");
-      onClose();
+      // onClose();
     } catch (err) {
       console.error("Update failed", err);
       toast.error("Failed to update student. Please try again.");
@@ -247,7 +242,6 @@ const EditStudentModal = ({ onClose, studentData, onUpdate, classes }) => {
                 type="text"
                 name="name"
                 value={formData.name}
-                required
                 onChange={handleChange}
                 className="w-full border rounded px-3 py-2"
               />
@@ -264,7 +258,6 @@ const EditStudentModal = ({ onClose, studentData, onUpdate, classes }) => {
                 type="text"
                 name="phone"
                 value={formData.phone}
-                required
                 onChange={handleChange}
                 className="w-full border rounded px-3 py-2"
               />
@@ -277,7 +270,6 @@ const EditStudentModal = ({ onClose, studentData, onUpdate, classes }) => {
                 type="text"
                 name="guardianName"
                 value={formData.guardianName}
-                required
                 onChange={handleChange}
                 className="w-full border rounded px-3 py-2"
               />
@@ -293,7 +285,6 @@ const EditStudentModal = ({ onClose, studentData, onUpdate, classes }) => {
               type="text"
               name="address"
               value={formData.address}
-              required
               onChange={handleChange}
               className="w-full border rounded px-3 py-2"
             />
@@ -327,7 +318,6 @@ const EditStudentModal = ({ onClose, studentData, onUpdate, classes }) => {
                 type="email"
                 name="email"
                 value={formData.email}
-                required
                 onChange={handleChange}
                 className="w-full border rounded px-3 py-2"
               />
