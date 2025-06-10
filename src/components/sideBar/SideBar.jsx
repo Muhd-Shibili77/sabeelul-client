@@ -45,13 +45,13 @@ function SideBar(props) {
       key: "Classes",
     },
     { name: "Score", route: "score", icon: <FaCalendarAlt />, key: "Score" },
-    // { name: "Report", route: "report", icon: <TbReport />, key: "Report" },
     {
       name: "Programs",
       route: "programs",
       icon: <PiMicrophoneStageFill />,
       key: "Programs",
     },
+    { name: "Report", route: "report", icon: <TbReport />, key: "Report" },
     {
       name: "Settings",
       route: "settings",
