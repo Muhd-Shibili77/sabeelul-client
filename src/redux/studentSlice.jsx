@@ -3,7 +3,7 @@ import api from "../services/api";
 
 export const fetchStudent = createAsyncThunk(
     "fetchStudent",
-    async ({ search = "", page = 1, limit = 6 }, { rejectWithValue }) => {
+    async ({ search = "", page = 1, limit = 10 }, { rejectWithValue }) => {
       try {
         const response = await api.get(`/student?search=${search}&page=${page}&limit=${limit}`);
         return {
