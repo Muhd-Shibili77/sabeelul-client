@@ -27,7 +27,9 @@ const AdminStudents = () => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [debouncedClassFilter, setDebouncedClassFilter] = useState(""); // Debounced class filter
 
+  const [classFilter, setClassFilter] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -38,11 +40,11 @@ const AdminStudents = () => {
   }, [dispatch]);
 
   const refreshList = () =>
-    dispatch(fetchStudent({ search: debouncedSearch, page }));
+    dispatch(fetchStudent({ search: debouncedSearch, page , classFilter: debouncedClassFilter }));
 
   useEffect(() => {
     refreshList();
-  }, [dispatch, debouncedSearch, page]);
+  }, [dispatch, debouncedSearch,debouncedClassFilter, page]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -52,11 +54,26 @@ const AdminStudents = () => {
     return () => clearTimeout(timer);
   }, [search]);
 
+  // Debounce class filter (optional - can be immediate)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedClassFilter(classFilter);
+    }, 300); // Shorter delay for class filter
+
+    return () => clearTimeout(timer);
+  }, [classFilter]);
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    if (page !== 1) {
+      setPage(1);
+    }
+  }, [debouncedSearch, debouncedClassFilter]);
+
   const handleViewDetails = (student) => {
     setSelectedStudent(student);
     setShowDetailModal(true);
   };
-
   const handleDeleteStudent = (id) => {
     confirmAlert({
       customUI: ({ onClose }) => {
@@ -101,12 +118,10 @@ const AdminStudents = () => {
       },
     });
   };
-
   const handleEditStudent = (student) => {
     setSelectedStudent(student);
     setShowEditModal(true);
   };
-
   const updateStudentData = async (id, updatedData) => {
     try {
       const response = await dispatch(
@@ -123,15 +138,14 @@ const AdminStudents = () => {
       console.error("Failed to update student:", error.message || error);
     }
   };
-
   const handleAdd = async (studentData) => {
     try {
       const response = await dispatch(addStudent(studentData)).unwrap();
       toast.success(response.message || "Added successfully");
       refreshList();
-      setTimeout(()=>{
+      setTimeout(() => {
         setShowAddModal(false);
-      },100)
+      }, 100);
     } catch (error) {
       // Properly extract the error message based on the structure returned by rejectWithValue
       const errorMessage =
@@ -155,6 +169,19 @@ const AdminStudents = () => {
           </h2>
 
           <div className="flex gap-2 flex-wrap">
+            <select
+              value={classFilter}
+              onChange={(e) => setClassFilter(e.target.value)}
+              className="border rounded px-4 py-2  text-gray-700 focus:outline-none focus:ring-2 focus:ring-[rgba(53,130,140,0.5)]"
+            >
+              <option value="">All Classes</option>
+              {classes?.map((classItem) => (
+                <option key={classItem._id} value={classItem._id}>
+                  {classItem.name}
+                </option>
+              ))}
+            </select>
+
             <input
               type="text"
               placeholder="Search by Name/Ad.No"
