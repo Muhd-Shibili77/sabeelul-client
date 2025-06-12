@@ -98,9 +98,9 @@ const EditStudentModal = ({ onClose, studentData, onUpdate, classes }) => {
     }
 
     // Phone format
-    if (phone && phone.trim()) {
+    if (phone) {
       const phoneRegex = /^\d{10}$/;
-      if (!phoneRegex.test(phone.trim())) {
+      if (!phoneRegex.test(phone)) {
         toast.error("Please enter a valid 10-digit phone number.");
         return;
       }
