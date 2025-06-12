@@ -3,7 +3,7 @@ import api from "../services/api";
 
 export const fetchTeacher = createAsyncThunk(
     "fetchTeacher",
-    async ({ search = "", page = 1, limit = 6  }, { rejectWithValue }) => {
+    async ({ search = "", page = 1, limit = 10  }, { rejectWithValue }) => {
       try {
         const response = await api.get(`/teacher?search=${search}&page=${page}&limit=${limit}`);
         return { teachers: response.data.teachers,totalPages: response.data.totalPages,  };
