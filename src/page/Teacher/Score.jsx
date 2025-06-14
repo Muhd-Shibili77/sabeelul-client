@@ -19,6 +19,8 @@ const Score = () => {
   const { classes } = useSelector((state) => state.class);
   const { students } = useFetchStudents(selectedClass);
   const [marks, setMarks] = useState({});
+  const [isSubmittingCCE, setIsSubmittingCCE] = useState(false);
+  const [isSubmittingMentor, setIsSubmittingMentor] = useState(false);
   const academicYear = getCurrentAcademicYear();
 
   // Semester options
@@ -50,44 +52,56 @@ const Score = () => {
   };
 
   const handleMentorSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
+    setIsSubmittingMentor(true);
     try {
       for (const studentId in marks) {
         const mark = marks[studentId]["Mentor"];
         if (mark) {
-          await dispatch(addMentorMark({ 
-            id: studentId, 
-            data: { 
-              mark,
-              semester: selectedSemester 
-            } 
-          }));
+          await dispatch(
+            addMentorMark({
+              id: studentId,
+              data: {
+                mark,
+                semester: selectedSemester,
+              },
+            })
+          );
         }
       }
       toast.success("Mentor Score submitted successfully!");
     } catch (err) {
       toast.error("Failed to submit mentor Score.");
+    } finally {
+      setIsSubmittingMentor(false);
     }
   };
 
   const handleCCESubmit = async () => {
+    setIsSubmittingCCE(true);
+
+    // Determine the maximum limit based on the selected subject
+    const maxLimit = selectedSubject === "Hifz and Tajwid" ? 100 : 30;
+
     try {
       for (const studentId in marks) {
         const studentMarks = marks[studentId];
-        
-        // Check if total mark exceeds 30
+
+        // Check if total mark exceeds the subject-specific limit
         const totalMark = calculateTotalMark(studentId);
-        if (totalMark > 30) {
-          toast.error(`Total Score for a student cannot exceed 30. Current total: ${totalMark}`);
+        if (totalMark > maxLimit) {
+          toast.error(
+            `Total Score for a student cannot exceed ${maxLimit} for ${selectedSubject}. Current total: ${totalMark}`
+          );
           return;
         }
 
         for (const phase of ["Phase 1", "Phase 2", "Phase 3"]) {
           const mark = studentMarks[phase];
-          
+
           if (mark && mark < 0) {
             toast.error("CCE Score should be greater than 0.");
-            return 
+            return;
           }
 
           if (mark && mark >= 0) {
@@ -105,6 +119,8 @@ const Score = () => {
       toast.success("CCE Score submitted successfully!");
     } catch (err) {
       toast.error("Failed to submit CCE Score.");
+    } finally {
+      setIsSubmittingCCE(false);
     }
   };
 
@@ -122,9 +138,10 @@ const Score = () => {
       if (!student) return 0;
 
       const cceRecord = student.cceMarks?.find(
-        (m) => m.academicYear === academicYear && m.semester === selectedSemester
+        (m) =>
+          m.academicYear === academicYear && m.semester === selectedSemester
       );
-      
+
       if (!cceRecord) return 0;
 
       const subjectMark = cceRecord.subjects?.find(
@@ -153,10 +170,10 @@ const Score = () => {
 
   // Handle keyboard navigation for CCE table
   const handleKeyDown = (e, studentIndex, phase) => {
-    if (e.key === 'Tab') {
+    if (e.key === "Tab") {
       // Default tab behavior for phase navigation
       return;
-    } else if (e.key === 'Enter') {
+    } else if (e.key === "Enter") {
       e.preventDefault();
       // Move to the same phase of the next student
       const nextStudentIndex = studentIndex + 1;
@@ -180,9 +197,10 @@ const Score = () => {
     if (scoreType === "CCE") {
       // Check saved CCE data
       const cceRecord = student.cceMarks?.find(
-        (m) => m.academicYear === academicYear && m.semester === selectedSemester
+        (m) =>
+          m.academicYear === academicYear && m.semester === selectedSemester
       );
-      
+
       if (cceRecord) {
         const subjectMark = cceRecord.subjects?.find(
           (s) => s.subjectName === selectedSubject && s.phase === phase
@@ -192,7 +210,8 @@ const Score = () => {
     } else if (phase === "Mentor") {
       // Check saved Mentor data
       const mentorRecord = student.mentorMarks?.find(
-        (m) => m.academicYear === academicYear && m.semester === selectedSemester
+        (m) =>
+          m.academicYear === academicYear && m.semester === selectedSemester
       );
       return mentorRecord ? mentorRecord.mark : "";
     }
@@ -363,8 +382,11 @@ const Score = () => {
                                       e.target.value
                                     )
                                   }
-                                  onKeyDown={(e) => handleKeyDown(e, index, phase)}
+                                  onKeyDown={(e) =>
+                                    handleKeyDown(e, index, phase)
+                                  }
                                   min="0"
+                                  disabled={isSubmittingCCE}
                                 />
                               </td>
                             ))}
@@ -374,11 +396,24 @@ const Score = () => {
                                 value={calculateTotalMark(student._id)}
                                 disabled
                                 className={`w-16 px-2 py-1 border border-gray-300 rounded text-center text-sm bg-gray-100 cursor-not-allowed ${
-                                  calculateTotalMark(student._id) > 30 ? 'text-red-600 font-semibold' : ''
+                                  calculateTotalMark(student._id) >
+                                  (selectedSubject === "Hifz and Tajwid"
+                                    ? 100
+                                    : 30)
+                                    ? "text-red-600 font-semibold"
+                                    : ""
                                 }`}
                               />
-                              {calculateTotalMark(student._id) > 30 && (
-                                <div className="text-xs text-red-500 mt-1">Max: 30</div>
+                              {calculateTotalMark(student._id) >
+                                (selectedSubject === "Hifz and Tajwid"
+                                  ? 100
+                                  : 30) && (
+                                <div className="text-xs text-red-500 mt-1">
+                                  Max:{" "}
+                                  {selectedSubject === "Hifz and Tajwid"
+                                    ? 100
+                                    : 30}
+                                </div>
                               )}
                             </td>
                           </tr>
@@ -391,9 +426,17 @@ const Score = () => {
                 {students.length > 0 && (
                   <button
                     onClick={handleCCESubmit}
-                    className="mt-6 bg-[rgba(53,130,140,0.9)] text-white px-6 py-2 rounded-lg shadow hover:bg-[rgba(53,130,140,1)] transition duration-200"
+                    disabled={isSubmittingCCE}
+                    className={`mt-6 px-6 py-2 rounded-lg shadow transition duration-200 flex items-center gap-2 ${
+                      isSubmittingCCE
+                        ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                        : "bg-[rgba(53,130,140,0.9)] text-white hover:bg-[rgba(53,130,140,1)]"
+                    }`}
                   >
-                    Submit Score
+                    {isSubmittingCCE && (
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    )}
+                    {isSubmittingCCE ? "Submitting..." : "Submit Score"}
                   </button>
                 )}
               </>
@@ -404,50 +447,72 @@ const Score = () => {
                 </h2>
 
                 {(() => {
-                  const student = students.find((s) => s._id === selectedStudent);
+                  const student = students.find(
+                    (s) => s._id === selectedStudent
+                  );
                   return student ? (
                     <div className="bg-[rgba(53,130,140,0.1)] rounded-xl p-6">
                       <div className="mb-4">
                         <p className="font-medium text-gray-700 text-lg">
-                          <span className="text-[rgba(53,130,140,0.9)]">Ad No:</span> {student.admissionNo}
+                          <span className="text-[rgba(53,130,140,0.9)]">
+                            Ad No:
+                          </span>{" "}
+                          {student.admissionNo}
                         </p>
                         <p className="font-medium text-gray-700 text-lg">
-                          <span className="text-[rgba(53,130,140,0.9)]">Name:</span> {student.name}
+                          <span className="text-[rgba(53,130,140,0.9)]">
+                            Name:
+                          </span>{" "}
+                          {student.name}
                         </p>
                       </div>
                       <form onSubmit={handleMentorSubmit}>
-                      <div className="flex flex-col gap-2">
-                        <label htmlFor="mentor-mark" className="text-sm font-medium text-gray-700">
-                          Mentor Score
-                        </label>
-                        <input
-                          id="mentor-mark"
-                          type="number"
-                          className="w-40 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[rgba(53,130,140,0.5)]"
-                          value={getExistingMark(student, "Mentor")}
-                          onChange={(e) =>
-                            handleMarkChange(
-                              student._id,
-                              "Mentor",
-                              e.target.value
-                            )
-                          }
-                          placeholder="Enter Score"
-                        />
-                      </div>
+                        <div className="flex flex-col gap-2">
+                          <label
+                            htmlFor="mentor-mark"
+                            className="text-sm font-medium text-gray-700"
+                          >
+                            Mentor Score
+                          </label>
+                          <input
+                            id="mentor-mark"
+                            type="number"
+                            className="w-40 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[rgba(53,130,140,0.5)]"
+                            value={getExistingMark(student, "Mentor")}
+                            onChange={(e) =>
+                              handleMarkChange(
+                                student._id,
+                                "Mentor",
+                                e.target.value
+                              )
+                            }
+                            placeholder="Enter Score"
+                            disabled={isSubmittingMentor}
+                          />
+                        </div>
 
-                      <button
-                        // onClick={handleMentorSubmit}
-                        type="submit"
-                        className="mt-6 bg-[rgba(53,130,140,0.9)] text-white px-6 py-2 rounded-lg shadow hover:bg-[rgba(53,130,140,1)] transition duration-200"
-                      >
-                        Submit Score
-                      </button>
+                        <button
+                          type="submit"
+                          disabled={isSubmittingMentor}
+                          className={`mt-6 px-6 py-2 rounded-lg shadow transition duration-200 flex items-center gap-2 ${
+                            isSubmittingMentor
+                              ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                              : "bg-[rgba(53,130,140,0.9)] text-white hover:bg-[rgba(53,130,140,1)]"
+                          }`}
+                        >
+                          {isSubmittingMentor && (
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          )}
+                          {isSubmittingMentor
+                            ? "Submitting..."
+                            : "Submit Score"}
+                        </button>
                       </form>
                     </div>
-                    
                   ) : (
-                    <p className="text-gray-500 italic">Please select a student to enter Score.</p>
+                    <p className="text-gray-500 italic">
+                      Please select a student to enter Score.
+                    </p>
                   );
                 })()}
               </>
@@ -456,7 +521,11 @@ const Score = () => {
         ) : (
           <div className="bg-white rounded-2xl shadow-md p-6">
             <p className="text-gray-500 italic text-center">
-              Please select {scoreType === "CCE" ? "class, subject, and semester" : "class, semester, and student"} to {scoreType === "CCE" ? "view students" : "enter Score"}.
+              Please select{" "}
+              {scoreType === "CCE"
+                ? "class, subject, and semester"
+                : "class, semester, and student"}{" "}
+              to {scoreType === "CCE" ? "view students" : "enter Score"}.
             </p>
           </div>
         )}
