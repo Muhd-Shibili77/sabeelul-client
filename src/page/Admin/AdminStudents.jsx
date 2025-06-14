@@ -206,6 +206,7 @@ const AdminStudents = () => {
               <tr>
                 <th className="px-6 py-3 text-left">Name</th>
                 <th className="px-6 py-3 text-left">Admission No</th>
+                <th className="px-6 py-3 text-left">Rank</th>
                 <th className="px-6 py-3 text-left">Class</th>
                 <th className="px-6 py-3 text-left">Phone</th>
                 <th className="px-6 py-3 text-center">Actions</th>
@@ -233,6 +234,7 @@ const AdminStudents = () => {
                       <span className="font-semibold">{student?.name}</span>
                     </td>
                     <td className="px-6 py-4">{student?.admissionNo}</td>
+                    <td className="px-6 py-4">{student?.rank}</td>
                     <td className="px-6 py-4">{student?.classId?.name}</td>
                     <td className="px-6 py-4">{student?.phone}</td>
                     <td className="px-6 py-4 text-center space-x-3">
