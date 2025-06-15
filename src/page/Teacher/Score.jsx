@@ -112,13 +112,13 @@ const Score = () => {
               phase,
               mark: Number(mark),
             };
-            await dispatch(addCceMark({ id: studentId, data }));
+            await dispatch(addCceMark({ id: studentId, data })).unwrap();
           }
         }
       }
       toast.success("CCE Score submitted successfully!");
     } catch (err) {
-      toast.error("Failed to submit CCE Score.");
+      toast.error(err?.message ||"Failed to submit CCE Score.");
     } finally {
       setIsSubmittingCCE(false);
     }
