@@ -79,20 +79,20 @@ const Score = () => {
 
   const handleCCESubmit = async () => {
     setIsSubmittingCCE(true);
-
-    // Determine the maximum limit based on the selected subject
     const maxLimit = selectedSubject === "Hifz and Tajwid" ? 100 : 30;
 
     try {
+      const batchPayload = [];
+
       for (const studentId in marks) {
         const studentMarks = marks[studentId];
-
-        // Check if total mark exceeds the subject-specific limit
         const totalMark = calculateTotalMark(studentId);
+
         if (totalMark > maxLimit) {
           toast.error(
             `Total Score for a student cannot exceed ${maxLimit} for ${selectedSubject}. Current total: ${totalMark}`
           );
+          setIsSubmittingCCE(false);
           return;
         }
 
@@ -101,24 +101,33 @@ const Score = () => {
 
           if (mark && mark < 0) {
             toast.error("CCE Score should be greater than 0.");
+            setIsSubmittingCCE(false);
             return;
           }
 
           if (mark && mark >= 0) {
-            const data = {
-              classId: selectedClass,
-              subjectName: selectedSubject,
-              semester: selectedSemester,
-              phase,
-              mark: Number(mark),
-            };
-            await dispatch(addCceMark({ id: studentId, data })).unwrap();
+            batchPayload.push({
+              id: studentId,
+              data: {
+                classId: selectedClass,
+                subjectName: selectedSubject,
+                semester: selectedSemester,
+                phase,
+                mark: Number(mark),
+              },
+            });
           }
         }
       }
-      toast.success("CCE Score submitted successfully!");
+
+      if (batchPayload.length > 0) {
+        await dispatch(addCceMark(batchPayload)).unwrap();
+        toast.success("CCE Scores submitted successfully!");
+      } else {
+        toast.info("No valid marks to submit.");
+      }
     } catch (err) {
-      toast.error(err?.message ||"Failed to submit CCE Score.");
+      toast.error(err?.message || "Failed to submit CCE Scores.");
     } finally {
       setIsSubmittingCCE(false);
     }
