@@ -59,6 +59,7 @@ const teacherSlice = createSlice({
       })
       .addCase(fetchTeacher.fulfilled, (state, action) => {
         state.loading = false;
+        state.error = null;
         state.teachers = action.payload.teachers;
         state.totalPages = action.payload.totalPages;
       })

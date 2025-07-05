@@ -173,9 +173,24 @@ export const deletePenaltyScore = createAsyncThunk(
   }
 );
 
+export const fetchSubInClass = createAsyncThunk(
+  "class/fetchSubInClass",
+  async ({ classId }, { rejectWithValue }) => {
+    
+    try {
+      const response = await api.get(`class/subject/${classId}`);
+      return{
+        subjects : response.data.subjects
+      }
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Failed to delete penalty mark");
+    }
+  }
+)
+
 const classSlice = createSlice({
   name: "class",
-  initialState: { classes: [], loading: false, error: null, totalPages: 0 },
+  initialState: { classes: [],subjects:[], loading: false, error: null, totalPages: 0 },
   reducers: {},
   extraReducers: (builder) => {
     builder
@@ -188,6 +203,17 @@ const classSlice = createSlice({
         state.totalPages = action.payload.totalPages;
       })
       .addCase(fetchClass.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(fetchSubInClass.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchSubInClass.fulfilled, (state, action) => {
+        state.loading = false;
+        state.subjects = action.payload.subjects;
+      })
+      .addCase(fetchSubInClass.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
@@ -219,7 +245,6 @@ const classSlice = createSlice({
           const markIndex = state.classes[classIndex].marks.findIndex(
             (mark) => mark._id === action.payload.markId
           );
-          console.log(markIndex)
           if (markIndex !== -1) {
             state.classes[classIndex].marks.splice(markIndex, 1);
           }

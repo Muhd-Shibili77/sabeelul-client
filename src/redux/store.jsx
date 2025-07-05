@@ -5,6 +5,7 @@ import studentReducer from './studentSlice.jsx'
 import programReducer from './programSlice.jsx'
 import itemReducer from './itemSlice.jsx'
 import themeReducer from './themeSlice.jsx'
+import leaderBoardReducer from './leaderBoardSlice.jsx'
 const store = configureStore({
     reducer:{
       class:classReducer,
@@ -12,7 +13,8 @@ const store = configureStore({
       student:studentReducer,
       program:programReducer,
       item:itemReducer,
-      theme:themeReducer
+      theme:themeReducer,
+      leaderboard:leaderBoardReducer
     }
 })
 
