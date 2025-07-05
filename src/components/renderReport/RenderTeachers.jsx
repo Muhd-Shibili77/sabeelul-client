@@ -10,7 +10,7 @@ const RenderTeachers = ({ handleExport }) => {
   const { teachers, loading, error } = useSelector((state) => state.teacher);
 
   useEffect(() => {
-    dispatch(fetchTeacher({}));
+    dispatch(fetchTeacher({limit:1000}));
   }, [dispatch]);
 
   const columns = [

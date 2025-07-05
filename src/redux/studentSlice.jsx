@@ -64,6 +64,21 @@ export const fetchStudentByClass = createAsyncThunk(
     }
   }
 );
+export const fetchStudentById = createAsyncThunk(
+  "fetchStudentById",
+  async ({ id }, { rejectWithValue }) => {
+    try {
+      const response = await api.get(
+        `/student/cce/${id}`
+      );
+      return {
+        student: response.data.data,
+      };
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
 export const addStudent = createAsyncThunk(
   "addStudent",
   async (studentData, { rejectWithValue }) => {
@@ -212,6 +227,7 @@ const studentSlice = createSlice({
   name: "student",
   initialState: {
     students: [],
+    student:[],
     filteredStudents: [],
     loading: false,
     error: null,
@@ -262,6 +278,17 @@ const studentSlice = createSlice({
         state.students = action.payload.students;
       })
       .addCase(fetchStudentByClass.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(fetchStudentById.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchStudentById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.student = action.payload.student;
+      })
+      .addCase(fetchStudentById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
