@@ -5,7 +5,7 @@ import { fetchTeacher } from "../../redux/teacherSlice";
 import { useDispatch, useSelector } from "react-redux";
 import ReportLoader from "../loader/reportLoader";
 import ReportError from "../loader/reportError";
-const RenderTeachers = ({ handleExport }) => {
+const RenderTeachers = () => {
   const dispatch = useDispatch();
   const { teachers, loading, error } = useSelector((state) => state.teacher);
 
@@ -53,7 +53,6 @@ const RenderTeachers = ({ handleExport }) => {
       headerColor="bg-[rgba(53,130,140,0.9)]"
       columns={columns}
       data={teachers}
-      onExport={handleExport}
     />
   );
 };

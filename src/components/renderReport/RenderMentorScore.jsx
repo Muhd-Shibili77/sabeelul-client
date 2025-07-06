@@ -10,7 +10,7 @@ import ReportError from "../loader/reportError";
 import { useDispatch, useSelector } from "react-redux";
 import { findStudentsWithMentorMarksByClass } from "../../redux/studentSlice";
 
-const RenderMentorScore = ({ handleExport }) => {
+const RenderMentorScore = () => {
   const dispatch = useDispatch();
   const classes = useSelector((state) => state.class.classes || []);
   const { students, loading, error } = useSelector((state) => state.student);
@@ -78,7 +78,6 @@ const RenderMentorScore = ({ handleExport }) => {
         headerColor="bg-[rgba(53,130,140,0.9)]"
         columns={columns}
         data={students || []}
-        onExport={handleExport}
       />
     </div>
   );

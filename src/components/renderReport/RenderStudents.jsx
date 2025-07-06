@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import ReportLoader from "../loader/reportLoader";
 import ReportError from "../loader/reportError";
 import { fetchStudentByClass } from "../../redux/studentSlice";
-const RenderStudents = ({ handleExport }) => {
+const RenderStudents = () => {
   const dispatch = useDispatch();
   const [selectedClass, setSelectedClass] = useState("");
 
@@ -22,6 +22,8 @@ const RenderStudents = ({ handleExport }) => {
   useEffect(() => {
     dispatch(fetchStudentByClass({ classId: selectedClass }));
   }, [dispatch, selectedClass]);
+
+    const selectedClassName = classes.find((cls) => cls._id === selectedClass)?.name || selectedClass;
 
   const columns = [
     {
@@ -60,14 +62,13 @@ const RenderStudents = ({ handleExport }) => {
 
       <DataTable
         title={
-          selectedClass ? `Class Students` : "All Students"
+          selectedClass ? `(${selectedClassName}) - Student List` : "All Students"
         }
         icon={Users}
         iconColor="text-[rgba(53,130,140,0.9)]"
         headerColor="bg-[rgba(53,130,140,0.9)]"
         columns={columns}
         data={students}
-        onExport={handleExport}
       />
     </div>
   );

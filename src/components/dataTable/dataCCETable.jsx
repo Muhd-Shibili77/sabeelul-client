@@ -1,5 +1,6 @@
 import React from "react";
 import ExportDropdown from "../Buttons/ExportDropDown";
+import { cceExportUtils } from "../../utils/cceExportUtils";
 
 const DataCCETable = ({
   title,
@@ -12,6 +13,48 @@ const DataCCETable = ({
   showExport = true,
   onExport,
 }) => {
+  const handleExport = async (type) => {
+    try {
+      // Log export attempt
+      console.log("Export attempt:", { type, title, dataLength: data.length });
+      
+      // Validate data before export
+      if (!data || data.length === 0) {
+        alert("No data available to export");
+        return;
+      }
+
+      if (!columns || columns.length === 0) {
+        alert("No columns configured for export");
+        return;
+      }
+
+      switch (type) {
+        case "PDF":
+          console.log("Starting PDF export...");
+          await cceExportUtils.exportToPDF(data, columns, subColumns, title);
+          console.log("PDF export completed");
+          break;
+        case "excel":
+          console.log("Starting Excel export...");
+          await cceExportUtils.exportToExcel(data, columns, subColumns, title);
+          console.log("Excel export completed");
+          break;
+        case "print":
+          console.log("Starting print...");
+          await cceExportUtils.printTable(data, columns, subColumns, title);
+          console.log("Print completed");
+          break;
+        default:
+          console.warn("Unknown export type:", type);
+          alert("Unknown export type");
+      }
+    } catch (error) {
+      console.error("Export failed:", error);
+      alert(`Export failed: ${error.message}`);
+    }
+  };
+
   const hasColSpan = columns.some((col) => col.colspan && col.colspan > 1);
 
   return (
@@ -20,7 +63,7 @@ const DataCCETable = ({
         <h3 className="text-lg font-semibold flex items-center gap-2">
           <Icon className={iconColor} /> {title}
         </h3>
-        {showExport && onExport && <ExportDropdown onExport={onExport} />}
+        {showExport && <ExportDropdown onExport={handleExport} />}
       </div>
       <div className="overflow-x-auto w-full">
         <table className="w-full border border-gray-300 rounded-lg ">

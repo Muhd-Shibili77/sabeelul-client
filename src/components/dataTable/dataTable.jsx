@@ -1,5 +1,6 @@
 import React from "react";
 import ExportDropdown from "../Buttons/ExportDropDown";
+import { exportUtils } from "../../utils/exportUtils";
 const DataTable = ({
   title,
   icon: Icon,
@@ -8,15 +9,36 @@ const DataTable = ({
   columns,
   data,
   showExport = true,
-  onExport,
+  pdfHeaderClr,
 }) => {
+   const handleExport = (type) => {
+    try {
+      switch(type){
+        case 'PDF':
+          exportUtils.exportToPDF(data,columns,title,pdfHeaderClr)
+          break
+        case 'excel':
+          exportUtils.exportToExcel(data,columns,title)
+          break  
+        case 'print':
+          exportUtils.printTable(data,columns,title)
+          break  
+        default:
+          console.warn('Unknown export type:', type);  
+      }
+    } catch (error) {
+      console.error('Export failed:', error);
+      alert('Export failed. Please try again.');
+    }
+  };
+
   return (
     <div className="bg-white p-6 rounded-xl shadow">
     <div className="flex justify-between items-center mb-4">
       <h3 className="text-lg font-semibold flex items-center gap-2">
         <Icon className={iconColor} /> {title}
       </h3>
-      {showExport && onExport && <ExportDropdown onExport={onExport} />}
+      {showExport  && <ExportDropdown onExport={handleExport} />}
     </div>
     <table className="w-full border border-gray-300 rounded-lg">
       <thead>

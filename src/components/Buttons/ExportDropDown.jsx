@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ChevronDown, Download, } from "lucide-react";
+import { ChevronDown,Sheet,FileText, Download, Printer, } from "lucide-react";
 
 const ExportDropdown = ({ onExport }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,14 +16,25 @@ const ExportDropdown = ({ onExport }) => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border z-10">
+        <div className="absolute right-0 mt-2 w-45 bg-white rounded-lg shadow-lg border z-10">
           <button
             onClick={() => {
-              onExport("pdf");
+              onExport("print");
               setIsOpen(false);
             }}
-            className="w-full px-4 py-2 text-left hover:bg-gray-50 rounded-t-lg"
+            className="w-full px-4 py-2 text-left hover:bg-gray-50 rounded-b-lg flex items-center gap-2"
           >
+            <Printer size={16} />
+            Print
+          </button>
+          <button
+            onClick={() => {
+              onExport("PDF");
+              setIsOpen(false);
+            }}
+            className="w-full px-4 py-2 text-left hover:bg-gray-50 rounded-t-lg flex items-center gap-2"
+          >
+            <FileText size={16} />
             Export as PDF
           </button>
           <button
@@ -31,10 +42,12 @@ const ExportDropdown = ({ onExport }) => {
               onExport("excel");
               setIsOpen(false);
             }}
-            className="w-full px-4 py-2 text-left hover:bg-gray-50 rounded-b-lg"
+            className="w-full px-4 py-2 text-left hover:bg-gray-50 rounded-b-lg flex items-center gap-2"
           >
+            <Sheet size={16} />
             Export as Excel
           </button>
+         
         </div>
       )}
     </div>

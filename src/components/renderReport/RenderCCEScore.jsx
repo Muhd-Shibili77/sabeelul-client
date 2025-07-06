@@ -9,7 +9,7 @@ import ReportLoader from "../loader/reportLoader";
 import ReportError from "../loader/reportError";
 import { useDispatch, useSelector } from "react-redux";
 
-const RenderCCEScore = ({ handleExport }) => {
+const RenderCCEScore = () => {
   const dispatch = useDispatch();
   
   // Redux state selectors
@@ -143,7 +143,6 @@ const RenderCCEScore = ({ handleExport }) => {
       });
     } else if (cceViewType === "student" && studentPerformanceData) {
       // Handle the actual data structure from your API
-      console.log("Student Performance Data:", studentPerformanceData);
       
       // Check if studentPerformanceData has the expected structure
       if (studentPerformanceData.data && studentPerformanceData.data.subjectWise) {
@@ -343,7 +342,7 @@ const RenderCCEScore = ({ handleExport }) => {
       return `Class (${selectedClassName}) CCE Scores`;
     } else {
       const selectedStudentName = students.find((s) => s._id === selectedStudent)?.name || "Select Student";
-      return `CCE Scores for ${selectedStudentName}`;
+      return `CCE Scores of ${selectedStudentName}`;
     }
   };
 
@@ -390,7 +389,7 @@ const RenderCCEScore = ({ handleExport }) => {
         {cceViewType === "class" && subjects.length > 0 && (
           <div className="relative inline-block text-left">
             <button
-              className="inline-flex justify-between w-64 text-sm font-medium text-gray-700 p-3 rounded-lg border border-gray-300 shadow hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="inline-flex justify-between w-64 text-sm font-medium text-gray-700 p-3 rounded-lg border border-gray-300 shadow  focus:outline-none focus:ring-2 focus:ring-blue-500"
               onClick={() => setIsSubjectDropdownOpen(!isSubjectDropdownOpen)}
               aria-expanded={isSubjectDropdownOpen}
               aria-haspopup="true"
@@ -454,7 +453,6 @@ const RenderCCEScore = ({ handleExport }) => {
           columns={getColumns()}
           subColumns={getSubcolums()}
           data={getTableData()}
-          onExport={handleExport}
         />
       ) : (
         <div className="flex items-center justify-center p-8 text-gray-500">

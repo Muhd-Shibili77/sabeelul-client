@@ -13,7 +13,7 @@ import {
   fetchClassUnionLeaderboard,
   fetchClassWiseLeaderboard,
 } from "../../redux/leaderBoardSlice";
-const RenderLeaderBoard = ({  handleExport }) => {
+const RenderLeaderBoard = () => {
   const dispatch = useDispatch();
   const [selectedClass, setSelectedClass] = useState("");
   const [leaderboardType, setLeaderboardType] = useState("Overall");
@@ -106,7 +106,7 @@ const RenderLeaderBoard = ({  handleExport }) => {
           },
           {
             header: "Class",
-            key: "class",
+            key: "name",
             render: (row) => <span className="font-semibold">{row.name}</span>,
           },
           { header: "Score", key: "marks" },
@@ -215,7 +215,6 @@ const RenderLeaderBoard = ({  handleExport }) => {
         headerColor="bg-[rgba(53,130,140,0.9)]"
         columns={getColumns()}
         data={getLeaderboardData()}
-        onExport={handleExport}
       />
     </div>
   );
