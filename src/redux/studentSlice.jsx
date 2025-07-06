@@ -3,6 +3,7 @@ import api from "../services/api";
 
 export const fetchStudent = createAsyncThunk(
   "fetchStudent",
+
   async (
     { search = "", page = 1, limit = 20, classFilter = "" },
     { rejectWithValue }
@@ -32,6 +33,23 @@ export const addStudent = createAsyncThunk(
     }
   }
 );
+export const fetchStudentByLevel = createAsyncThunk(
+  "fetchStudentByLevel",
+  async ({ level, class: className }, { rejectWithValue }) => {
+    try {
+      let queryParams = `level=${level}`;
+      if (className) {
+        queryParams += `&class=${className}`;
+      }
+      const response = await api.get(`/student/by-level?${queryParams}`);
+      return {
+        students: response.data.students,
+      };
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
 
 export const updateStudent = createAsyncThunk(
   "updateStudent",
@@ -39,6 +57,19 @@ export const updateStudent = createAsyncThunk(
     try {
       const response = await api.put(`/student/${id}`, updatedData);
       return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+export const findStudentsWithMentorMarksByClass = createAsyncThunk(
+  "findStudentsWithMentorMarksByClass",
+  async ({ classId }, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`/student/mentor/${classId}`);
+      return {
+        students: response.data.students,
+      };
     } catch (error) {
       return rejectWithValue(error.response.data);
     }
@@ -56,7 +87,37 @@ export const deleteStudent = createAsyncThunk(
     }
   }
 );
+export const fetchStudentByClass = createAsyncThunk(
+  "fetchStudentByClass",
+  async ({ classId }, { rejectWithValue }) => {
+    try {
+      const response = await api.get(
+        `/student/by-class?classId=${classId}`
+      );
+      return {
+        students: response.data.students,
+      };
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
 
+export const fetchStudentById = createAsyncThunk(
+  "fetchStudentById",
+  async ({ id }, { rejectWithValue }) => {
+    try {
+      const response = await api.get(
+        `/student/cce/${id}`
+      );
+      return {
+        student: response.data.data,
+      };
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
 export const addExtraMark = createAsyncThunk(
   "addExtraMark",
   async ({ id, data }, { rejectWithValue }) => {
@@ -68,7 +129,6 @@ export const addExtraMark = createAsyncThunk(
     }
   }
 );
-
 export const editExtraMark = createAsyncThunk(
   "editExtraMark",
   async ({ id, mark, description, userId }, { rejectWithValue }) => {
@@ -85,7 +145,6 @@ export const editExtraMark = createAsyncThunk(
     }
   }
 );
-
 export const deleteExtraMark = createAsyncThunk(
   "deleteExtraMark",
   async ({ id, userId }, { rejectWithValue }) => {
@@ -111,15 +170,13 @@ export const addMentorMark = createAsyncThunk(
   }
 );
 export const addCceMark = createAsyncThunk(
-  "addCceMarksBatch",
-  async (payload, { rejectWithValue }) => {
+  "addCceMark",
+  async ({ id, data }, { rejectWithValue }) => {
     try {
-      const response = await api.post("/student/cce/batch", payload); // New endpoint
+      const response = await api.post(`/student/cce/${id}`, data);
       return response.data;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data || "Batch submission failed."
-      );
+      return rejectWithValue(error.response.data);
     }
   }
 );
@@ -134,6 +191,7 @@ export const addStudentPenalty = createAsyncThunk(
     }
   }
 );
+
 export const updateStudentPenalty = createAsyncThunk(
   "updateStudentPenalty",
   async (
@@ -169,7 +227,14 @@ export const deleteStudentPenalty = createAsyncThunk(
 
 const studentSlice = createSlice({
   name: "student",
-  initialState: { students: [], loading: false, error: null, totalPages: 0 },
+  initialState: {
+    students: [],
+    student:[],
+    filteredStudents: [],
+    loading: false,
+    error: null,
+    totalPages: 0,
+  },
   reducers: {},
   extraReducers: (builder) => {
     builder
@@ -182,6 +247,51 @@ const studentSlice = createSlice({
         state.totalPages = action.payload.totalPages;
       })
       .addCase(fetchStudent.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+
+      })
+      .addCase(fetchStudentByLevel.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchStudentByLevel.fulfilled, (state, action) => {
+        state.loading = false;
+        state.filteredStudents = action.payload.students;
+      })
+      .addCase(fetchStudentByLevel.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(findStudentsWithMentorMarksByClass.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(findStudentsWithMentorMarksByClass.fulfilled, (state, action) => {
+        state.loading = false;
+        state.students = action.payload.students;
+      })
+      .addCase(findStudentsWithMentorMarksByClass.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(fetchStudentByClass.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchStudentByClass.fulfilled, (state, action) => {
+        state.loading = false;
+        state.students = action.payload.students;
+      })
+      .addCase(fetchStudentByClass.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(fetchStudentById.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchStudentById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.student = action.payload.student;
+      })
+      .addCase(fetchStudentById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
