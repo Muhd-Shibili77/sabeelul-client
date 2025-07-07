@@ -321,12 +321,24 @@ export const cceExportUtils = {
 
     // Create workbook
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, title);
 
-    // Save the file
+    // Truncate sheet name to 31 characters max and sanitize it
+    const sanitizeSheetName = (name) => {
+      // Remove invalid characters for Excel sheet names
+      const sanitized = name.replace(/[\\\/\*\?\[\]]/g, "");
+      // Truncate to 31 characters
+      return sanitized.length > 31 ? sanitized.substring(0, 31) : sanitized;
+    };
+
+    const sheetName = sanitizeSheetName(title);
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+
+    // Save the file - use original title for filename
     const fileName = `${title.replace(/\s+/g, "_").toLowerCase()}_${
       new Date().toISOString().split("T")[0]
     }.xlsx`;
+
     const excelBuffer = XLSX.write(workbook, {
       bookType: "xlsx",
       type: "array",

@@ -4,28 +4,31 @@ import FilterControls from "../Buttons/filterControls";
 import Select from "../Buttons/Select";
 import DataCCETable from "../dataTable/dataCCETable";
 import { fetchClass, fetchSubInClass } from "../../redux/classSlice";
-import { fetchStudentByClass, fetchStudentById } from "../../redux/studentSlice";
+import {
+  fetchStudentByClass,
+  fetchStudentById,
+} from "../../redux/studentSlice";
 import ReportLoader from "../loader/reportLoader";
 import ReportError from "../loader/reportError";
 import { useDispatch, useSelector } from "react-redux";
 
 const RenderCCEScore = () => {
   const dispatch = useDispatch();
-  
+
   // Redux state selectors
   const classes = useSelector((state) => state.class.classes);
   const { subjects } = useSelector((state) => state.class);
-  const { 
-    students, 
-    loading: studentsLoading, 
-    error: studentsError 
+  const {
+    students,
+    loading: studentsLoading,
+    error: studentsError,
   } = useSelector((state) => state.student);
-  
+
   // Student performance data from Redux store
-  const { 
-    student: studentPerformanceData, 
-    loading: studentPerformanceLoading, 
-    error: studentPerformanceError 
+  const {
+    student: studentPerformanceData,
+    loading: studentPerformanceLoading,
+    error: studentPerformanceError,
   } = useSelector((state) => state.student);
 
   // Local state
@@ -37,7 +40,7 @@ const RenderCCEScore = () => {
 
   // Initialize classes on component mount
   useEffect(() => {
-    dispatch(fetchClass({limit:1000}));
+    dispatch(fetchClass({ limit: 1000 }));
   }, [dispatch]);
 
   // Auto-select first class when classes are loaded
@@ -64,7 +67,7 @@ const RenderCCEScore = () => {
   }, [subjects]);
 
   // Fetch student performance data ONLY when:
-  // 1. View type is "student" 
+  // 1. View type is "student"
   // 2. A student is selected
   // 3. The selected student has changed
   useEffect(() => {
@@ -85,23 +88,29 @@ const RenderCCEScore = () => {
     if (!student.subjectWiseMarks || !Array.isArray(student.subjectWiseMarks)) {
       return 0;
     }
-    
+
     const subjectMark = student.subjectWiseMarks.find(
-      (subject) => subject.subjectName?.toLowerCase() === subjectName.toLowerCase()
+      (subject) =>
+        subject.subjectName?.toLowerCase() === subjectName.toLowerCase()
     );
-    
+
     return subjectMark ? subjectMark.mark : 0;
   };
 
   // Calculate loading and error states
-  const isLoading = studentsLoading || (cceViewType === "student" && selectedStudent && studentPerformanceLoading);
-  const hasError = studentsError || (cceViewType === "student" && studentPerformanceError);
+  const isLoading =
+    studentsLoading ||
+    (cceViewType === "student" && selectedStudent && studentPerformanceLoading);
+  const hasError =
+    studentsError || (cceViewType === "student" && studentPerformanceError);
 
   // Get selected class name
-  const selectedClassName = classes.find((cls) => cls._id === selectedClass)?.name || selectedClass;
+  const selectedClassName =
+    classes.find((cls) => cls._id === selectedClass)?.name || selectedClass;
 
   // Check if all subjects are selected
-  const allSubjectsSelected = subjects.length > 0 && selectedSubjects.length === subjects.length;
+  const allSubjectsSelected =
+    subjects.length > 0 && selectedSubjects.length === subjects.length;
 
   // Generate table data based on view type
   const getTableData = () => {
@@ -110,20 +119,27 @@ const RenderCCEScore = () => {
         // Create an object with subject marks based on selected subjects
         const subjectMarks = {};
         selectedSubjects.forEach((subject) => {
-          subjectMarks[subject.toLowerCase()] = getSubjectMark(student, subject);
+          subjectMarks[subject.toLowerCase()] = getSubjectMark(
+            student,
+            subject
+          );
         });
 
         // Calculate total from SELECTED subjects only
         const totalMarks = selectedSubjects.reduce((sum, subject) => {
           return sum + getSubjectMark(student, subject);
         }, 0);
-        
+
         // Calculate percentage only if all subjects are selected
         let percentage = null;
         if (allSubjectsSelected) {
           const subjectCount = selectedSubjects.length;
-          const maxTotalMarks = subjectCount > 0 ? ((subjectCount - 1) * 30 + 100) : 0;
-          percentage = maxTotalMarks > 0 ? ((totalMarks / maxTotalMarks) * 100).toFixed(1) : "0.00";
+          const maxTotalMarks =
+            subjectCount > 0 ? (subjectCount - 1) * 30 + 100 : 0;
+          percentage =
+            maxTotalMarks > 0
+              ? ((totalMarks / maxTotalMarks) * 100).toFixed(1)
+              : "0.00";
         }
 
         const rowData = {
@@ -142,114 +158,104 @@ const RenderCCEScore = () => {
         return rowData;
       });
     } else if (cceViewType === "student" && studentPerformanceData) {
-      // Handle the actual data structure from your API
-      
-      // Check if studentPerformanceData has the expected structure
-      if (studentPerformanceData.data && studentPerformanceData.data.subjectWise) {
+      // Create a map to store student's marks by subject
+      const studentMarksMap = {};
+
+      // Process student performance data to build marks map
+      if (
+        studentPerformanceData.data &&
+        studentPerformanceData.data.subjectWise
+      ) {
         const { subjectWise } = studentPerformanceData.data;
-        
-        // Group subjects by name to handle multiple semesters
-        const subjectGroups = {};
-        
+
         subjectWise.forEach((subject) => {
           const subjectName = subject.subjectName;
-          
-          if (!subjectGroups[subjectName]) {
-            subjectGroups[subjectName] = {
+
+          if (!studentMarksMap[subjectName]) {
+            studentMarksMap[subjectName] = {
               subjectName: subjectName,
               rabee: 0,
               ramdan: 0,
-              total: 0
+              total: 0,
             };
           }
-          
-          // Check semester and assign marks accordingly
-          if (subject.semester === "Rabee Semester") {
-            subjectGroups[subjectName].rabee = subject.totalMark;
-          } else if (subject.semester === "Ramdan Semester") {
-            subjectGroups[subjectName].ramdan = subject.totalMark;
-          }
-          
-          // Add to total
-          subjectGroups[subjectName].total += subject.totalMark;
-        });
 
-        // Convert to array format for table
-        return Object.values(subjectGroups).map((subjectData, index) => ({
-          si: index + 1,
-          subject: subjectData.subjectName,
-          rabee: subjectData.rabee > 0 ? subjectData.rabee : "-",
-          ramdan: subjectData.ramdan > 0 ? subjectData.ramdan : "-",
-          total: subjectData.total,
-        }));
+          if (subject.semester === "Rabee Semester") {
+            studentMarksMap[subjectName].rabee = subject.totalMark;
+          } else if (subject.semester === "Ramdan Semester") {
+            studentMarksMap[subjectName].ramdan = subject.totalMark;
+          }
+
+          studentMarksMap[subjectName].total += subject.totalMark;
+        });
       }
-      
-      // Fallback: Handle other possible data structures
+      // Handle other data structures similarly...
       else if (Array.isArray(studentPerformanceData)) {
-        // Group data by subject to show semester-wise marks
-        const subjectGroups = {};
         studentPerformanceData.forEach((mark) => {
           const subjectName = mark.subjectName;
-          if (!subjectGroups[subjectName]) {
-            subjectGroups[subjectName] = {
+          if (!studentMarksMap[subjectName]) {
+            studentMarksMap[subjectName] = {
               subjectName: subjectName,
               rabee: 0,
               ramdan: 0,
-              total: 0
+              total: 0,
             };
           }
-          
-          if (mark.semester === "Rabee" || mark.semester === "Rabee Semester") {
-            subjectGroups[subjectName].rabee = mark.totalMark || mark.mark;
-          } else if (mark.semester === "Ramdan" || mark.semester === "Ramdan Semester") {
-            subjectGroups[subjectName].ramdan = mark.totalMark || mark.mark;
-          }
-          
-          subjectGroups[subjectName].total += mark.totalMark || mark.mark;
-        });
 
-        // Convert to array format for table
-        return Object.values(subjectGroups).map((subjectData, index) => ({
-          si: index + 1,
-          subject: subjectData.subjectName,
-          rabee: subjectData.rabee > 0 ? subjectData.rabee : "-",
-          ramdan: subjectData.ramdan > 0 ? subjectData.ramdan : "-",
-          total: subjectData.total,
-        }));
-      }
-      
-      // Handle direct object with subjectWise array
-      else if (studentPerformanceData.subjectWise && Array.isArray(studentPerformanceData.subjectWise)) {
-        const subjectGroups = {};
+          if (mark.semester === "Rabee" || mark.semester === "Rabee Semester") {
+            studentMarksMap[subjectName].rabee = mark.totalMark || mark.mark;
+          } else if (
+            mark.semester === "Ramdan" ||
+            mark.semester === "Ramdan Semester"
+          ) {
+            studentMarksMap[subjectName].ramdan = mark.totalMark || mark.mark;
+          }
+
+          studentMarksMap[subjectName].total += mark.totalMark || mark.mark;
+        });
+      } else if (
+        studentPerformanceData.subjectWise &&
+        Array.isArray(studentPerformanceData.subjectWise)
+      ) {
         studentPerformanceData.subjectWise.forEach((subject) => {
           const subjectName = subject.subjectName;
-          
-          if (!subjectGroups[subjectName]) {
-            subjectGroups[subjectName] = {
+
+          if (!studentMarksMap[subjectName]) {
+            studentMarksMap[subjectName] = {
               subjectName: subjectName,
               rabee: 0,
               ramdan: 0,
-              total: 0
+              total: 0,
             };
           }
-          
-          if (subject.semester === "Rabee Semester") {
-            subjectGroups[subjectName].rabee = subject.totalMark;
-          } else if (subject.semester === "Ramdan Semester") {
-            subjectGroups[subjectName].ramdan = subject.totalMark;
-          }
-          
-          subjectGroups[subjectName].total += subject.totalMark;
-        });
 
-        return Object.values(subjectGroups).map((subjectData, index) => ({
+          if (subject.semester === "Rabee Semester") {
+            studentMarksMap[subjectName].rabee = subject.totalMark;
+          } else if (subject.semester === "Ramdan Semester") {
+            studentMarksMap[subjectName].ramdan = subject.totalMark;
+          }
+
+          studentMarksMap[subjectName].total += subject.totalMark;
+        });
+      }
+
+      // Now create table data for ALL subjects in the class
+      return subjects.map((subject, index) => {
+        const subjectData = studentMarksMap[subject] || {
+          subjectName: subject,
+          rabee: 0,
+          ramdan: 0,
+          total: 0,
+        };
+
+        return {
           si: index + 1,
           subject: subjectData.subjectName,
           rabee: subjectData.rabee > 0 ? subjectData.rabee : "-",
           ramdan: subjectData.ramdan > 0 ? subjectData.ramdan : "-",
           total: subjectData.total,
-        }));
-      }
+        };
+      });
     }
     return [];
   };
@@ -266,17 +272,17 @@ const RenderCCEScore = () => {
       // Add subject columns - handle single subject differently
       if (selectedSubjects.length === 1) {
         // For single subject, add it directly without colspan
-        baseColumns.push({ 
-          header: selectedSubjects[0], 
-          key: selectedSubjects[0].toLowerCase(), 
-          rowspan: 2 
+        baseColumns.push({
+          header: selectedSubjects[0],
+          key: selectedSubjects[0].toLowerCase(),
+          rowspan: 2,
         });
       } else if (selectedSubjects.length > 1) {
         // For multiple subjects, use colspan
-        baseColumns.push({ 
-          header: "Subjects", 
-          key: "subject", 
-          colspan: selectedSubjects.length 
+        baseColumns.push({
+          header: "Subjects",
+          key: "subject",
+          colspan: selectedSubjects.length,
         });
       }
 
@@ -285,7 +291,11 @@ const RenderCCEScore = () => {
 
       // Add percentage column only if all subjects are selected
       if (allSubjectsSelected) {
-        baseColumns.push({ header: "Percentage", key: "percentage", rowspan: 2 });
+        baseColumns.push({
+          header: "Percentage",
+          key: "percentage",
+          rowspan: 2,
+        });
       }
 
       return baseColumns;
@@ -305,9 +315,9 @@ const RenderCCEScore = () => {
     if (cceViewType === "class") {
       // Only return subcolumns if we have MORE THAN ONE selected subject
       if (selectedSubjects.length > 1) {
-        return selectedSubjects.map((subject) => ({ 
-          header: subject, 
-          key: subject.toLowerCase() 
+        return selectedSubjects.map((subject) => ({
+          header: subject,
+          key: subject.toLowerCase(),
         }));
       }
       // For single subject, return empty array since it's handled in main columns
@@ -326,9 +336,7 @@ const RenderCCEScore = () => {
     if (subject) {
       // Individual subject selection
       setSelectedSubjects((prev) =>
-        checked
-          ? [...prev, subject]
-          : prev.filter((s) => s !== subject)
+        checked ? [...prev, subject] : prev.filter((s) => s !== subject)
       );
     } else {
       // All subjects selection
@@ -341,8 +349,9 @@ const RenderCCEScore = () => {
     if (cceViewType === "class") {
       return `Class (${selectedClassName}) CCE Scores`;
     } else {
-      const selectedStudentName = students.find((s) => s._id === selectedStudent)?.name || "Select Student";
-      return `CCE Scores of ${selectedStudentName}`;
+      const selectedStudentName =
+        students.find((s) => s._id === selectedStudent) || "Select Student";
+      return `CCE Scores of ${selectedStudentName.name} - AdmNo ${selectedStudentName.admNo}`;
     }
   };
 
@@ -395,7 +404,11 @@ const RenderCCEScore = () => {
               aria-haspopup="true"
             >
               Select Subjects ({selectedSubjects.length})
-              <ChevronDown className={`ml-2 h-4 w-4 transition-transform ${isSubjectDropdownOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown
+                className={`ml-2 h-4 w-4 transition-transform ${
+                  isSubjectDropdownOpen ? "rotate-180" : ""
+                }`}
+              />
             </button>
 
             {isSubjectDropdownOpen && (
@@ -406,19 +419,29 @@ const RenderCCEScore = () => {
                     <input
                       type="checkbox"
                       checked={selectedSubjects.length === subjects.length}
-                      onChange={(e) => handleSubjectSelectionChange(e.target.checked)}
+                      onChange={(e) =>
+                        handleSubjectSelectionChange(e.target.checked)
+                      }
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
                     All Subjects
                   </label>
-                  
+
                   {/* Individual Subject Options */}
                   {subjects.map((subject) => (
-                    <label key={subject} className="flex items-center gap-2 mb-1 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                    <label
+                      key={subject}
+                      className="flex items-center gap-2 mb-1 cursor-pointer hover:bg-gray-50 p-1 rounded"
+                    >
                       <input
                         type="checkbox"
                         checked={selectedSubjects.includes(subject)}
-                        onChange={(e) => handleSubjectSelectionChange(e.target.checked, subject)}
+                        onChange={(e) =>
+                          handleSubjectSelectionChange(
+                            e.target.checked,
+                            subject
+                          )
+                        }
                         className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                       />
                       {subject}
@@ -436,7 +459,7 @@ const RenderCCEScore = () => {
             value={selectedStudent}
             onChange={setSelectedStudent}
             options={[
-              ...students.map((std) => ({ value: std._id, label: std.name }))
+              ...students.map((std) => ({ value: std._id, label: std.name })),
             ]}
             placeholder="Select Student"
           />
