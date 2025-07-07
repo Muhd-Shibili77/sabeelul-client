@@ -23,7 +23,7 @@ const RenderLeaderBoard = () => {
     useSelector((state) => state.leaderboard);
 
   useEffect(() => {
-    dispatch(fetchClass({}));
+    dispatch(fetchClass({limit:1000}));
   }, [dispatch]);
 
   useEffect(() => {
@@ -179,8 +179,8 @@ const RenderLeaderBoard = () => {
           onChange={setLeaderboardType}
           options={[
             { value: "Overall", label: "Overall" },
-            { value: "ClassUnion", label: "ClassUnion" },
-            { value: "ClassWise", label: "ClassWise" },
+            { value: "ClassUnion", label: "Class Union" },
+            { value: "ClassWise", label: "Class Wise" },
           ]}
         />
 

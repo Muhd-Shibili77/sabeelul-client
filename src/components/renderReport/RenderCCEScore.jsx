@@ -37,7 +37,7 @@ const RenderCCEScore = () => {
 
   // Initialize classes on component mount
   useEffect(() => {
-    dispatch(fetchClass({}));
+    dispatch(fetchClass({limit:1000}));
   }, [dispatch]);
 
   // Auto-select first class when classes are loaded

@@ -18,7 +18,7 @@ const RenderMentorScore = () => {
 
   // Fetch classes on mount
   useEffect(() => {
-    dispatch(fetchClass({}));
+    dispatch(fetchClass({limit:1000}));
   }, [dispatch]);
 
   // Set default class after fetching class list

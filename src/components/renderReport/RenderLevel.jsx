@@ -22,7 +22,7 @@ const RenderLevel = () => {
   } = useSelector((state) => state.student);
   const classes = useSelector((state) => state.class.classes);
   useEffect(() => {
-    dispatch(fetchClass({}));
+    dispatch(fetchClass({limit:1000}));
   }, [dispatch]);
 
   useEffect(() => {
