@@ -4,209 +4,212 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import Logo from "../assets/SabeelBlackLogo.png"; // Adjust the path as necessary
 import { getCurrentAcademicYear } from "./academicYear";
-
+import { convertImageToBase64 } from "./base64";
 export const cceExportUtils = {
-  exportToPDF: (data, columns, subColumns, title) => {
+  exportToPDF: async (data, columns, subColumns, title) => {
     try {
-      // Check if jsPDF is properly loaded
-      if (!jsPDF) {
-        throw new Error("jsPDF is not loaded");
+      const academicYear = getCurrentAcademicYear();
+      const logoBase64 = await convertImageToBase64(Logo);
+      const doc = new jsPDF("landscape");
+
+      let currentY = 10;
+
+      // === LOGO ===
+      if (logoBase64) {
+        doc.addImage(logoBase64, "PNG", 14, currentY, 20, 20);
       }
 
-      const doc = new jsPDF("landscape");
-      // Add title
-      doc.setFontSize(18);
-      doc.text(title, 14, 22);
+      // === COLLEGE NAME ===
+      doc.setFontSize(16);
+      doc.setTextColor(53, 130, 140);
+      doc.setFont("helvetica", "bold");
+      doc.text("SABEELUL HIDAYA ISLAMIC COLLEGE", 148, currentY + 6, {
+        align: "center",
+      });
 
-      // Add timestamp
+      // === SUBHEADER ===
       doc.setFontSize(10);
-      doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
-
-      // Check if we have complex headers (colspan > 1)
-      const hasComplexHeaders = columns.some(
-        (col) => col.colspan && col.colspan > 1
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(100);
+      doc.text(
+        "VadeeHidaya, Vattapparamba, Parappur P.O, Kottakkal, Malappuram Dt.,\nKerala, India PIN: 676304",
+        148,
+        currentY + 12,
+        { align: "center" }
       );
 
-      // Generate table headers - FIXED VERSION
+      // === INFO BAR ===
+      doc.setFontSize(9);
+      doc.setTextColor(80);
+      doc.text(`Academic Year: ${academicYear}`, 14, currentY + 26);
+      doc.text(
+        `Generated on: ${new Date().toLocaleString()}`,
+        282,
+        currentY + 26,
+        { align: "right" }
+      );
+
+      // === TITLE ===
+      doc.setFontSize(12);
+      doc.setTextColor(53, 130, 140);
+      doc.setFont("helvetica", "bold");
+      doc.text(title, 148, currentY + 34, { align: "center" });
+
+      // === TABLE SETUP ===
+      const startY = currentY + 42;
+      const hasComplexHeaders = columns.some(
+        (col) => col.colspan || col.rowspan
+      );
       const headers = [];
 
       if (hasComplexHeaders) {
-        // First row (main headers) - Use simple strings
         const mainHeaderRow = [];
-        columns.forEach((col) => {
-          if (col.colspan && col.colspan > 1) {
-            // For colspan headers, just add the header text
-            mainHeaderRow.push(col.header);
-            // Add empty strings for the remaining colspan cells
-            for (let i = 1; i < col.colspan; i++) {
-              mainHeaderRow.push("");
-            }
-          } else {
-            // For regular headers, add the header text
-            mainHeaderRow.push(col.header);
-          }
-        });
-        headers.push(mainHeaderRow);
-
-        // Second row (sub-headers) - Use simple strings
         const subHeaderRow = [];
+
         columns.forEach((col) => {
+          mainHeaderRow.push(col.header);
+          for (let i = 1; i < (col.colspan || 1); i++) mainHeaderRow.push("");
+
           if (col.colspan && col.colspan > 1) {
-            // Add sub-headers for this column
-            subColumns.forEach((subCol) => {
-              subHeaderRow.push(subCol.header);
-            });
+            subColumns.forEach((subCol) => subHeaderRow.push(subCol.header));
           } else {
-            // For non-colspan columns, add empty string
-            subHeaderRow.push("");
+            if (col.rowspan === 2) {
+              subHeaderRow.push(""); // pad subrow when rowspan
+            }
           }
         });
+
+        headers.push(mainHeaderRow);
         headers.push(subHeaderRow);
       } else {
-        // Simple single-row headers - Use simple strings
-        const headerRow = columns.map((col) => col.header);
-        headers.push(headerRow);
+        headers.push(columns.map((col) => col.header));
       }
 
-      // Prepare table data - Handle undefined/null values properly
       const tableData = data.map((row, index) => {
         const rowData = [];
         columns.forEach((col) => {
           if (col.colspan && col.colspan > 1) {
-            // Add sub-column data
             subColumns.forEach((subCol) => {
-              let cellValue = "";
-              if (subCol.render) {
-                try {
-                  cellValue = subCol.render(row, index) || "";
-                } catch (error) {
-                  console.warn("Error in subCol render:", error);
-                  cellValue = "";
-                }
-              } else {
-                cellValue =
-                  row[subCol.key] !== undefined ? String(row[subCol.key]) : "";
-              }
-              rowData.push(cellValue);
+              rowData.push(
+                subCol.render
+                  ? subCol.render(row, index)
+                  : row[subCol.key] ?? ""
+              );
             });
           } else {
-            // Regular column
-            let cellValue = "";
-            if (col.render) {
-              try {
-                cellValue = col.render(row, index) || "";
-              } catch (error) {
-                console.warn("Error in col render:", error);
-                cellValue = "";
-              }
-            } else if (col.key === "si") {
-              cellValue = String(index + 1); // Serial number
+            if (col.key === "si") {
+              rowData.push(String(index + 1));
             } else {
-              cellValue =
-                row[col.key] !== undefined ? String(row[col.key]) : "";
+              rowData.push(
+                col.render ? col.render(row, index) : row[col.key] ?? ""
+              );
             }
-            rowData.push(cellValue);
           }
         });
         return rowData;
       });
 
-      // Validate that we have data
-      if (!tableData || tableData.length === 0) {
-        throw new Error("No data to export");
-      }
-
-      // Create column styles configuration
       const columnStyles = {};
       const totalColumns = headers[0].length;
-
-      // Apply styles to all columns
       for (let i = 0; i < totalColumns; i++) {
-        columnStyles[i] = {
-          halign: "center",
-          fontSize: 8,
-        };
+        columnStyles[i] = { halign: "center", fontSize: 8 };
       }
 
-      // Generate table with error handling
       autoTable(doc, {
         head: headers,
         body: tableData,
-        startY: 40,
-        theme: "striped",
+        startY,
+        theme: "grid",
         headStyles: {
           fillColor: [53, 130, 140],
           textColor: [255, 255, 255],
-          fontSize: 8,
+          fontSize: 7,
           fontStyle: "bold",
           halign: "center",
+          valign: "middle",
         },
         bodyStyles: {
-          fontSize: 6,
-          cellPadding: 1,
+          fontSize: 5,
           halign: "center",
+          cellPadding: 1,
         },
-        columnStyles: columnStyles,
         alternateRowStyles: {
           fillColor: [248, 249, 250],
         },
-        margin: { top: 40, left: 10, right: 10 },
+        columnStyles,
+        margin: { top: startY, left: 10, right: 10 },
         styles: {
           overflow: "linebreak",
           cellWidth: "auto",
           minCellHeight: 6,
         },
         tableWidth: "auto",
-        didParseCell: function (data) {
-          // Handle complex headers by merging cells
+
+        didParseCell: (data) => {
           if (hasComplexHeaders && data.section === "head") {
-            // Apply merge logic for complex headers
-            if (data.row.index === 0) {
-              // First header row - handle colspan
-              let colIndex = 0;
-              columns.forEach((col) => {
-                if (
-                  col.colspan &&
-                  col.colspan > 1 &&
-                  data.column.index >= colIndex &&
-                  data.column.index < colIndex + col.colspan
-                ) {
-                  // This cell is part of a colspan group
+            let colIndex = 0;
+
+            columns.forEach((col) => {
+              const colspan = col.colspan || 1;
+              const rowspan = col.rowspan || 1;
+              const inRange =
+                data.column.index >= colIndex &&
+                data.column.index < colIndex + colspan;
+
+              if (inRange) {
+                // Handle colspan
+                if (colspan > 1 && data.row.index === 0) {
                   if (data.column.index === colIndex) {
-                    // This is the first cell in the colspan group
-                    data.cell.colSpan = col.colspan;
+                    data.cell.colSpan = colspan;
                     data.cell.text = col.header;
                   } else {
-                    // This is a continuation cell - hide it
                     data.cell.text = "";
                   }
                 }
-                colIndex += col.colspan || 1;
-              });
+
+                // Handle rowspan
+                if (rowspan === 2) {
+                  if (data.row.index === 0) {
+                    data.cell.rowSpan = 2;
+                  } else if (data.row.index === 1 && colspan === 1) {
+                    data.cell.text = "";
+                  }
+                }
+              }
+
+              colIndex += colspan;
+            });
+
+            // Force correct string rendering
+            if (data.cell.raw !== null && data.cell.raw !== undefined) {
+              data.cell.text = String(data.cell.raw);
             }
           }
+        },
 
-          // Ensure all cell content is properly stringified
-          if (data.cell.raw !== null && data.cell.raw !== undefined) {
-            data.cell.text = String(data.cell.raw);
+        didDrawCell: (data) => {
+          const { cell, doc } = data;
+
+          if (data.section === "head") {
+            doc.setDrawColor(180);
+            doc.setLineWidth(0.1);
+            doc.rect(cell.x, cell.y, cell.width, cell.height);
+
+            // Vertically center header text
           }
         },
       });
 
-      // Save the PDF
       const fileName = `${title.replace(/\s+/g, "_").toLowerCase()}_${
         new Date().toISOString().split("T")[0]
       }.pdf`;
 
       doc.save(fileName);
-
-      console.log("PDF export successful");
     } catch (error) {
       console.error("PDF Export Error:", error);
       throw new Error(`PDF export failed: ${error.message}`);
     }
   },
-
   // ... rest of your export functions remain the same
   exportToExcel: (data, columns, subColumns, title) => {
     // Your existing Excel export code

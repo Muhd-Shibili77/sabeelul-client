@@ -4,17 +4,46 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { getCurrentAcademicYear } from "./academicYear";
 import Logo from "../assets/SabeelBlackLogo.png"; // Adjust the path as necessary
+import { convertImageToBase64 } from "./base64";
 export const exportUtils = {
-  exportToPDF: (data, columns, title, headerColor = [53, 130, 140]) => {
+  exportToPDF: async (data, columns, title, headerColor = [53, 130, 140]) => {
+    const academicYear = getCurrentAcademicYear();
+    const logoBase64 = await convertImageToBase64(Logo);
     const doc = new jsPDF();
 
-    // Title
-    doc.setFontSize(18);
-    doc.text(title, 14, 22);
+    if (logoBase64) {
+      doc.addImage(logoBase64, "PNG", 14, 10, 20, 20); // x, y, width, height
+    }
 
-    // Timestamp
+    // === COLLEGE NAME ===
+    doc.setFontSize(16);
+    doc.setTextColor(53, 130, 140);
+    doc.setFont("helvetica", "bold");
+    doc.text("SABEELUL HIDAYA ISLAMIC COLLEGE", 105, 18, { align: "center" });
+
+    // === SUBHEADER ===
     doc.setFontSize(10);
-    doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(100);
+    doc.text(
+      "VadeeHidaya, Vattapparamba, Parappur P.O, Kottakkal, Malappuram Dt.,\nKerala, India PIN: 676304",
+      105,
+      24,
+      { align: "center" }
+    );
+    // === INFO BAR ===
+    doc.setFontSize(9);
+    doc.setTextColor(80);
+    doc.text(`Academic Year: ${academicYear}`, 14, 38);
+    doc.text(`Generated on: ${new Date().toLocaleString()}`, 190, 38, {
+      align: "right",
+    });
+
+    // === TITLE ===
+    doc.setFontSize(12);
+    doc.setTextColor(53, 130, 140);
+    doc.setFont("helvetica", "bold");
+    doc.text(title, 105, 48, { align: "center" });
 
     const tableColumns = columns.map((col) => col.header);
     const tableData = data.map((row, index) =>
@@ -25,7 +54,7 @@ export const exportUtils = {
     autoTable(doc, {
       head: [tableColumns],
       body: tableData,
-      startY: 40,
+      startY: 55,
       theme: "grid", // ✅ Use 'grid' for full borders (instead of 'striped')
       headStyles: {
         fillColor: headerColor,
@@ -68,9 +97,9 @@ export const exportUtils = {
             if (col.key === "si") {
               return index + 1;
             }
-            return row[col.key] || "";
+            return row[col.key] ?? "";
           }
-          return row[col.key] || "";
+          return row[col.key] ?? "";
         })
       ),
     ];
