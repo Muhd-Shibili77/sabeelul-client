@@ -6,10 +6,11 @@ import Logo from "../assets/SabeelBlackLogo.png"; // Adjust the path as necessar
 import { getCurrentAcademicYear } from "./academicYear";
 import { convertImageToBase64 } from "./base64";
 export const cceExportUtils = {
-  exportToPDF: async (data, columns, subColumns, title) => {
+  exportToPDF: async (data, columns, subColumns, title, studentWise) => {
     try {
       const academicYear = getCurrentAcademicYear();
       const logoBase64 = await convertImageToBase64(Logo);
+
       const doc = new jsPDF("landscape");
 
       let currentY = 10;
@@ -49,14 +50,47 @@ export const cceExportUtils = {
         { align: "right" }
       );
 
+      if (studentWise) {
+        // === STUDENT DETAILS BLOCK ===
+        const testImage = await convertImageToBase64(studentWise.profileImage);
+
+        const studentY = currentY + 30;
+        const imageWidth = 25;
+        const imageHeight = 30;
+        const textStartX = 42; // right of image
+
+        // === STUDENT PHOTO ===
+
+        if (testImage) {
+          doc.addImage(testImage, "PNG", 14, studentY, imageWidth, imageHeight);
+        }
+
+        // === STUDENT TEXT INFO ===
+        doc.setFontSize(9);
+        doc.setTextColor(0);
+        doc.setFont("helvetica", "bold");
+        doc.text("Name: ", textStartX, studentY + 5);
+        doc.text("AdmNo: ", textStartX, studentY + 11);
+        doc.text("Class: ", textStartX, studentY + 17);
+
+        // === STUDENT VALUES (NORMAL FONT) ===
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9);
+        doc.text(studentWise.name, textStartX + 30, studentY + 5); // example name
+        doc.text(studentWise.admNo, textStartX + 30, studentY + 11); // example ID
+        doc.text(studentWise.className, textStartX + 30, studentY + 17);
+      }
+
       // === TITLE ===
       doc.setFontSize(12);
       doc.setTextColor(53, 130, 140);
       doc.setFont("helvetica", "bold");
-      doc.text(title, 148, currentY + 34, { align: "center" });
+      doc.text(studentWise ? "CCE Scores" : title, 148, studentWise ? currentY + 65 : currentY + 34, {
+        align: "center",
+      });
 
       // === TABLE SETUP ===
-      const startY = currentY + 42;
+      const startY = studentWise ? currentY + 70 : currentY + 42;
       const hasComplexHeaders = columns.some(
         (col) => col.colspan || col.rowspan
       );

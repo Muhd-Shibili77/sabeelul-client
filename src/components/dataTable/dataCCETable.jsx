@@ -11,13 +11,10 @@ const DataCCETable = ({
   subColumns = [],
   data,
   showExport = true,
-  onExport,
+  studentWise,
 }) => {
   const handleExport = async (type) => {
-    try {
-      // Log export attempt
-      console.log("Export attempt:", { type, title, dataLength: data.length });
-      
+    try {      
       // Validate data before export
       if (!data || data.length === 0) {
         alert("No data available to export");
@@ -31,19 +28,13 @@ const DataCCETable = ({
 
       switch (type) {
         case "PDF":
-          console.log("Starting PDF export...");
-          await cceExportUtils.exportToPDF(data, columns, subColumns, title);
-          console.log("PDF export completed");
+           cceExportUtils.exportToPDF(data, columns, subColumns, title, studentWise);
           break;
         case "excel":
-          console.log("Starting Excel export...");
-          await cceExportUtils.exportToExcel(data, columns, subColumns, title);
-          console.log("Excel export completed");
+           cceExportUtils.exportToExcel(data, columns, subColumns, title);
           break;
         case "print":
-          console.log("Starting print...");
-          await cceExportUtils.printTable(data, columns, subColumns, title);
-          console.log("Print completed");
+           cceExportUtils.printTable(data, columns, subColumns, title);
           break;
         default:
           console.warn("Unknown export type:", type);

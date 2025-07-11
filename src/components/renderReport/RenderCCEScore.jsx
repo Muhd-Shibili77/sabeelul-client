@@ -476,6 +476,7 @@ const RenderCCEScore = () => {
           columns={getColumns()}
           subColumns={getSubcolums()}
           data={getTableData()}
+          studentWise={cceViewType === "student"? studentPerformanceData : null}
         />
       ) : (
         <div className="flex items-center justify-center p-8 text-gray-500">
