@@ -2,6 +2,8 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import Logo from "../assets/SabeelBlackLogo.png"; // Adjust the path as necessary
+import { getCurrentAcademicYear } from "./academicYear";
 
 export const cceExportUtils = {
   exportToPDF: (data, columns, subColumns, title) => {
@@ -349,6 +351,8 @@ export const cceExportUtils = {
 
   // Print function remains the same
   printTable: (data, columns, subColumns, title) => {
+    const academicYear = getCurrentAcademicYear();
+
     // Your existing print code
     let headerHTML = "<thead>";
 
@@ -394,7 +398,7 @@ export const cceExportUtils = {
           if (col.colspan && col.colspan > 1) {
             subColumns.forEach((subCol) => {
               bodyHTML += `<td style="text-align: center;">${
-                row[subCol.key] || ""
+                row[subCol.key] ?? ""
               }</td>`;
             });
           } else {
@@ -403,10 +407,10 @@ export const cceExportUtils = {
               if (col.key === "si") {
                 value = index + 1;
               } else {
-                value = row[col.key] || "";
+                value = row[col.key] ?? "";
               }
             } else {
-              value = row[col.key] || "";
+              value = row[col.key] ?? "";
             }
             bodyHTML += `<td style="text-align: center;">${value}</td>`;
           }
@@ -427,10 +431,52 @@ export const cceExportUtils = {
               margin: 20px; 
               color: #333;
             }
+              .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 13px;
+          }
+
+          .header img {
+            height: 70px;
+          }
+
+          .header-center {
+            flex: 1;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+          }
+
+          .college-name {
+            font-size: 25px;
+            font-weight: bold;
+            color: #35828C;
+          }
+
+          .college-subheader {
+            font-size: 14px;
+            color: #666;
+            margin-top: 2px;
+          }
+
+
+          .info-bar {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            margin-bottom: 20px;
+          }
             h1 { 
               color: #35828C; 
               text-align: center; 
               margin-bottom: 10px;
+              margin-top: 10px;
+              font-size: 20px;
             }
             .print-info {
               text-align: center;
@@ -465,8 +511,22 @@ export const cceExportUtils = {
           </style>
         </head>
         <body>
+        <div class="header">
+          <img src="${Logo}" alt="Logo" />
+          <div class="header-center">
+            <div class="college-name">SABEELUL HIDAYA ISLAMIC COLLEGE</div>
+            <div class="college-subheader">
+              VadeeHidaya, Vattapparamba, Parappur P.O, Kottakkal,<br /> Malappuram Dt., Kerala, India PIN: 676304
+            </div>
+          </div>
+          <div style="width: 60px;"></div>
+        </div>
+
+        <div class="info-bar">
+          <div>Academic Year: ${academicYear}</div>
+          <div>Generated on: ${new Date().toLocaleString()}</div>
+        </div>
           <h1>${title}</h1>
-          <div class="print-info">Generated on: ${new Date().toLocaleString()}</div>
           <table>
             ${headerHTML}
             ${bodyHTML}
