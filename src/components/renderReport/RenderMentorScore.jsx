@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { UserCheck } from "lucide-react";
-import DataTable from "../dataTable/dataTable";
 import FilterControls from "../Buttons/filterControls";
 import Select from "../Buttons/Select";
-import LevelBadge from "../Buttons/LevelBadge";
 import { fetchClass } from "../../redux/classSlice";
 import ReportLoader from "../loader/reportLoader";
 import ReportError from "../loader/reportError";
 import { useDispatch, useSelector } from "react-redux";
 import { findStudentsWithMentorMarksByClass } from "../../redux/studentSlice";
-
+import DataCCETable from "../dataTable/dataCCETable";
 const RenderMentorScore = () => {
   const dispatch = useDispatch();
   const classes = useSelector((state) => state.class.classes || []);
@@ -18,7 +16,7 @@ const RenderMentorScore = () => {
 
   // Fetch classes on mount
   useEffect(() => {
-    dispatch(fetchClass({limit:1000}));
+    dispatch(fetchClass({ limit: 1000 }));
   }, [dispatch]);
 
   // Set default class after fetching class list
@@ -39,16 +37,21 @@ const RenderMentorScore = () => {
     {
       header: "SI No",
       key: "si",
-      render: (_, index) => index + 1, // <- handles serial number
+      render: (_, index) => index + 1,
+      rowspan: 2, // <- handles serial number
     },
-    { header: "AdmNo", key: "admNo" },
-    { header: "Name", key: "name" },
-    { header: "Class", key: "className" },
+    { header: "AdmNo", key: "admNo", rowspan: 2 },
+    { header: "Name", key: "name", rowspan: 2 },
+    { header: "Semester", key: "semester", colspan: 2 },
     {
-      header: "Score",
+      header: "Total",
       key: "marks",
-      render: (row) => <span className="font-semibold">{row.marks}</span>,
+      rowspan: 2,
     },
+  ];
+  const subColumns = [
+    { header: "Rabee", key: "Rabee Semester" },
+    { header: "Ramdan", key: "Ramadan Semester" },
   ];
 
   if (loading) {
@@ -69,7 +72,8 @@ const RenderMentorScore = () => {
         />
       </FilterControls>
 
-      <DataTable
+    
+      <DataCCETable
         title={`Mentor Scores - (${
           classes.find((cls) => cls._id === selectedClass)?.name || ""
         })`}
@@ -77,6 +81,7 @@ const RenderMentorScore = () => {
         iconColor="text-[rgba(53,130,140,0.9)]"
         headerColor="bg-[rgba(53,130,140,0.9)]"
         columns={columns}
+        subColumns={subColumns}
         data={students || []}
       />
     </div>

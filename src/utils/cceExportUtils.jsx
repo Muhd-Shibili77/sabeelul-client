@@ -21,7 +21,7 @@ export const cceExportUtils = {
       }
 
       // === COLLEGE NAME ===
-      doc.setFontSize(16);
+      doc.setFontSize(20);
       doc.setTextColor(53, 130, 140);
       doc.setFont("helvetica", "bold");
       doc.text("SABEELUL HIDAYA ISLAMIC COLLEGE", 148, currentY + 6, {
@@ -42,9 +42,8 @@ export const cceExportUtils = {
       // === INFO BAR ===
       doc.setFontSize(9);
       doc.setTextColor(80);
-      doc.text(`Academic Year: ${academicYear}`, 14, currentY + 26);
       doc.text(
-        `Generated on: ${new Date().toLocaleString()}`,
+        `Academic Year: ${academicYear}`,
         282,
         currentY + 26,
         { align: "right" }
@@ -85,9 +84,14 @@ export const cceExportUtils = {
       doc.setFontSize(12);
       doc.setTextColor(53, 130, 140);
       doc.setFont("helvetica", "bold");
-      doc.text(studentWise ? "CCE Scores" : title, 148, studentWise ? currentY + 65 : currentY + 34, {
-        align: "center",
-      });
+      doc.text(
+        studentWise ? "CCE Scores" : title,
+        148,
+        studentWise ? currentY + 65 : currentY + 34,
+        {
+          align: "center",
+        }
+      );
 
       // === TABLE SETUP ===
       const startY = studentWise ? currentY + 70 : currentY + 42;
@@ -234,6 +238,19 @@ export const cceExportUtils = {
         },
       });
 
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const generatedOnText = `Generated on: ${new Date().toLocaleString()}`;
+
+      doc.setFontSize(9);
+      doc.setTextColor(100);
+      doc.text(
+        generatedOnText,
+        doc.internal.pageSize.getWidth() - 14,
+        pageHeight - 10,
+        {
+          align: "right",
+        }
+      );
       const fileName = `${title.replace(/\s+/g, "_").toLowerCase()}_${
         new Date().toISOString().split("T")[0]
       }.pdf`;

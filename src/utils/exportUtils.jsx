@@ -16,7 +16,7 @@ export const exportUtils = {
     }
 
     // === COLLEGE NAME ===
-    doc.setFontSize(16);
+    doc.setFontSize(20);
     doc.setTextColor(53, 130, 140);
     doc.setFont("helvetica", "bold");
     doc.text("SABEELUL HIDAYA ISLAMIC COLLEGE", 105, 18, { align: "center" });
@@ -34,8 +34,8 @@ export const exportUtils = {
     // === INFO BAR ===
     doc.setFontSize(9);
     doc.setTextColor(80);
-    doc.text(`Academic Year: ${academicYear}`, 14, 38);
-    doc.text(`Generated on: ${new Date().toLocaleString()}`, 190, 38, {
+
+    doc.text(`Academic Year: ${academicYear}`, 190, 38, {
       align: "right",
     });
 
@@ -77,6 +77,20 @@ export const exportUtils = {
       tableLineWidth: 0.1,
       margin: { top: 40 },
     });
+
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const generatedOnText = `Generated on: ${new Date().toLocaleString()}`;
+
+    doc.setFontSize(9);
+    doc.setTextColor(100);
+    doc.text(
+      generatedOnText,
+      doc.internal.pageSize.getWidth() - 14,
+      pageHeight - 10,
+      {
+        align: "right",
+      }
+    );
 
     const fileName = `${title.replace(/\s+/g, "_").toLowerCase()}_${
       new Date().toISOString().split("T")[0]
