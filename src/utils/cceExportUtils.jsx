@@ -70,7 +70,7 @@ export const cceExportUtils = {
         doc.setTextColor(0);
         doc.setFont("helvetica", "bold");
         doc.text("Name: ", textStartX, studentY + 5);
-        doc.text("AdmNo: ", textStartX, studentY + 11);
+        doc.text("Ad No: ", textStartX, studentY + 11);
         doc.text("Class: ", textStartX, studentY + 17);
 
         // === STUDENT VALUES (NORMAL FONT) ===
