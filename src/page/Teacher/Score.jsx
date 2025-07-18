@@ -121,7 +121,7 @@ const Score = () => {
       }
 
       if (batchPayload.length > 0) {
-        await dispatch(addCceMark(batchPayload)).unwrap();
+        await dispatch(addCceMark({data:batchPayload})).unwrap();
         toast.success("CCE Scores submitted successfully!");
       } else {
         toast.info("No valid marks to submit.");

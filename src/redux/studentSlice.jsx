@@ -171,9 +171,9 @@ export const addMentorMark = createAsyncThunk(
 );
 export const addCceMark = createAsyncThunk(
   "addCceMark",
-  async ({ id, data }, { rejectWithValue }) => {
+  async ({  data }, { rejectWithValue }) => {
     try {
-      const response = await api.post(`/student/cce/${id}`, data);
+      const response = await api.post(`/student/cce/batch`, data);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
