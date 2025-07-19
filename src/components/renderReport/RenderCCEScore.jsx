@@ -35,6 +35,7 @@ const RenderCCEScore = () => {
   const [selectedClass, setSelectedClass] = useState("");
   const [selectedStudent, setSelectedStudent] = useState("");
   const [cceViewType, setCceViewType] = useState("class");
+  const [semister, setSemister] = useState("Rabee Semester");
   const [selectedSubjects, setSelectedSubjects] = useState([]);
   const [isSubjectDropdownOpen, setIsSubjectDropdownOpen] = useState(false);
 
@@ -83,18 +84,39 @@ const RenderCCEScore = () => {
     }
   }, [cceViewType]);
 
-  // Helper function to get subject mark from subjectWiseMarks array
+  // Fixed helper function to get subject mark from subjectWiseMarks array or semester-wise data
   const getSubjectMark = (student, subjectName) => {
-    if (!student.subjectWiseMarks || !Array.isArray(student.subjectWiseMarks)) {
+    // If a specific semester is selected (not "All Semesters"), get semester-wise marks
+    if (semister !== "All Semesters" && student.semesterWiseSubjectMarks) {
+      const semesterData = student.semesterWiseSubjectMarks[semister];
+      if (semesterData) {
+        const mark =
+          semesterData[subjectName.toLowerCase()] || semesterData[subjectName];
+        return mark || 0; // Return 0 if no mark found for this semester
+      }
+      // If semester data doesn't exist, return 0 (don't fall back to total marks)
       return 0;
     }
 
-    const subjectMark = student.subjectWiseMarks.find(
-      (subject) =>
-        subject.subjectName?.toLowerCase() === subjectName.toLowerCase()
-    );
+    // Only use subjectWiseMarks (total marks across semesters) when "All Semesters" is selected
+    if (semister === "All Semesters") {
+      if (
+        !student.subjectWiseMarks ||
+        !Array.isArray(student.subjectWiseMarks)
+      ) {
+        return 0;
+      }
 
-    return subjectMark ? subjectMark.mark : 0;
+      const subjectMark = student.subjectWiseMarks.find(
+        (subject) =>
+          subject.subjectName?.toLowerCase() === subjectName.toLowerCase()
+      );
+
+      return subjectMark ? subjectMark.mark : 0;
+    }
+
+    // If specific semester is selected but no semesterWiseSubjectMarks data exists
+    return 0;
   };
 
   // Calculate loading and error states
@@ -134,8 +156,18 @@ const RenderCCEScore = () => {
         let percentage = null;
         if (allSubjectsSelected) {
           const subjectCount = selectedSubjects.length;
-          const maxTotalMarks =
-            subjectCount > 0 ? (subjectCount - 1) * 30 + 100 : 0;
+
+          // Adjust max marks calculation based on semester selection
+          let maxTotalMarks;
+          if (semister === "All Semesters") {
+            // For all semesters, use the original calculation
+            maxTotalMarks =
+              subjectCount > 0 ? (subjectCount - 1) * 30 + 100 : 0;
+          } else {
+            // For specific semester, assume each subject has max 30 marks
+            maxTotalMarks = subjectCount * 30;
+          }
+
           percentage =
             maxTotalMarks > 0
               ? ((totalMarks / maxTotalMarks) * 100).toFixed(1)
@@ -347,7 +379,8 @@ const RenderCCEScore = () => {
   // Generate dynamic title
   const getTitle = () => {
     if (cceViewType === "class") {
-      return `Class (${selectedClassName}) CCE Scores`;
+      const semesterText = semister === "All Semesters" ? "" : ` - ${semister}`;
+      return `Class (${selectedClassName}) CCE Scores${semesterText}`;
     } else {
       const selectedStudentName =
         students.find((s) => s._id === selectedStudent) || "Select Student";
@@ -394,6 +427,17 @@ const RenderCCEScore = () => {
           options={classes.map((cls) => ({ value: cls._id, label: cls.name }))}
         />
 
+        {cceViewType === "class" && (
+          <Select
+            value={semister}
+            onChange={setSemister}
+            options={[
+              { value: "All Semesters", label: "All Semesters" },
+              { value: "Rabee Semester", label: "Rabee Semester" },
+              { value: "Ramadan Semester", label: "Ramadan Semester" },
+            ]}
+          />
+        )}
         {/* Subject Selection (only for class view) */}
         {cceViewType === "class" && subjects.length > 0 && (
           <div className="relative inline-block text-left">
@@ -476,7 +520,9 @@ const RenderCCEScore = () => {
           columns={getColumns()}
           subColumns={getSubcolums()}
           data={getTableData()}
-          studentWise={cceViewType === "student"? studentPerformanceData : null}
+          studentWise={
+            cceViewType === "student" ? studentPerformanceData : null
+          }
         />
       ) : (
         <div className="flex items-center justify-center p-8 text-gray-500">
