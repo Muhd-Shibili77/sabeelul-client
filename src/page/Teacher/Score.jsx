@@ -296,7 +296,7 @@ const Score = () => {
             value={selectedClass}
             onChange={(e) => handleClassChange(e.target.value)}
           >
-            <option>Select Class</option>
+            <option value="">Select Class</option>
             {classes.map((cls, idx) => (
               <option key={idx} value={cls._id}>
                 {cls.name}
