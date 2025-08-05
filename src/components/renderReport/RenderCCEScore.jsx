@@ -158,15 +158,8 @@ const RenderCCEScore = () => {
           const subjectCount = selectedSubjects.length;
 
           // Adjust max marks calculation based on semester selection
-          let maxTotalMarks;
-          if (semister === "All Semesters") {
-            // For all semesters, use the original calculation
-            maxTotalMarks =
-              subjectCount > 0 ? (subjectCount - 1) * 30 + 100 : 0;
-          } else {
-            // For specific semester, assume each subject has max 30 marks
-            maxTotalMarks = subjectCount * 30;
-          }
+          let maxTotalMarks =
+            subjectCount > 0 ? (subjectCount - 1) * 30 + 100 : 0;
 
           percentage =
             maxTotalMarks > 0
