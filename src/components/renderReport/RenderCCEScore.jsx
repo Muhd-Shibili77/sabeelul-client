@@ -265,7 +265,7 @@ const RenderCCEScore = () => {
       }
 
       // Now create table data for ALL subjects in the class
-      return subjects.map((subject, index) => {
+      const tableData = subjects.map((subject, index) => {
         const subjectData = studentMarksMap[subject] || {
           subjectName: subject,
           rabee: 0,
@@ -276,11 +276,27 @@ const RenderCCEScore = () => {
         return {
           si: index + 1,
           subject: subjectData.subjectName,
-          rabee: subjectData.rabee > 0 ? subjectData.rabee : "-",
-          ramdan: subjectData.ramdan > 0 ? subjectData.ramdan : "-",
+          rabee: subjectData.rabee > 0 ? subjectData.rabee : 0,
+          ramdan: subjectData.ramdan > 0 ? subjectData.ramdan : 0,
           total: subjectData.total,
         };
       });
+
+      // Calculate semester totals
+      const rabeeTotal = tableData.reduce((acc, curr) => acc + curr.rabee, 0);
+      const ramdanTotal = tableData.reduce((acc, curr) => acc + curr.ramdan, 0);
+      const grandTotal = tableData.reduce((acc, curr) => acc + curr.total, 0);
+
+      // Append total row
+      tableData.push({
+        si: "",
+        subject: "Total",
+        rabee: rabeeTotal,
+        ramdan: ramdanTotal,
+        total: grandTotal,
+      });
+
+      return tableData;
     }
     return [];
   };
