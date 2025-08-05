@@ -121,7 +121,7 @@ const Score = () => {
       }
 
       if (batchPayload.length > 0) {
-        await dispatch(addCceMark({data:batchPayload})).unwrap();
+        await dispatch(addCceMark({ data: batchPayload })).unwrap();
         toast.success("CCE Scores submitted successfully!");
       } else {
         toast.info("No valid marks to submit.");
@@ -227,6 +227,36 @@ const Score = () => {
 
     return "";
   };
+  const handleScoreTypeChange = (newScoreType) => {
+    setScoreType(newScoreType);
+    setSelectedClass("");
+    setSelectedSubject("");
+    setSelectedSemester("");
+    setSelectedStudent("");
+    // Reset subjects array
+    setSubjects([]);
+  };
+  const handleClassChange = (classId) => {
+    setSelectedClass(classId);
+    setMarks({}); // Reset marks when class changes
+    setSelectedSubject(""); // Reset subject since subjects depend on class
+    setSelectedStudent(""); // Reset student selection
+  };
+
+  const handleSubjectChange = (subject) => {
+    setSelectedSubject(subject);
+    setMarks({}); // Reset marks when subject changes
+  };
+
+  const handleSemesterChange = (semester) => {
+    setSelectedSemester(semester);
+    setMarks({}); // Reset marks when semester changes
+  };
+
+  const handleStudentChange = (studentId) => {
+    setSelectedStudent(studentId);
+    setMarks({}); // Reset marks when student changes (for Mentor score)
+  };
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-100 to-[rgba(53,130,140,0.4)]">
@@ -238,7 +268,7 @@ const Score = () => {
         {/* Score Type Toggle */}
         <div className="mb-4">
           <button
-            onClick={() => setScoreType("CCE")}
+            onClick={() => handleScoreTypeChange("CCE")}
             className={`px-4 py-2 rounded-l-lg ${
               scoreType === "CCE"
                 ? "bg-[rgba(53,130,140,0.9)] text-white"
@@ -248,7 +278,7 @@ const Score = () => {
             CCE Score
           </button>
           <button
-            onClick={() => setScoreType("Mentor")}
+            onClick={() => handleScoreTypeChange("Mentor")}
             className={`px-4 py-2 rounded-r-lg ${
               scoreType === "Mentor"
                 ? "bg-[rgba(53,130,140,0.9)] text-white"
@@ -264,7 +294,7 @@ const Score = () => {
           <select
             className="px-4 py-2 rounded-lg border border-gray-300 shadow-sm"
             value={selectedClass}
-            onChange={(e) => setSelectedClass(e.target.value)}
+            onChange={(e) => handleClassChange(e.target.value)}
           >
             <option>Select Class</option>
             {classes.map((cls, idx) => (
@@ -278,7 +308,7 @@ const Score = () => {
             <select
               className="px-4 py-2 rounded-lg border border-gray-300 shadow-sm"
               value={selectedSubject}
-              onChange={(e) => setSelectedSubject(e.target.value)}
+              onChange={(e) => handleSubjectChange(e.target.value)}
             >
               <option value="">Select Subject</option>
               {subjects.map((sub) => (
@@ -292,7 +322,7 @@ const Score = () => {
           <select
             className="px-4 py-2 rounded-lg border border-gray-300 shadow-sm"
             value={selectedSemester}
-            onChange={(e) => setSelectedSemester(e.target.value)}
+            onChange={(e) => handleSemesterChange(e.target.value)}
           >
             <option value="">Select Semester</option>
             {semesters.map((semester) => (
@@ -306,7 +336,7 @@ const Score = () => {
             <select
               className="px-4 py-2 rounded-lg border border-gray-300 shadow-sm"
               value={selectedStudent}
-              onChange={(e) => setSelectedStudent(e.target.value)}
+              onChange={(e) => handleStudentChange(e.target.value)}
             >
               <option value="">Select Student</option>
               {students.map((student) => (
