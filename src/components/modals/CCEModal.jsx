@@ -2,9 +2,16 @@ import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { useStudentContext } from "../../context/StudentContext";
 import { transformCCEData } from "../../utils/transformCCEData ";
+
 const CCEModal = ({ isOpen, onClose, cceData }) => {
   const { theme } = useStudentContext();
   const [activeSem, setActiveSem] = useState("Ramadan Semester");
+
+  // Transform the data using both subjectWiseMarks and allSubjects
+  const data = transformCCEData(
+    cceData?.subjectWiseMarks || [], 
+    cceData?.allSubjects || []
+  );
 
   useEffect(() => {
     if (data?.semester?.length > 0) {
@@ -12,11 +19,7 @@ const CCEModal = ({ isOpen, onClose, cceData }) => {
     }
   }, [isOpen, cceData]);
 
-  const data = transformCCEData(cceData || []);
-
-  // Helper function to determine if a phase is a formative assessment (FA) or summative assessment (SA)
-
-  // Max marks for different assessment types
+  // Helper function to determine max marks based on subject
   const getMaxMarks = (subject) => subject === 'Hifz and Tajwid' ? 100 : 30;
 
   if (!isOpen) return null;
@@ -60,11 +63,11 @@ const CCEModal = ({ isOpen, onClose, cceData }) => {
         <div className="p-6 overflow-y-auto flex-1">
           <div className="mb-4">
             <p className="text-sm text-gray-600">
-              Maximum Score: {getMaxMarks()}
+              Maximum Score varies by subject (30 for most subjects, 100 for Hifz and Tajwid)
             </p>
           </div>
 
-          {/* Check if subjects exist and have marks */}
+          {/* Check if subjects exist */}
           {!data.subjects || data.subjects.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12">
               <div className="text-gray-400 mb-4">
@@ -83,10 +86,10 @@ const CCEModal = ({ isOpen, onClose, cceData }) => {
                 </svg>
               </div>
               <h4 className="text-lg font-medium text-gray-600 mb-2">
-                CCE Marks Not Available
+                No Subjects Available
               </h4>
               <p className="text-sm text-gray-500 text-center max-w-md">
-                Marks may not have been entered yet.
+                No subject data is available at this time.
               </p>
             </div>
           ) : (
@@ -103,7 +106,11 @@ const CCEModal = ({ isOpen, onClose, cceData }) => {
                 return (
                   <div
                     key={index}
-                    className="bg-gray-50 p-4 rounded-lg shadow-sm"
+                    className={`p-4 rounded-lg shadow-sm border ${
+                      hasValidMark 
+                        ? "bg-gray-50 border-gray-200" 
+                        : "bg-gray-25 border-gray-100"
+                    }`}
                   >
                     <div className="flex justify-between items-center mb-2">
                       <h5 className="font-medium text-gray-800">
@@ -115,7 +122,7 @@ const CCEModal = ({ isOpen, onClose, cceData }) => {
                         </span>
                       ) : (
                         <span className="text-gray-400 font-medium text-sm">
-                          Not Available
+                          No marks yet
                         </span>
                       )}
                     </div>
@@ -129,9 +136,13 @@ const CCEModal = ({ isOpen, onClose, cceData }) => {
                       ></div>
                     </div>
 
-                    {!hasValidMark && (
+                    {hasValidMark ? (
+                      <p className="text-xs text-gray-600 mt-1">
+                        Performance: {percentage.toFixed(1)}%
+                      </p>
+                    ) : (
                       <p className="text-xs text-gray-500 mt-1">
-                        Marks have not been entered for this subject this semester.
+                        Marks have not been entered for this subject in {activeSem}.
                       </p>
                     )}
                   </div>

@@ -1,21 +1,29 @@
-export const transformCCEData = (subjectWiseMarks) => {
-  const subjectMap = new Map();
+export const transformCCEData = (subjectWiseMarks, allSubjects) => {
+  // Create a map to store marks for subjects that have them
+  const subjectMarkMap = new Map();
 
-  subjectWiseMarks.forEach(({ subjectName,semester, mark }) => {
-
-    if (!subjectMap.has(subjectName)) {
-      subjectMap.set(subjectName, {});
+  // Process existing marks
+  subjectWiseMarks.forEach(({ subjectName, semester, mark }) => {
+    if (!subjectMarkMap.has(subjectName)) {
+      subjectMarkMap.set(subjectName, {});
     }
-
-    subjectMap.get(subjectName)[semester] = (subjectMap.get(subjectName)[semester] || 0)+mark;
+    
+    subjectMarkMap.get(subjectName)[semester] = 
+      (subjectMarkMap.get(subjectName)[semester] || 0) + mark;
   });
 
-  const subjects = Array.from(subjectMap.entries()).map(([name, marks]) => ({
-    name,
-    marks,
-  }));
+  // Create subjects array including all subjects from the class
+  const subjects = allSubjects.map(subject => {
+    const subjectName = subject.name || subject.subjectName || subject;
+    
+    return {
+      name: subjectName,
+      marks: subjectMarkMap.get(subjectName) || {}, // Empty object if no marks
+    };
+  });
+
   return {
-    semester: ['Rabee Semester','Ramadan Semester'],
+    semester: ['Rabee Semester', 'Ramadan Semester'],
     subjects,
   };
 };

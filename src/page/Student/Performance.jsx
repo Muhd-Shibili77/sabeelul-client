@@ -5,14 +5,15 @@ import { getLevelData } from "../../utils/studentLevel";
 import useStudentPerformanceData from "../../hooks/fetch/useStdPerfo";
 import { useStudentContext } from "../../context/StudentContext";
 import CCEModal from "../../components/modals/CCEModal";
+
 const Performance = () => {
   const { data, loading, error } = useStudentPerformanceData();
-  const { theme } = useStudentContext();
-
+  const { theme, subjects } = useStudentContext(); // subjects contains all subjects for the class
   const [showMore, setShowMore] = useState(false);
   const [showAllActivities, setShowAllActivities] = useState(false);
   const [isCCEModalOpen, setIsCCEModalOpen] = useState(false);
   const [cceData, setCceData] = useState(null);
+  
   const performanceData = {
     cceMark: data?.cceScore,
     penaltyMarks: data?.penaltyScore,
@@ -24,7 +25,7 @@ const Performance = () => {
       data?.recentInputs[0]?.marks?.map((item) => ({
         title: item.title || "Untitled",
         score: `${item.score}`,
-        scoreType:item.scoreType,
+        scoreType: item.scoreType,
         date: item.date
           ? new Date(item.date).toLocaleDateString("en-US", {
               year: "numeric",
@@ -40,9 +41,14 @@ const Performance = () => {
     : performanceData.recentInputs.slice(0, 10);
 
   const openCCEModal = () => {
-    setCceData(data?.subjectWiseMarks);
+    // Pass both subjectWiseMarks and all subjects to the modal
+    setCceData({
+      subjectWiseMarks: data?.subjectWiseMarks || [],
+      allSubjects: subjects || []
+    });
     setIsCCEModalOpen(true);
   };
+
   return (
     <div
       className={`flex min-h-screen bg-gradient-to-br from-gray-100 ${theme.bg}`}

@@ -9,6 +9,7 @@ const StudentContext = createContext(null);
 export const StudentProvider = ({ children }) => {
   const dispatch = useDispatch();
   const [theme, setTheme] = useState({});
+  const [subjects,setSubjects] = useState([])
   const [loading, setLoading] = useState(true);
   const [studentMark, setStudentMark] = useState(0);
   const { themes } = useSelector((state) => state.theme);
@@ -42,6 +43,9 @@ export const StudentProvider = ({ children }) => {
         const mark = Math.floor(res.data.dashboard.marks); // or round
         // setTheme(getLevelData(mark));
         setStudentMark(mark);
+        // ✅ Get all subjects
+        const subjects = res.data.dashboard.class.subjects || [];
+        setSubjects(subjects);
       } catch (err) {
         console.error("Failed to fetch student mark", err);
       } finally {
@@ -58,7 +62,7 @@ export const StudentProvider = ({ children }) => {
     }
   }, [studentMark, themes]);
   return (
-    <StudentContext.Provider value={{ theme, loading }}>
+    <StudentContext.Provider value={{ theme, loading, subjects }}>
       {children}
     </StudentContext.Provider>
   );
