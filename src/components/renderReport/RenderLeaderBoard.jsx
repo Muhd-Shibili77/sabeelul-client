@@ -107,11 +107,11 @@ const RenderLeaderBoard = () => {
           {
             header: "Class",
             key: "name",
-            render: (row) => <span className="font-semibold">{row.name}</span>,
+            render: (row) => <span className="font-semibold">{row.className}</span>,
           },
-          { header: "Score", key: "marks" },
-          { header: "Penalty Score", key: "penaltyMarks", render: (row) => <span className="px-2 py-1 rounded text-sm bg-red-100 text-red-800">{row.penaltyMarks}</span> },
-          { header: "Total Score", key: "totalMarks",render: (row) => <span className="font-semibold">{row.totalMarks < 0 ? 0 : row.totalMarks}</span> },
+          { header: "Score", key: "totalStudentScore",render: (row) => <span >{row.totalStudentScore + row.classScore}</span> },
+          { header: "Penalty Score", key: "classPenaltyScore", render: (row) => <span className="px-2 py-1 rounded text-sm bg-red-100 text-red-800">{row.classPenaltyScore}</span> },
+          { header: "Total Score", key: "totalScore",render: (row) => <span className="font-semibold">{row.totalScore < 0 ? 0 : row.totalScore}</span> },
         ];
       case "ClassWise":
         return [
