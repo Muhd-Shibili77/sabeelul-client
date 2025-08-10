@@ -23,6 +23,7 @@ import {
 } from "../../redux/studentSlice";
 import { PencilIcon, TrashIcon } from "lucide-react";
 import { fetchItems } from "../../redux/itemSlice";
+import PublishScore from "../../components/AdminScore/PublishScore";
 const AdminScore = () => {
   const dispatch = useDispatch();
   const [scoreType, setScoreType] = useState("Class");
@@ -532,6 +533,16 @@ const AdminScore = () => {
             }`}
           >
             Student Score
+          </button>
+          <button
+            onClick={() => setScoreType("Publish")}
+            className={`px-4 py-2 rounded ${
+              scoreType === "Publish"
+                ? "bg-[rgba(53,130,140,0.9)] text-white"
+                : "bg-white"
+            }`}
+          >
+            Publish Score
           </button>
         </div>
 
@@ -1662,6 +1673,9 @@ const AdminScore = () => {
               )}
             </div>
           </div>
+        )}
+        {scoreType === 'Publish' && (
+          <PublishScore/>
         )}
       </div>
       <ToastContainer position="top-right" autoClose={2000} hideProgressBar />

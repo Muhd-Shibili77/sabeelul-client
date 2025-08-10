@@ -21,7 +21,7 @@ export const addClass = createAsyncThunk(
   "addClass",
   async ({ newClass }, { rejectWithValue }) => {
     try {
-      const response = await api.post(`/class`, newClass,{
+      const response = await api.post(`/class`, newClass, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -35,10 +35,9 @@ export const addClass = createAsyncThunk(
 export const updateClass = createAsyncThunk(
   "updateClass",
   async ({ id, updatedData }, { rejectWithValue }) => {
-   
     try {
-      const response = await api.put(`/class/${id}`, updatedData,{
-         headers: {
+      const response = await api.put(`/class/${id}`, updatedData, {
+        headers: {
           "Content-Type": "multipart/form-data",
         },
       });
@@ -103,10 +102,10 @@ export const updateScore = createAsyncThunk(
   "class/updateScore",
   async ({ classId, markId, updatedMark }, { rejectWithValue }) => {
     try {
-      const response = await api.put(
-        `/class/score/${classId}`,
-        {updatedMark,markId}
-      );
+      const response = await api.put(`/class/score/${classId}`, {
+        updatedMark,
+        markId,
+      });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || "Failed to update mark");
@@ -118,7 +117,6 @@ export const updateScore = createAsyncThunk(
 export const deleteScore = createAsyncThunk(
   "class/deleteScore",
   async ({ classId, markId }, { rejectWithValue }) => {
-    
     try {
       const response = await api.delete(`class/score/${classId}`, {
         data: { markId },
@@ -133,18 +131,22 @@ export const addPenaltyScore = createAsyncThunk(
   "class/addPenaltyScore",
   async ({ id, newMark }, { rejectWithValue }) => {
     try {
-      const response = await api.post(`class/penalty/${id}`,newMark);
+      const response = await api.post(`class/penalty/${id}`, newMark);
       return response.data; // adjust based on actual response
     } catch (error) {
-      return rejectWithValue(error.response?.data || "Failed to add penalty score");
+      return rejectWithValue(
+        error.response?.data || "Failed to add penalty score"
+      );
     }
   }
 );
 
 export const updatePenaltyScore = createAsyncThunk(
   "class/updatePenaltyScore",
-  async ({ id,markId, reason, penaltyScore, description }, { rejectWithValue }) => {
-    
+  async (
+    { id, markId, reason, penaltyScore, description },
+    { rejectWithValue }
+  ) => {
     try {
       const response = await api.put(`class/penalty/${id}`, {
         markId,
@@ -154,21 +156,24 @@ export const updatePenaltyScore = createAsyncThunk(
       });
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data || "Failed to update penalty mark");
+      return rejectWithValue(
+        error.response?.data || "Failed to update penalty mark"
+      );
     }
   }
 );
 export const deletePenaltyScore = createAsyncThunk(
   "class/deletePenaltyScore",
   async ({ classId, markId }, { rejectWithValue }) => {
-    
     try {
       const response = await api.delete(`class/penalty/${classId}`, {
         data: { markId },
       });
       return { classId, markId };
     } catch (error) {
-      return rejectWithValue(error.response?.data || "Failed to delete penalty mark");
+      return rejectWithValue(
+        error.response?.data || "Failed to delete penalty mark"
+      );
     }
   }
 );
@@ -176,21 +181,56 @@ export const deletePenaltyScore = createAsyncThunk(
 export const fetchSubInClass = createAsyncThunk(
   "class/fetchSubInClass",
   async ({ classId }, { rejectWithValue }) => {
-    
     try {
       const response = await api.get(`class/subject/${classId}`);
-      return{
-        subjects : response.data.subjects
-      }
+      return {
+        subjects: response.data.subjects,
+      };
     } catch (error) {
-      return rejectWithValue(error.response?.data || "Failed to delete penalty mark");
+      return rejectWithValue(
+        error.response?.data || "Failed to delete penalty mark"
+      );
     }
   }
-)
+);
+export const publishScore = createAsyncThunk(
+  "class/publishScore",
+  async ({ classId, semester, scoreType }, { rejectWithValue }) => {
+    try {
+      const response = await api.post(`/class/publish-score/${classId}`, {
+        semester,
+        scoreType,
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Failed to publish score");
+    }
+  }
+);
+export const fetchFullScore = createAsyncThunk(
+  "class/fetchFullScore",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`/class/full-score`);
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || "Failed to fetch full score"
+      );
+    }
+  }
+);
 
 const classSlice = createSlice({
   name: "class",
-  initialState: { classes: [],subjects:[], loading: false, error: null, totalPages: 0 },
+  initialState: {
+    classes: [],
+    subjects: [],
+    fullScore: [],
+    loading: false,
+    error: null,
+    totalPages: 0,
+  },
   reducers: {},
   extraReducers: (builder) => {
     builder
@@ -203,6 +243,17 @@ const classSlice = createSlice({
         state.totalPages = action.payload.totalPages;
       })
       .addCase(fetchClass.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(fetchFullScore.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchFullScore.fulfilled, (state, action) => {
+        state.loading = false;
+        state.fullScore = action.payload;
+      })
+      .addCase(fetchFullScore.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
