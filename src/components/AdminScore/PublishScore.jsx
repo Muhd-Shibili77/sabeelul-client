@@ -6,9 +6,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchFullScore } from "../../redux/classSlice";
 import ReportLoader from "../loader/reportLoader";
 import ReportError from "../loader/reportError";
+import Select from "../Buttons/Select";
 
 const PublishScore = () => {
   const [showModal, setShowModal] = useState(false);
+  const [semister, setSemister] = useState("All Semesters");
   const dispatch = useDispatch();
   const { fullScore, loading, error } = useSelector((state) => state.class);
 
@@ -16,9 +18,18 @@ const PublishScore = () => {
     dispatch(fetchFullScore());
   }, [dispatch]);
 
-  // Calculate totals and averages
+  // Calculate totals and averages based on selected semester
   const calculateClassData = (classItem) => {
-    const semesters = Object.values(classItem.scores); // [ {CCe, Mentor, PKV}, ... ]
+    let semesters = [];
+
+    if (!semister || semister === "All Semesters") {
+      // Take all semesters
+      semesters = Object.values(classItem.scores);
+    } else {
+      // Take only the selected semester
+      const selectedScores = classItem.scores[semister] || {};
+      semesters = [selectedScores];
+    }
 
     const avgCCE = semesters.reduce((sum, sem) => sum + (sem.CCe || 0), 0);
     const avgMentor = semesters.reduce(
@@ -32,8 +43,6 @@ const PublishScore = () => {
     return { totalScore, avgCCE, avgMentor, avgPKV };
   };
 
-  const calculateGrandTotal = (totalScore) => totalScore + 50; // Example logic
-
   if (loading) {
     return <ReportLoader content={`Fetching scores. Please wait...`} />;
   }
@@ -44,14 +53,26 @@ const PublishScore = () => {
   return (
     <div className="bg-white p-4 rounded-2xl shadow-md">
       {/* Header */}
-      <div className="mb-2 flex justify-between items-center">
+      <div className="mb-2 flex items-center justify-between gap-4">
         <h1 className="font-bold text-lg p-1">Publish Score</h1>
-        <button
-          className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded-lg hover:bg-[rgba(53,130,140,1)]"
-          onClick={() => setShowModal(!showModal)}
-        >
-          Publish
-        </button>
+
+        <div className="flex items-center gap-3">
+          <Select
+            value={semister}
+            onChange={setSemister}
+            options={[
+              { value: "All Semesters", label: "All Semesters" },
+              { value: "Rabee Semester", label: "Rabee Semester" },
+              { value: "Ramadan Semester", label: "Ramadan Semester" },
+            ]}
+          />
+          <button
+            className="bg-[rgba(53,130,140,0.9)] text-white px-4 py-2 rounded-lg hover:bg-[rgba(53,130,140,1)]"
+            onClick={() => setShowModal(!showModal)}
+          >
+            Publish
+          </button>
+        </div>
       </div>
 
       {/* Table */}
@@ -60,10 +81,9 @@ const PublishScore = () => {
           <tr className="bg-gray-100">
             <th className="border border-gray-300 p-2">Sl No</th>
             <th className="border border-gray-300 p-2">Class</th>
-            {/* <th className="border border-gray-300 p-2">Total Score</th> */}
             <th className="border border-gray-300 p-2">Avg CCE</th>
             <th className="border border-gray-300 p-2">Avg Mentor</th>
-            <th className="border border-gray-300 p-2">Avg PKV</th>
+            {/* <th className="border border-gray-300 p-2">Avg PKV</th> */}
             <th className="border border-gray-300 p-2">Grand Total</th>
           </tr>
         </thead>
@@ -85,15 +105,12 @@ const PublishScore = () => {
                 <td className="border border-gray-300 p-2 text-center">
                   {avgMentor}
                 </td>
-                <td className="border border-gray-300 p-2 text-center">
+                {/* <td className="border border-gray-300 p-2 text-center">
                   {avgPKV}
-                </td>
+                </td> */}
                 <td className="border border-gray-300 p-2 text-center">
                   {totalScore}
                 </td>
-                {/* <td className="border border-gray-300 p-2 text-center">
-                  {calculateGrandTotal(totalScore)}
-                </td> */}
               </tr>
             );
           })}
