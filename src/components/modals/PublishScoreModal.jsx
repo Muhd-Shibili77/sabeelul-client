@@ -28,8 +28,10 @@ const PublishScoreModal = ({ onClose }) => {
   };
 
   useEffect(() => {
-    dispatch(fetchClass({ search: "", page: 1, limit: 1000 }));
-  }, [dispatch]);
+    if (classes.length === 0) {
+      dispatch(fetchClass({ search: "", page: 1, limit: 1000 }));
+    }
+  }, [dispatch, classes.length]);
 
   const handleUpdate = async () => {
     if (!selectedClass) {
