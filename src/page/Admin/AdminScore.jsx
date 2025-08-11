@@ -25,6 +25,7 @@ import { PencilIcon, TrashIcon } from "lucide-react";
 import { fetchItems } from "../../redux/itemSlice";
 import PublishScore from "../../components/AdminScore/PublishScore";
 import MentorScore from "../../components/AdminScore/MentorScore";
+import CCEScore from "../../components/AdminScore/CCEScore";
 const AdminScore = () => {
   const dispatch = useDispatch();
   const [scoreType, setScoreType] = useState("Class");
@@ -533,6 +534,10 @@ const AdminScore = () => {
     {
       type: "Student",
       label: "Student Score",
+    },
+    {
+      type: "CCE",
+      label: "CCE Score",
     },
     {
       type: "Mentor",
@@ -1707,6 +1712,7 @@ const AdminScore = () => {
             </div>
           </div>
         )}
+        {scoreType === "CCE" && <CCEScore />}
         {scoreType === "Mentor" && <MentorScore />}
         {scoreType === "Publish" && <PublishScore />}
       </div>
