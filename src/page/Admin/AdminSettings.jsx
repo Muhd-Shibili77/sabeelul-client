@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from "react";
 import SideBar from "../../components/sideBar/SideBar";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchItems, addItem, updateItem, deleteItem } from "../../redux/itemSlice";
+import { jwtDecode } from "jwt-decode";
+import {
+  fetchItems,
+  addItem,
+  updateItem,
+  deleteItem,
+} from "../../redux/itemSlice";
+import { changePassword } from "../../redux/adminSlice";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { confirmAlert } from "react-confirm-alert";
@@ -13,14 +20,29 @@ const AdminSettings = () => {
 
   const dispatch = useDispatch();
   const { items, loading, error } = useSelector((state) => state.item);
-  const { themes, loading: themeLoading, error: themeError } = useSelector((state) => state.theme);
+  const {
+    themes,
+    loading: themeLoading,
+    error: themeError,
+  } = useSelector((state) => state.theme);
 
   const [editingLevels, setEditingLevels] = useState(false);
   const [editingItems, setEditingItems] = useState(false);
   const [editingItemId, setEditingItemId] = useState(null);
   const [newItem, setNewItem] = useState({ item: "", description: "" });
   const [editItem, setEditItem] = useState({ item: "", description: "" });
-
+  const [adminLoading, setAdminLoading] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [adminPassword, setAdminPassword] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [newAdmin, setNewAdmin] = useState({
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
   useEffect(() => {
     dispatch(fetchItems());
     dispatch(fetchTheme());
@@ -29,11 +51,11 @@ const AdminSettings = () => {
   // Update levels when themes data is loaded
   useEffect(() => {
     if (themes && themes.length > 0) {
-      const formattedLevels = themes.map(theme => ({
+      const formattedLevels = themes.map((theme) => ({
         _id: theme._id,
         label: theme.label,
         min: theme.minMark,
-        max: theme.maxMark
+        max: theme.maxMark,
       }));
       setLevels(formattedLevels);
     }
@@ -81,11 +103,15 @@ const AdminSettings = () => {
     if (!validateItem(newItem)) return;
 
     try {
-      const resultAction = await dispatch(addItem({ newItem: { 
-        item: newItem.item.trim(), 
-        description: newItem.description.trim() 
-      }}));
-      
+      const resultAction = await dispatch(
+        addItem({
+          newItem: {
+            item: newItem.item.trim(),
+            description: newItem.description.trim(),
+          },
+        })
+      );
+
       if (addItem.fulfilled.match(resultAction)) {
         setNewItem({ item: "", description: "" });
         toast.success("Item added successfully!");
@@ -111,14 +137,16 @@ const AdminSettings = () => {
     if (!validateItem(editItem)) return;
 
     try {
-      await dispatch(updateItem({ 
-        id: editingItemId, 
-        updatedItem: { 
-          item: editItem.item.trim(), 
-          description: editItem.description.trim() 
-        }
-      })).unwrap();
-      
+      await dispatch(
+        updateItem({
+          id: editingItemId,
+          updatedItem: {
+            item: editItem.item.trim(),
+            description: editItem.description.trim(),
+          },
+        })
+      ).unwrap();
+
       setEditingItemId(null);
       setEditItem({ item: "", description: "" });
       toast.success("Item updated successfully!");
@@ -148,13 +176,13 @@ const AdminSettings = () => {
               toast.error(error.message || "Failed to delete item");
             }
           },
-          className: "react-confirm-alert-button-yes"
+          className: "react-confirm-alert-button-yes",
         },
         {
           label: "Cancel",
           onClick: () => {},
-          className: "react-confirm-alert-button-no"
-        }
+          className: "react-confirm-alert-button-no",
+        },
       ],
       overlayClassName: "react-confirm-alert-overlay",
       customUI: ({ onClose, title, message, buttons }) => (
@@ -184,7 +212,7 @@ const AdminSettings = () => {
             </div>
           </div>
         </div>
-      )
+      ),
     });
   };
 
@@ -215,7 +243,7 @@ const AdminSettings = () => {
     const hasOverlap = levels.some((level, index) => {
       return levels.some((otherLevel, otherIndex) => {
         if (index === otherIndex) return false;
-        return (level.min <= otherLevel.max && level.max >= otherLevel.min);
+        return level.min <= otherLevel.max && level.max >= otherLevel.min;
       });
     });
 
@@ -226,25 +254,100 @@ const AdminSettings = () => {
 
     try {
       // Update all theme levels
-      const updatePromises = levels.map(level => 
-        dispatch(updateTheme({
-          id: level._id,
-          minMark: level.min,
-          maxMark: level.max
-        }))
+      const updatePromises = levels.map((level) =>
+        dispatch(
+          updateTheme({
+            id: level._id,
+            minMark: level.min,
+            maxMark: level.max,
+          })
+        )
       );
 
       await Promise.all(updatePromises);
-      
+
       setEditingLevels(false);
       toast.success("Levels updated successfully!");
-      
+
       // Refresh theme data to ensure consistency
       dispatch(fetchTheme());
     } catch (error) {
       toast.error("Failed to update levels. Please try again.");
       console.error("Update levels error:", error);
     }
+  };
+
+  const handleChangePassword = async () => {
+    // Validation
+    if (!adminPassword.currentPassword.trim()) {
+      toast.error("Current password is required");
+      return;
+    }
+
+    if (!adminPassword.newPassword.trim()) {
+      toast.error("New password is required");
+      return;
+    }
+
+    if (adminPassword.newPassword.length < 6) {
+      toast.error("New password must be at least 6 characters long");
+      return;
+    }
+
+    if (adminPassword.newPassword !== adminPassword.confirmPassword) {
+      toast.error("New password and confirm password do not match");
+      return;
+    }
+
+    if (adminPassword.currentPassword === adminPassword.newPassword) {
+      toast.error("New password must be different from current password");
+      return;
+    }
+
+    setPasswordLoading(true);
+
+    try {
+      const token = localStorage.getItem("token");
+      const decodedToken = jwtDecode(token);
+      const adminId = decodedToken.userId // Adjust this based on your auth implementation
+
+      const resultAction = await dispatch(
+        changePassword({
+          id: adminId,
+          data: {
+            currentPassword: adminPassword.currentPassword,
+            newPassword: adminPassword.newPassword,
+            confirmPassword: adminPassword.confirmPassword,
+          },
+        })
+      );
+
+      if (changePassword.fulfilled.match(resultAction)) {
+        // Success
+        setAdminPassword({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+        toast.success("Password changed successfully!");
+      } else {
+        // Handle rejection
+        throw new Error(
+          resultAction.payload?.message || "Failed to change password"
+        );
+      }
+    } catch (error) {
+      toast.error(
+        error.message || "Failed to change password. Please try again."
+      );
+      console.error("Change password error:", error);
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+  const handleAddAdmin = async () => {
+    console.log(newAdmin);
+    setAdminLoading(true);
   };
 
   return (
@@ -277,7 +380,9 @@ const AdminSettings = () => {
               </div>
             ) : levels.length === 0 ? (
               <div className="text-center py-8">
-                <h3 className="text-lg font-medium text-gray-600 mb-2">No Levels Available</h3>
+                <h3 className="text-lg font-medium text-gray-600 mb-2">
+                  No Levels Available
+                </h3>
                 <p className="text-gray-500 text-sm">
                   Unable to load mark levels. Please try refreshing the page.
                 </p>
@@ -344,7 +449,6 @@ const AdminSettings = () => {
               </div>
             )}
           </div>
-
           {/* 📦 Extra Mark Item Management */}
           <div className="bg-white shadow-xl rounded-3xl p-6 border border-gray-200 relative flex flex-col">
             <div className="flex justify-between items-center mb-6">
@@ -364,9 +468,10 @@ const AdminSettings = () => {
             {/* Add New Item Form */}
             {editingItems && (
               <div className="mb-6 p-4 rounded-xl border-2 border-dashed border-[rgba(53,130,140,0.9)] bg-[rgba(53,130,140,0.1)]">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3">Add New Item</h3>
+                <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                  Add New Item
+                </h3>
                 <div className="space-y-3">
-                  
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Item Name *
@@ -374,7 +479,9 @@ const AdminSettings = () => {
                     <input
                       type="text"
                       value={newItem.item}
-                      onChange={(e) => setNewItem({ ...newItem, item: e.target.value })}
+                      onChange={(e) =>
+                        setNewItem({ ...newItem, item: e.target.value })
+                      }
                       className="w-full px-3 py-2 rounded border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="Enter item name"
                       maxLength={100}
@@ -386,7 +493,9 @@ const AdminSettings = () => {
                     </label>
                     <textarea
                       value={newItem.description}
-                      onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
+                      onChange={(e) =>
+                        setNewItem({ ...newItem, description: e.target.value })
+                      }
                       className="w-full px-3 py-2 rounded border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="Enter description"
                       rows={3}
@@ -415,11 +524,12 @@ const AdminSettings = () => {
                 </div>
               ) : items.length === 0 ? (
                 <div className="text-center py-8">
-                  
-                  <h3 className="text-lg font-medium text-gray-600 mb-2">No Items Available</h3>
+                  <h3 className="text-lg font-medium text-gray-600 mb-2">
+                    No Items Available
+                  </h3>
                   <p className="text-gray-500 text-sm">
-                    {editingItems 
-                      ? "Add your first item using the form above" 
+                    {editingItems
+                      ? "Add your first item using the form above"
                       : "Click 'Manage Items' to start adding items"}
                   </p>
                 </div>
@@ -439,7 +549,9 @@ const AdminSettings = () => {
                           <input
                             type="text"
                             value={editItem.item}
-                            onChange={(e) => setEditItem({ ...editItem, item: e.target.value })}
+                            onChange={(e) =>
+                              setEditItem({ ...editItem, item: e.target.value })
+                            }
                             className="w-full px-3 py-2 rounded border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="Enter item name"
                             maxLength={100}
@@ -451,7 +563,12 @@ const AdminSettings = () => {
                           </label>
                           <textarea
                             value={editItem.description}
-                            onChange={(e) => setEditItem({ ...editItem, description: e.target.value })}
+                            onChange={(e) =>
+                              setEditItem({
+                                ...editItem,
+                                description: e.target.value,
+                              })
+                            }
                             className="w-full px-3 py-2 rounded border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="Enter description"
                             rows={3}
@@ -478,7 +595,9 @@ const AdminSettings = () => {
                       // View Mode
                       <div>
                         <div className="flex justify-between items-start mb-2">
-                          <h4 className="font-semibold text-gray-800 text-lg">{item.item}</h4>
+                          <h4 className="font-semibold text-gray-800 text-lg">
+                            {item.item}
+                          </h4>
                           {editingItems && (
                             <div className="flex gap-2">
                               <button
@@ -496,7 +615,9 @@ const AdminSettings = () => {
                             </div>
                           )}
                         </div>
-                        <p className="text-gray-600 text-sm leading-relaxed">{item.description}</p>
+                        <p className="text-gray-600 text-sm leading-relaxed">
+                          {item.description}
+                        </p>
                       </div>
                     )}
                   </div>
@@ -520,11 +641,161 @@ const AdminSettings = () => {
               </div>
             )}
           </div>
+          {/* 📦 Admin Change Password */}
+          <div className="bg-white shadow-xl rounded-3xl p-6 border border-gray-200 relative flex flex-col">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold text-gray-700">
+                Change Password
+              </h2>
+            </div>
+
+            <div className="space-y-4">
+              {/* Current Password */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Current Password *
+                </label>
+                <input
+                  type="password"
+                  value={adminPassword.currentPassword}
+                  onChange={(e) =>
+                    setAdminPassword({
+                      ...adminPassword,
+                      currentPassword: e.target.value,
+                    })
+                  }
+                  className="w-full px-3 py-2 rounded border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter current password"
+                />
+              </div>
+
+              {/* New Password */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  New Password *
+                </label>
+                <input
+                  type="password"
+                  value={adminPassword.newPassword}
+                  onChange={(e) =>
+                    setAdminPassword({
+                      ...adminPassword,
+                      newPassword: e.target.value,
+                    })
+                  }
+                  className="w-full px-3 py-2 rounded border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter new password"
+                />
+              </div>
+
+              {/* Confirm Password */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Confirm Password *
+                </label>
+                <input
+                  type="password"
+                  value={adminPassword.confirmPassword}
+                  onChange={(e) =>
+                    setAdminPassword({
+                      ...adminPassword,
+                      confirmPassword: e.target.value,
+                    })
+                  }
+                  className="w-full px-3 py-2 rounded border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Confirm new password"
+                />
+              </div>
+
+              {/* Submit Button */}
+              <div className="flex justify-end">
+                <button
+                  onClick={handleChangePassword}
+                  disabled={passwordLoading}
+                  className="px-5 py-2 bg-[rgba(53,130,140,0.9)] text-white text-sm rounded hover:bg-[rgba(53,130,140,1)] transition disabled:opacity-50"
+                >
+                  {passwordLoading ? "Changing..." : "Change Password"}
+                </button>
+              </div>
+            </div>
+          </div>
+          {/* 📦 Add New Admin */}
+          {/* <div className="bg-white shadow-xl rounded-3xl p-6 border border-gray-200 relative flex flex-col">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold text-gray-700">
+                Add New Admin
+              </h2>
+            </div>
+
+            <div className="space-y-4">
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Admin Email ID *
+                </label>
+                <input
+                  type="email"
+                  value={newAdmin.email}
+                  onChange={(e) =>
+                    setNewAdmin({ ...newAdmin, email: e.target.value })
+                  }
+                  className="w-full px-3 py-2 rounded border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter admin email"
+                />
+              </div>
+
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Password *
+                </label>
+                <input
+                  type="password"
+                  value={newAdmin.password}
+                  onChange={(e) =>
+                    setNewAdmin({ ...newAdmin, password: e.target.value })
+                  }
+                  className="w-full px-3 py-2 rounded border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter password"
+                />
+              </div>
+
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Confirm Password *
+                </label>
+                <input
+                  type="password"
+                  value={newAdmin.confirmPassword}
+                  onChange={(e) =>
+                    setNewAdmin({
+                      ...newAdmin,
+                      confirmPassword: e.target.value,
+                    })
+                  }
+                  className="w-full px-3 py-2 rounded border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Confirm password"
+                />
+              </div>
+
+              
+              <div className="flex justify-end">
+                <button
+                  onClick={handleAddAdmin}
+                  disabled={adminLoading}
+                  className="px-5 py-2 bg-[rgba(53,130,140,0.9)] text-white text-sm rounded hover:bg-[rgba(53,130,140,1)] transition disabled:opacity-50"
+                >
+                  {adminLoading ? "Adding..." : "Add Admin"}
+                </button>
+              </div>
+            </div>
+          </div> */}
         </div>
       </div>
-      <ToastContainer 
-        position="top-right" 
-        autoClose={3000} 
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
         hideProgressBar={false}
         newestOnTop={false}
         closeOnClick
