@@ -137,51 +137,54 @@ const RenderCCEScore = () => {
   // Generate table data based on view type
   const getTableData = () => {
     if (cceViewType === "class") {
-      return students.map((student, index) => {
-        // Create an object with subject marks based on selected subjects
-        const subjectMarks = {};
-        selectedSubjects.forEach((subject) => {
-          subjectMarks[subject.toLowerCase()] = getSubjectMark(
-            student,
-            subject
-          );
+      return students
+        .slice() // make a copy so we don’t mutate the original array
+        .sort((a, b) => a.admNo - b.admNo) // numeric sort by admission number
+        .map((student, index) => {
+          // Create an object with subject marks based on selected subjects
+          const subjectMarks = {};
+          selectedSubjects.forEach((subject) => {
+            subjectMarks[subject.toLowerCase()] = getSubjectMark(
+              student,
+              subject
+            );
+          });
+
+          // Calculate total from SELECTED subjects only
+          const totalMarks = selectedSubjects.reduce((sum, subject) => {
+            return sum + getSubjectMark(student, subject);
+          }, 0);
+
+          // Calculate percentage only if all subjects are selected
+          let percentage = null;
+          if (allSubjectsSelected) {
+            const subjectCount = selectedSubjects.length;
+
+            // Adjust max marks calculation based on semester selection
+            let maxTotalMarks =
+              subjectCount > 0 ? (subjectCount - 1) * 30 + 100 : 0;
+
+            percentage =
+              maxTotalMarks > 0
+                ? ((totalMarks / maxTotalMarks) * 100).toFixed(1)
+                : "0.00";
+          }
+
+          const rowData = {
+            si: index + 1,
+            admNo: student.admNo,
+            name: student.name,
+            ...subjectMarks,
+            total: totalMarks,
+          };
+
+          // Only add percentage if all subjects are selected
+          if (allSubjectsSelected) {
+            rowData.percentage = `${percentage}%`;
+          }
+
+          return rowData;
         });
-
-        // Calculate total from SELECTED subjects only
-        const totalMarks = selectedSubjects.reduce((sum, subject) => {
-          return sum + getSubjectMark(student, subject);
-        }, 0);
-
-        // Calculate percentage only if all subjects are selected
-        let percentage = null;
-        if (allSubjectsSelected) {
-          const subjectCount = selectedSubjects.length;
-
-          // Adjust max marks calculation based on semester selection
-          let maxTotalMarks =
-            subjectCount > 0 ? (subjectCount - 1) * 30 + 100 : 0;
-
-          percentage =
-            maxTotalMarks > 0
-              ? ((totalMarks / maxTotalMarks) * 100).toFixed(1)
-              : "0.00";
-        }
-
-        const rowData = {
-          si: index + 1,
-          admNo: student.admNo,
-          name: student.name,
-          ...subjectMarks,
-          total: totalMarks,
-        };
-
-        // Only add percentage if all subjects are selected
-        if (allSubjectsSelected) {
-          rowData.percentage = `${percentage}%`;
-        }
-
-        return rowData;
-      });
     } else if (cceViewType === "student" && studentPerformanceData) {
       // Create a map to store student's marks by subject
       const studentMarksMap = {};
@@ -512,7 +515,13 @@ const RenderCCEScore = () => {
             value={selectedStudent}
             onChange={setSelectedStudent}
             options={[
-              ...students.map((std) => ({ value: std._id, label: std.name })),
+              ...students
+                .slice()
+                .sort((a, b) => a.admNo - b.admNo)
+                .map((std) => ({
+                  value: std._id,
+                  label: `Adm No ${std.admNo} - ${std.name}`,
+                })),
             ]}
             placeholder="Select Student"
           />

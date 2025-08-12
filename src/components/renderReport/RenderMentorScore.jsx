@@ -82,7 +82,7 @@ const RenderMentorScore = () => {
         headerColor="bg-[rgba(53,130,140,0.9)]"
         columns={columns}
         subColumns={subColumns}
-        data={students || []}
+        data={[...students].sort((a, b) => a.admNo - b.admNo) || []}
       />
     </div>
   );

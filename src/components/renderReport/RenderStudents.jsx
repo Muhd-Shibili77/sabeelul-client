@@ -68,7 +68,7 @@ const RenderStudents = () => {
         iconColor="text-[rgba(53,130,140,0.9)]"
         headerColor="bg-[rgba(53,130,140,0.9)]"
         columns={columns}
-        data={students}
+        data={[...students].sort((a, b) => a.admNo - b.admNo)} // 🔹 Sort here
       />
     </div>
   );

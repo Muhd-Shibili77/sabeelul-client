@@ -139,7 +139,7 @@ const RenderLevel = () => {
         iconColor={iconColor}
         headerColor={headerColor}
         columns={columns}
-        data={students}
+        data={[...students].sort((a, b) => a.admNo - b.admNo)} // 🔹 Sort here
         pdfHeaderClr={getColorRGB(selectedLevel)}
       />
     </div>

@@ -122,11 +122,14 @@ const MentorScore = () => {
           onChange={(e) => handleStudentChange(e.target.value)}
         >
           <option value="">Select Student</option>
-          {students.map((student) => (
-            <option key={student._id} value={student._id}>
-              {student.admissionNo} - {student.name}
-            </option>
-          ))}
+          {students
+            .slice()
+            .sort((a, b) => a.admissionNo - b.admissionNo)
+            .map((student) => (
+              <option key={student._id} value={student._id}>
+                {student.admissionNo} - {student.name}
+              </option>
+            ))}
         </select>
       </div>
       {shouldShowStudents() ? (
