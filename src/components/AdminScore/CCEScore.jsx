@@ -288,7 +288,7 @@ const CCEScore = () => {
                             <input
                               id={`${student._id}-${phase}`}
                               type="number"
-                              className="w-16 px-2 py-1 border border-gray-300 rounded text-center text-sm focus:outline-none focus:ring-2 focus:ring-[rgba(53,130,140,0.5)]"
+                              className="w-16 px-2 py-1 border appearance-none border-gray-300 rounded text-center text-sm focus:outline-none focus:ring-2 focus:ring-[rgba(53,130,140,0.5)]"
                               value={getExistingMark(student, phase)}
                               onChange={(e) =>
                                 handleMarkChange(
