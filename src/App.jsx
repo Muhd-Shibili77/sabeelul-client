@@ -10,7 +10,9 @@ import AdminRoutes from './routes/AdminRoutes';
 import ProtectedAuthRoutes from './routes/protectedAuthRoute';
 import ProtectedRoutes from './routes/protectedRoute';
 import { StudentProvider } from './context/StudentContext';
+import useInactivityLogout from './hooks/authentication/useInactivityLogout';
 const App = () => {
+  useInactivityLogout(); // 🛡️ Enables inactivity logout everywhere
   return (
     <>
       <Routes>
