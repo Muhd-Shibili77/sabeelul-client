@@ -520,7 +520,7 @@ const RenderCCEScore = () => {
                 .sort((a, b) => a.admNo - b.admNo)
                 .map((std) => ({
                   value: std._id,
-                  label: `Adm No ${std.admNo} - ${std.name}`,
+                  label: `${std.admNo} - ${std.name}`,
                 })),
             ]}
             placeholder="Select Student"
