@@ -14,7 +14,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
 import { fetchTheme, updateTheme } from "../../redux/themeSlice";
-
+import TeacherToggle from "../../components/adminSettings/teacherToggle";
 const AdminSettings = () => {
   const [levels, setLevels] = useState([]);
 
@@ -309,7 +309,7 @@ const AdminSettings = () => {
     try {
       const token = localStorage.getItem("token");
       const decodedToken = jwtDecode(token);
-      const adminId = decodedToken.userId // Adjust this based on your auth implementation
+      const adminId = decodedToken.userId; // Adjust this based on your auth implementation
 
       const resultAction = await dispatch(
         changePassword({
@@ -645,10 +645,10 @@ const AdminSettings = () => {
               </h2>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-8">
               {/* Current Password */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Current Password *
                 </label>
                 <input
@@ -660,14 +660,14 @@ const AdminSettings = () => {
                       currentPassword: e.target.value,
                     })
                   }
-                  className="w-full px-3 py-2 rounded border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 rounded border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter current password"
                 />
               </div>
 
               {/* New Password */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   New Password *
                 </label>
                 <input
@@ -679,14 +679,14 @@ const AdminSettings = () => {
                       newPassword: e.target.value,
                     })
                   }
-                  className="w-full px-3 py-2 rounded border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 rounded border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter new password"
                 />
               </div>
 
               {/* Confirm Password */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Confirm Password *
                 </label>
                 <input
@@ -698,7 +698,7 @@ const AdminSettings = () => {
                       confirmPassword: e.target.value,
                     })
                   }
-                  className="w-full px-3 py-2 rounded border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 rounded border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Confirm new password"
                 />
               </div>
@@ -708,13 +708,15 @@ const AdminSettings = () => {
                 <button
                   onClick={handleChangePassword}
                   disabled={passwordLoading}
-                  className="px-5 py-2 bg-[rgba(53,130,140,0.9)] text-white text-sm rounded hover:bg-[rgba(53,130,140,1)] transition disabled:opacity-50"
+                  className="px-6 py-3 bg-[rgba(53,130,140,0.9)] text-white text-sm rounded hover:bg-[rgba(53,130,140,1)] transition disabled:opacity-50"
                 >
                   {passwordLoading ? "Changing..." : "Change Password"}
                 </button>
               </div>
             </div>
           </div>
+          {/* 📦 Teacher toggle status */}
+          <TeacherToggle/>
         </div>
       </div>
       <ToastContainer
