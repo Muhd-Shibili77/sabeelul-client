@@ -25,16 +25,17 @@ const DataCCETable = ({
         alert("No columns configured for export");
         return;
       }
+      const sortedData = data.sort((a, b) => a.rank - b.rank);
 
       switch (type) {
         case "PDF":
-           cceExportUtils.exportToPDF(data, columns, subColumns, title, studentWise);
+           cceExportUtils.exportToPDF(sortedData, columns, subColumns, title, studentWise);
           break;
         case "excel":
-           cceExportUtils.exportToExcel(data, columns, subColumns, title);
+           cceExportUtils.exportToExcel(sortedData, columns, subColumns, title);
           break;
         case "print":
-           cceExportUtils.printTable(data, columns, subColumns, title);
+           cceExportUtils.printTable(sortedData, columns, subColumns, title);
           break;
         default:
           console.warn("Unknown export type:", type);

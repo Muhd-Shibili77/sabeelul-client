@@ -174,6 +174,7 @@ const RenderCCEScore = () => {
             si: index + 1,
             admNo: student.admNo,
             name: student.name,
+            rank: student.rank,
             ...subjectMarks,
             total: totalMarks,
           };
