@@ -12,7 +12,6 @@ export const cceExportUtils = {
       const logoBase64 = await convertImageToBase64(Logo);
 
       const doc = new jsPDF("landscape");
-
       let currentY = 10;
 
       // === LOGO ===
@@ -42,29 +41,23 @@ export const cceExportUtils = {
       // === INFO BAR ===
       doc.setFontSize(9);
       doc.setTextColor(80);
-      doc.text(
-        `Academic Year: ${academicYear}`,
-        282,
-        currentY + 26,
-        { align: "right" }
-      );
+      doc.text(`Academic Year: ${academicYear}`, 282, currentY + 26, {
+        align: "right",
+      });
 
       if (studentWise) {
-        // === STUDENT DETAILS BLOCK ===
         const testImage = await convertImageToBase64(studentWise.profileImage);
 
         const studentY = currentY + 30;
         const imageWidth = 25;
         const imageHeight = 30;
-        const textStartX = 42; // right of image
-
-        // === STUDENT PHOTO ===
+        const textStartX = 42;
 
         if (testImage) {
           doc.addImage(testImage, "PNG", 14, studentY, imageWidth, imageHeight);
         }
 
-        // === STUDENT TEXT INFO ===
+        // Labels
         doc.setFontSize(9);
         doc.setTextColor(0);
         doc.setFont("helvetica", "bold");
@@ -72,11 +65,10 @@ export const cceExportUtils = {
         doc.text("Ad No: ", textStartX, studentY + 11);
         doc.text("Class: ", textStartX, studentY + 17);
 
-        // === STUDENT VALUES (NORMAL FONT) ===
+        // Values
         doc.setFont("helvetica", "normal");
-        doc.setFontSize(9);
-        doc.text(studentWise.name, textStartX + 30, studentY + 5); // example name
-        doc.text(studentWise.admNo, textStartX + 30, studentY + 11); // example ID
+        doc.text(studentWise.name, textStartX + 30, studentY + 5);
+        doc.text(studentWise.admNo, textStartX + 30, studentY + 11);
         doc.text(studentWise.className, textStartX + 30, studentY + 17);
       }
 
@@ -88,12 +80,10 @@ export const cceExportUtils = {
         studentWise ? "CCE Scores" : title,
         148,
         studentWise ? currentY + 65 : currentY + 34,
-        {
-          align: "center",
-        }
+        { align: "center" }
       );
 
-      // === TABLE SETUP ===
+      // === TABLE ===
       const startY = studentWise ? currentY + 70 : currentY + 42;
       const hasComplexHeaders = columns.some(
         (col) => col.colspan || col.rowspan
@@ -110,10 +100,8 @@ export const cceExportUtils = {
 
           if (col.colspan && col.colspan > 1) {
             subColumns.forEach((subCol) => subHeaderRow.push(subCol.header));
-          } else {
-            if (col.rowspan === 2) {
-              subHeaderRow.push(""); // pad subrow when rowspan
-            }
+          } else if (col.rowspan === 2) {
+            subHeaderRow.push("");
           }
         });
 
@@ -156,8 +144,10 @@ export const cceExportUtils = {
       autoTable(doc, {
         head: headers,
         body: tableData,
+        theme: "grid", // ✅ ensures borders
+        margin: { top: 10, left: 10, right: 10 },
         startY,
-        theme: "grid",
+        rowPageBreak: "avoid",
         headStyles: {
           fillColor: [53, 130, 140],
           textColor: [255, 255, 255],
@@ -167,15 +157,12 @@ export const cceExportUtils = {
           valign: "middle",
         },
         bodyStyles: {
-          fontSize: 5,
+          fontSize: 6,
           halign: "center",
           cellPadding: 1,
         },
-        alternateRowStyles: {
-          fillColor: [248, 249, 250],
-        },
+        alternateRowStyles: { fillColor: [248, 249, 250] },
         columnStyles,
-        margin: { top: startY, left: 10, right: 10 },
         styles: {
           overflow: "linebreak",
           cellWidth: "auto",
@@ -186,7 +173,6 @@ export const cceExportUtils = {
         didParseCell: (data) => {
           if (hasComplexHeaders && data.section === "head") {
             let colIndex = 0;
-
             columns.forEach((col) => {
               const colspan = col.colspan || 1;
               const rowspan = col.rowspan || 1;
@@ -195,7 +181,6 @@ export const cceExportUtils = {
                 data.column.index < colIndex + colspan;
 
               if (inRange) {
-                // Handle colspan
                 if (colspan > 1 && data.row.index === 0) {
                   if (data.column.index === colIndex) {
                     data.cell.colSpan = colspan;
@@ -205,7 +190,6 @@ export const cceExportUtils = {
                   }
                 }
 
-                // Handle rowspan
                 if (rowspan === 2) {
                   if (data.row.index === 0) {
                     data.cell.rowSpan = 2;
@@ -214,17 +198,14 @@ export const cceExportUtils = {
                   }
                 }
               }
-
               colIndex += colspan;
             });
 
-            // Force correct string rendering
             if (data.cell.raw !== null && data.cell.raw !== undefined) {
               data.cell.text = String(data.cell.raw);
             }
           }
         },
-
         didDrawCell: (data) => {
           const { cell, doc } = data;
 
@@ -238,6 +219,7 @@ export const cceExportUtils = {
         },
       });
 
+      // === FOOTER ===
       const pageHeight = doc.internal.pageSize.getHeight();
       const generatedOnText = `Generated on: ${new Date().toLocaleString()}`;
 
@@ -247,10 +229,10 @@ export const cceExportUtils = {
         generatedOnText,
         doc.internal.pageSize.getWidth() - 14,
         pageHeight - 10,
-        {
-          align: "right",
-        }
+        { align: "right" }
       );
+
+      // === SAVE ===
       const fileName = `${title.replace(/\s+/g, "_").toLowerCase()}_${
         new Date().toISOString().split("T")[0]
       }.pdf`;
