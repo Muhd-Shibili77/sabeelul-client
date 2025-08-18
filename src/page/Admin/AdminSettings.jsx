@@ -14,7 +14,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
 import { fetchTheme, updateTheme } from "../../redux/themeSlice";
-import TeacherToggle from "../../components/adminSettings/teacherToggle";
+import TeacherToggle from "../../components/adminSettings/TeacherToggle";
 const AdminSettings = () => {
   const [levels, setLevels] = useState([]);
 
