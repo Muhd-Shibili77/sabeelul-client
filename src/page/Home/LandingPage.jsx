@@ -9,13 +9,14 @@ import { useClassLeaderboard } from "../../hooks/fetch/useClassLeaderboard";
 import { useGetTopClasses } from "../../hooks/fetch/useGetTopClass";
 const downloadLinks = [
   { name: "Academic Calendar", url: "/files/Calendar 25-26.pdf" },
-  // { name: "DH Academic Calendar", url: "#" },
-  // { name: "SQAC Application Form", url: "#" },
   { name: "Recovery Form", url: "/files/recovery.pdf" },
-  // { name: "Leave Application Form", url: "#" },
   {
     name: "No-Due Certificate",
-    url: "/files/No Due Certificate 2nd Sem 2025.pdf",
+    url: "/files/No Due Certificate.pdf",
+  },
+  {
+    name: "Absence Clearance Form",
+    url: "/files/Sabeel absence Clearance Form.pdf",
   },
 ];
 
