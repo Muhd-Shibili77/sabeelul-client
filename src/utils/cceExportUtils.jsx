@@ -47,7 +47,7 @@ export const cceExportUtils = {
 
       if (studentWise) {
         const testImage = await convertImageToBase64(studentWise.profileImage);
-
+        console.log("testImage",testImage)
         const studentY = currentY + 30;
         const imageWidth = 25;
         const imageHeight = 30;

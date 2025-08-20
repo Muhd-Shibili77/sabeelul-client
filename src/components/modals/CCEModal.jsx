@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { X } from "lucide-react";
+import { Download, Icon, X } from "lucide-react";
 import { useStudentContext } from "../../context/StudentContext";
 import { transformCCEData } from "../../utils/transformCCEData ";
 
-const CCEModal = ({ isOpen, onClose, cceData }) => {
+const CCEModal = ({ isOpen, onClose, cceData, onDownload }) => {
   const { theme } = useStudentContext();
   const [activeSem, setActiveSem] = useState("Ramadan Semester");
 
   // Transform the data using both subjectWiseMarks and allSubjects
   const data = transformCCEData(
-    cceData?.subjectWiseMarks || [], 
+    cceData?.subjectWiseMarks || [],
     cceData?.allSubjects || []
   );
 
@@ -20,7 +20,7 @@ const CCEModal = ({ isOpen, onClose, cceData }) => {
   }, [isOpen, cceData]);
 
   // Helper function to determine max marks based on subject
-  const getMaxMarks = (subject) => subject === 'Hifz and Tajwid' ? 100 : 30;
+  const getMaxMarks = (subject) => (subject === "Hifz and Tajwid" ? 100 : 30);
 
   if (!isOpen) return null;
 
@@ -42,20 +42,31 @@ const CCEModal = ({ isOpen, onClose, cceData }) => {
 
         {/* Phase Tabs */}
         <div className="border-b border-gray-200">
-          <div className="flex overflow-x-auto px-4 py-2">
-            {data.semester.map((sem) => (
-              <button
-                key={sem}
-                onClick={() => setActiveSem(sem)}
-                className={`px-4 py-2 mr-2 rounded-t-lg font-medium transition ${
-                  activeSem === sem
-                    ? `${theme.color} text-white`
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                {sem}
-              </button>
-            ))}
+          <div className="flex items-center justify-between px-4 py-2">
+            {/* Left: Semester Tabs */}
+            <div className="flex overflow-x-auto">
+              {data.semester.map((sem) => (
+                <button
+                  key={sem}
+                  onClick={() => setActiveSem(sem)}
+                  className={`px-4 py-2 mr-2 rounded-t-lg font-medium transition ${
+                    activeSem === sem
+                      ? `${theme.color} text-white`
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  {sem}
+                </button>
+              ))}
+            </div>
+
+            {/* Right: Download Button */}
+            <button
+              onClick={onDownload}
+              className={`px-3 py-2 rounded font-medium ${theme.color} text-white ${theme.hoverBg} transition`}
+            >
+              <Download className="w-4 h-4" />
+            </button>
           </div>
         </div>
 
@@ -63,7 +74,8 @@ const CCEModal = ({ isOpen, onClose, cceData }) => {
         <div className="p-6 overflow-y-auto flex-1">
           <div className="mb-4">
             <p className="text-sm text-gray-600">
-              Maximum Score varies by subject (30 for most subjects, 100 for Hifz and Tajwid)
+              Maximum Score varies by subject (30 for most subjects, 100 for
+              Hifz and Tajwid)
             </p>
           </div>
 
@@ -107,8 +119,8 @@ const CCEModal = ({ isOpen, onClose, cceData }) => {
                   <div
                     key={index}
                     className={`p-4 rounded-lg shadow-sm border ${
-                      hasValidMark 
-                        ? "bg-gray-50 border-gray-200" 
+                      hasValidMark
+                        ? "bg-gray-50 border-gray-200"
                         : "bg-gray-25 border-gray-100"
                     }`}
                   >
@@ -142,7 +154,8 @@ const CCEModal = ({ isOpen, onClose, cceData }) => {
                       </p>
                     ) : (
                       <p className="text-xs text-gray-500 mt-1">
-                        Marks have not been entered for this subject in {activeSem}.
+                        Marks have not been entered for this subject in{" "}
+                        {activeSem}.
                       </p>
                     )}
                   </div>

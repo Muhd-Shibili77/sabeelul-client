@@ -1,19 +1,23 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import StudentSideBar from "../../components/sideBar/studentSideBar";
 import Loader from "../../components/loader/Loader";
 import { getLevelData } from "../../utils/studentLevel";
 import useStudentPerformanceData from "../../hooks/fetch/useStdPerfo";
 import { useStudentContext } from "../../context/StudentContext";
 import CCEModal from "../../components/modals/CCEModal";
-
+import { cceExportUtils } from "../../utils/cceExportUtils";
+import { fetchStudentById } from "../../redux/studentSlice";
+import { jwtDecode } from "jwt-decode";
+import { useSelector,useDispatch } from "react-redux";
 const Performance = () => {
+  const dispatch = useDispatch()
   const { data, loading, error } = useStudentPerformanceData();
   const { theme, subjects } = useStudentContext(); // subjects contains all subjects for the class
   const [showMore, setShowMore] = useState(false);
   const [showAllActivities, setShowAllActivities] = useState(false);
   const [isCCEModalOpen, setIsCCEModalOpen] = useState(false);
   const [cceData, setCceData] = useState(null);
-  
+
   const performanceData = {
     cceMark: data?.cceScore,
     penaltyMarks: data?.penaltyScore,
@@ -35,18 +39,156 @@ const Performance = () => {
           : "Date not available",
       })) || [],
   };
-
   const displayedActivities = showAllActivities
     ? performanceData.recentInputs
     : performanceData.recentInputs.slice(0, 10);
+
 
   const openCCEModal = () => {
     // Pass both subjectWiseMarks and all subjects to the modal
     setCceData({
       subjectWiseMarks: data?.subjectWiseMarks || [],
-      allSubjects: subjects || []
+      allSubjects: subjects || [],
     });
     setIsCCEModalOpen(true);
+  };
+  const columns = [
+    { header: "SI No", key: "si", rowspan: 2 },
+    { header: "Subject", key: "subject", rowspan: 2 },
+    { header: "Semester", key: "semester", colspan: 2 },
+    { header: "Total", key: "total", rowspan: 2 },
+  ];
+  const subColumns = [
+    { header: "Rabee", key: "rabee" },
+    { header: "Ramdan", key: "ramdan" },
+  ];
+  const getData = (student) => {
+    const studentMarksMap = {};
+    // Process student performance data to build marks map
+    if (student.data && student.data.subjectWise) {
+      const { subjectWise } = student.data;
+
+      subjectWise.forEach((subject) => {
+        const subjectName = subject.subjectName;
+
+        if (!studentMarksMap[subjectName]) {
+          studentMarksMap[subjectName] = {
+            subjectName: subjectName,
+            rabee: 0,
+            ramdan: 0,
+            total: 0,
+          };
+        }
+
+        if (subject.semester === "Rabee Semester") {
+          studentMarksMap[subjectName].rabee = subject.totalMark;
+        } else if (subject.semester === "Ramdan Semester") {
+          studentMarksMap[subjectName].ramdan = subject.totalMark;
+        }
+
+        studentMarksMap[subjectName].total += subject.totalMark;
+      });
+    } else if (Array.isArray(student)) {
+      student.forEach((mark) => {
+        const subjectName = mark.subjectName;
+        if (!studentMarksMap[subjectName]) {
+          studentMarksMap[subjectName] = {
+            subjectName: subjectName,
+            rabee: 0,
+            ramdan: 0,
+            total: 0,
+          };
+        }
+
+        if (mark.semester === "Rabee" || mark.semester === "Rabee Semester") {
+          studentMarksMap[subjectName].rabee = mark.totalMark || mark.mark;
+        } else if (
+          mark.semester === "Ramdan" ||
+          mark.semester === "Ramdan Semester"
+        ) {
+          studentMarksMap[subjectName].ramdan = mark.totalMark || mark.mark;
+        }
+
+        studentMarksMap[subjectName].total += mark.totalMark || mark.mark;
+      });
+    } else if (student.subjectWise && Array.isArray(student.subjectWise)) {
+      student.subjectWise.forEach((subject) => {
+        const subjectName = subject.subjectName;
+
+        if (!studentMarksMap[subjectName]) {
+          studentMarksMap[subjectName] = {
+            subjectName: subjectName,
+            rabee: 0,
+            ramdan: 0,
+            total: 0,
+          };
+        }
+
+        if (subject.semester === "Rabee Semester") {
+          studentMarksMap[subjectName].rabee = subject.totalMark;
+        } else if (subject.semester === "Ramdan Semester") {
+          studentMarksMap[subjectName].ramdan = subject.totalMark;
+        }
+
+        studentMarksMap[subjectName].total += subject.totalMark;
+      });
+    }
+
+    // Now create table data for ALL subjects in the class
+    const tableData = subjects.map((subject, index) => {
+      const subjectData = studentMarksMap[subject] || {
+        subjectName: subject,
+        rabee: 0,
+        ramdan: 0,
+        total: 0,
+      };
+
+      return {
+        si: index + 1,
+        subject: subjectData.subjectName,
+        rabee: subjectData.rabee > 0 ? subjectData.rabee : 0,
+        ramdan: subjectData.ramdan > 0 ? subjectData.ramdan : 0,
+        total: subjectData.total,
+      };
+    });
+
+    // Calculate semester totals
+    const rabeeTotal = tableData.reduce((acc, curr) => acc + curr.rabee, 0);
+    const ramdanTotal = tableData.reduce((acc, curr) => acc + curr.ramdan, 0);
+    const grandTotal = tableData.reduce((acc, curr) => acc + curr.total, 0);
+
+    // Append total row
+    tableData.push({
+      si: "",
+      subject: "Total",
+      rabee: rabeeTotal,
+      ramdan: ramdanTotal,
+      total: grandTotal,
+    });
+
+    return tableData;
+  };
+  const handleDownload = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const decodedToken = jwtDecode(token);
+      const id = decodedToken.userId;
+
+      // Fetch student details only when downloading
+      const {student} = await dispatch(fetchStudentById({ id })).unwrap();
+      const title = `CCE Scores of ${student.name} - AdmNo ${student.admNo}`;
+
+      cceExportUtils.exportToPDF(
+        getData(student), // pass freshly fetched student data
+        columns,
+        subColumns,
+        title,
+        student
+      );
+    } catch (error) {
+      console.error("Download failed:", error);
+      alert(`Download failed: ${error.message}`);
+    }
   };
 
   return (
@@ -85,7 +227,7 @@ const Performance = () => {
                   Based on overall performance
                 </p>
               </div>
-              
+
               <div className="bg-[rgba(53,130,140,0.1)] p-6 rounded-lg shadow relative">
                 <h3 className="text-lg font-semibold text-gray-700">
                   Your Level
@@ -151,7 +293,7 @@ const Performance = () => {
                     {performanceData.mentorMarks}
                   </p>
                 </div>
-                
+
                 <div className="bg-gray-50 p-4 rounded-lg shadow-md">
                   <h4 className="text-md font-semibold text-gray-700">
                     Penalty Score
@@ -171,15 +313,17 @@ const Performance = () => {
               <ul className="space-y-4">
                 {performanceData.recentInputs.length === 0 ? (
                   <div className="flex justify-center items-center h-40">
-                    <p className="text-gray-500 font-medium">
-                      No Inputs yet
-                    </p>
+                    <p className="text-gray-500 font-medium">No Inputs yet</p>
                   </div>
                 ) : (
                   displayedActivities.map((activity, index) => (
                     <li
                       key={index}
-                      className={`${activity.scoreType === 'Penalty' ? "bg-red-100 border-red-200":"bg-gray-50 border-gray-200"} p-4 rounded-lg border  shadow-sm`}
+                      className={`${
+                        activity.scoreType === "Penalty"
+                          ? "bg-red-100 border-red-200"
+                          : "bg-gray-50 border-gray-200"
+                      } p-4 rounded-lg border  shadow-sm`}
                     >
                       <div className="flex justify-between items-center">
                         <div>
@@ -187,9 +331,12 @@ const Performance = () => {
                             {activity.title}
                           </h3>
                           <h4 className="text-sm font-bold text-gray-700">
-                            Score: {activity.scoreType === 'Penalty' ? `-${activity.score}`:activity.score}
+                            Score:{" "}
+                            {activity.scoreType === "Penalty"
+                              ? `-${activity.score}`
+                              : activity.score}
                           </h4>
-                            
+
                           <p className="text-sm text-gray-500">
                             {activity.date}
                           </p>
@@ -221,6 +368,7 @@ const Performance = () => {
         isOpen={isCCEModalOpen}
         onClose={() => setIsCCEModalOpen(false)}
         cceData={cceData}
+        onDownload={handleDownload}
       />
     </div>
   );
