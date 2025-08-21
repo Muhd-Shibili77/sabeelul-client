@@ -14,11 +14,7 @@ const PublishScoreModal = ({ onClose }) => {
   const [selectedClass, setSelectedClass] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedSem, setSelectedSem] = useState("Rabee Semester");
-  const scores = [
-    "CCe",
-    "Mentor",
-    //  "PKV"
-  ];
+  const scores = ["CCe", "Mentor", "PKV"];
   const semesters = ["Rabee Semester", "Ramadan Semester"];
   const academicYear = getCurrentAcademicYear();
 

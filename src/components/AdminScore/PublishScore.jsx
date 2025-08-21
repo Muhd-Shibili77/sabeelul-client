@@ -83,7 +83,7 @@ const PublishScore = () => {
             <th className="border border-gray-300 p-2">Class</th>
             <th className="border border-gray-300 p-2">Avg CCE</th>
             <th className="border border-gray-300 p-2">Avg Mentor</th>
-            {/* <th className="border border-gray-300 p-2">Avg PKV</th> */}
+            <th className="border border-gray-300 p-2">Avg PKV</th>
             <th className="border border-gray-300 p-2">Grand Total</th>
           </tr>
         </thead>
@@ -105,9 +105,9 @@ const PublishScore = () => {
                 <td className="border border-gray-300 p-2 text-center">
                   {avgMentor}
                 </td>
-                {/* <td className="border border-gray-300 p-2 text-center">
+                <td className="border border-gray-300 p-2 text-center">
                   {avgPKV}
-                </td> */}
+                </td>
                 <td className="border border-gray-300 p-2 text-center">
                   {totalScore}
                 </td>
