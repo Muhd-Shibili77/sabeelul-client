@@ -57,6 +57,11 @@ const Score = () => {
     try {
       for (const studentId in marks) {
         const mark = marks[studentId]["Mentor"];
+        if (mark > 30) {
+          toast.error("Mentor Score cannot exceed 30.");
+          setIsSubmittingMentor(false);
+          return;
+        }
         if (mark) {
           await dispatch(
             addMentorMark({
@@ -516,7 +521,9 @@ const Score = () => {
                           <input
                             id="mentor-mark"
                             type="number"
-                            className="w-40 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[rgba(53,130,140,0.5)]"
+                            className={`w-40 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[rgba(53,130,140,0.5)]
+                              ${marks[student._id]?.["Mentor"] > 30 ? "border-red-500 text-red-600" : ""}
+                            `}
                             value={getExistingMark(student, "Mentor")}
                             onChange={(e) =>
                               handleMarkChange(
@@ -528,6 +535,11 @@ const Score = () => {
                             placeholder="Enter Score"
                             disabled={isSubmittingMentor}
                           />
+                          {marks[student._id]?.["Mentor"] > 30 && (
+                            <span className="text-xs text-red-500 mt-1">
+                              Max: 30
+                            </span>
+                          )}
                         </div>
 
                         <button
