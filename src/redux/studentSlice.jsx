@@ -75,6 +75,19 @@ export const findStudentsWithMentorMarksByClass = createAsyncThunk(
     }
   }
 );
+export const findStudentsWithPKVMarksByClass = createAsyncThunk(
+  "findStudentsWithPKVMarksByClass",
+  async ({ classId }, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`/student/pkv/${classId}`);
+      return {
+        students: response.data.students,
+      };
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
 
 export const deleteStudent = createAsyncThunk(
   "deleteStudent",
@@ -281,6 +294,17 @@ const studentSlice = createSlice({
         state.students = action.payload.students;
       })
       .addCase(findStudentsWithMentorMarksByClass.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(findStudentsWithPKVMarksByClass.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(findStudentsWithPKVMarksByClass.fulfilled, (state, action) => {
+        state.loading = false;
+        state.students = action.payload.students;
+      })
+      .addCase(findStudentsWithPKVMarksByClass.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

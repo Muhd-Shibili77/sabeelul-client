@@ -6,6 +6,7 @@ import {
   BarChart3,
   BookOpen,
   UserCheck,
+  Mic,
 } from "lucide-react";
 import SideBar from "../../components/sideBar/SideBar";
 import RenderMentorScore from "../../components/renderReport/RenderMentorScore";
@@ -14,6 +15,7 @@ import RenderLevel from "../../components/renderReport/RenderLevel";
 import RenderTeachers from "../../components/renderReport/RenderTeachers";
 import RenderStudents from "../../components/renderReport/RenderStudents";
 import RenderLeaderBoard from "../../components/renderReport/RenderLeaderBoard";
+import RenderPKVScore from "../../components/renderReport/RenderPKVScore";
 
 const AdminReport = () => {
   const [activeSection, setActiveSection] = useState("Leaderboard");
@@ -25,6 +27,7 @@ const AdminReport = () => {
     { name: "Level", icon: BarChart3 },
     { name: "CCE Score", icon: BookOpen },
     { name: "Mentor Score", icon: Award },
+    { name: "PKV Score", icon: Mic },
   ];
 
   const renderContent = () => {
@@ -41,6 +44,8 @@ const AdminReport = () => {
         return <RenderCCEScore />;
       case "Mentor Score":
         return <RenderMentorScore />;
+      case "PKV Score":
+        return <RenderPKVScore />;
       default:
         return <RenderLeaderBoard />;
     }
@@ -52,7 +57,7 @@ const AdminReport = () => {
       <div className="flex-1 p-8 md:ml-64 md:mt-1 mt-10 transition-all duration-300 overflow-y-auto">
         <div className="max-w-7xl mx-auto">
           {/* Navigation Tabs */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 mb-8 bg-white p-2 rounded-xl shadow">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-3 mb-8 bg-white p-2 rounded-xl shadow">
             {sections.map(({ name, icon: Icon }) => (
               <button
                 key={name}
