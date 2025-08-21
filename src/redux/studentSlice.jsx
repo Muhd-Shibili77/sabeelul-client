@@ -180,6 +180,17 @@ export const addCceMark = createAsyncThunk(
     }
   }
 );
+export const addPkvMark = createAsyncThunk(
+  "addPkvMark",
+  async ({  data }, { rejectWithValue }) => {
+    try {
+      const response = await api.post(`/student/pkv`, data);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
 export const addStudentPenalty = createAsyncThunk(
   "addStudentPenalty",
   async ({ id, newMark }, { rejectWithValue }) => {

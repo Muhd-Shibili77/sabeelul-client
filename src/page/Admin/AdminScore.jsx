@@ -26,6 +26,7 @@ import { fetchItems } from "../../redux/itemSlice";
 import PublishScore from "../../components/AdminScore/PublishScore";
 import MentorScore from "../../components/AdminScore/MentorScore";
 import CCEScore from "../../components/AdminScore/CCEScore";
+import PKVScore from "../../components/AdminScore/PKVScore";
 const AdminScore = () => {
   const dispatch = useDispatch();
   const [scoreType, setScoreType] = useState("Class");
@@ -542,6 +543,10 @@ const AdminScore = () => {
     {
       type: "Mentor",
       label: "Mentor Score",
+    },
+    {
+      type: "PKV",
+      label: "PKV Score",
     },
     {
       type: "Publish",
@@ -1714,6 +1719,7 @@ const AdminScore = () => {
         )}
         {scoreType === "CCE" && <CCEScore />}
         {scoreType === "Mentor" && <MentorScore />}
+        {scoreType === "PKV" && <PKVScore />}
         {scoreType === "Publish" && <PublishScore />}
       </div>
       <ToastContainer position="top-right" autoClose={2000} hideProgressBar />
