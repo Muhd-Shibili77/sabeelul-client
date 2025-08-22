@@ -23,6 +23,7 @@ const Performance = () => {
     penaltyMarks: data?.penaltyScore,
     creditMarks: data?.creditScore,
     mentorMarks: data?.mentorMark,
+    PKVMarks: data?.PKVMark,
     level: getLevelData(data?.totalScore),
     yourScore: `${data?.totalScore}`,
     recentInputs:
@@ -259,7 +260,7 @@ const Performance = () => {
 
             {/* Conditional Rendering of Details */}
             {showMore && (
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 transition-all">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 transition-all">
                 <div className="bg-gray-50 p-4 rounded-lg shadow-md">
                   <h4 className="text-md font-semibold text-gray-700">
                     Credit Score
@@ -291,6 +292,14 @@ const Performance = () => {
                   </h4>
                   <p className="text-2xl text-gray-600 font-bold mt-1">
                     {performanceData.mentorMarks}
+                  </p>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg shadow-md">
+                  <h4 className="text-md font-semibold text-gray-700">
+                    PKV Score
+                  </h4>
+                  <p className="text-2xl text-gray-600 font-bold mt-1">
+                    {performanceData.PKVMarks}
                   </p>
                 </div>
 
