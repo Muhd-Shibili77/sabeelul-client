@@ -7,6 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { addCceMark, addMentorMark } from "../../redux/studentSlice";
 import useFetchStudents from "../../hooks/fetch/useFetchStudents";
 import { getCurrentAcademicYear } from "../../utils/academicYear";
+import PKVTemp from "../../components/teacherScore/PKVTemp";
 
 const Score = () => {
   const dispatch = useDispatch();
@@ -177,6 +178,8 @@ const Score = () => {
   const shouldShowStudents = () => {
     if (scoreType === "CCE") {
       return selectedClass && selectedSubject && selectedSemester;
+    } else if (scoreType === "Mentor") {
+      return selectedClass && selectedSemester && selectedStudent;
     } else {
       return selectedClass && selectedSemester && selectedStudent;
     }
@@ -271,26 +274,36 @@ const Score = () => {
         <h1 className="text-2xl font-bold mb-6 text-gray-800">Add Scores</h1>
 
         {/* Score Type Toggle */}
-        <div className="mb-4">
+        <div className="flex gap-4 mb-4">
           <button
             onClick={() => handleScoreTypeChange("CCE")}
-            className={`px-4 py-2 rounded-l-lg ${
+            className={`px-4 py-2 rounded-lg ${
               scoreType === "CCE"
                 ? "bg-[rgba(53,130,140,0.9)] text-white"
-                : "bg-gray-200"
+                : "bg-white"
             }`}
           >
             CCE Score
           </button>
           <button
             onClick={() => handleScoreTypeChange("Mentor")}
-            className={`px-4 py-2 rounded-r-lg ${
+            className={`px-4 py-2 rounded-lg ${
               scoreType === "Mentor"
                 ? "bg-[rgba(53,130,140,0.9)] text-white"
-                : "bg-gray-200"
+                : "bg-white"
             }`}
           >
             Mentor Score
+          </button>
+          <button
+            onClick={() => handleScoreTypeChange("PKV")}
+            className={`px-4 py-2 rounded-lg ${
+              scoreType === "PKV"
+                ? "bg-[rgba(53,130,140,0.9)] text-white"
+                : "bg-white"
+            }`}
+          >
+            PKV Score
           </button>
         </div>
 
@@ -337,7 +350,7 @@ const Score = () => {
             ))}
           </select>
 
-          {scoreType === "Mentor" && (
+          {(scoreType === "Mentor" || scoreType === "PKV") && (
             <select
               className="px-4 py-2 rounded-lg border border-gray-300 shadow-sm"
               value={selectedStudent}
@@ -356,7 +369,7 @@ const Score = () => {
         {/* Show student list based on selected score type and semester */}
         {shouldShowStudents() ? (
           <div className="bg-white rounded-2xl shadow-md p-6">
-            {scoreType === "CCE" ? (
+            {scoreType === "CCE" && (
               <>
                 <h2 className="text-xl font-semibold text-gray-800 mb-4">
                   Student List - CCE Score ({selectedSemester})
@@ -484,7 +497,8 @@ const Score = () => {
                   </button>
                 )}
               </>
-            ) : (
+            )}
+            {scoreType === "Mentor" && (
               <>
                 <h2 className="text-xl font-semibold text-gray-800 mb-4">
                   Mentor Score ({selectedSemester})
@@ -522,7 +536,11 @@ const Score = () => {
                             id="mentor-mark"
                             type="number"
                             className={`w-40 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[rgba(53,130,140,0.5)]
-                              ${marks[student._id]?.["Mentor"] > 30 ? "border-red-500 text-red-600" : ""}
+                              ${
+                                marks[student._id]?.["Mentor"] > 30
+                                  ? "border-red-500 text-red-600"
+                                  : ""
+                              }
                             `}
                             value={getExistingMark(student, "Mentor")}
                             onChange={(e) =>
@@ -568,6 +586,26 @@ const Score = () => {
                 })()}
               </>
             )}
+            {scoreType === "PKV" && (
+              <>
+                {(() => {
+                  const student = students.find(
+                    (s) => s._id === selectedStudent
+                  );
+                  return student ? (
+                    <PKVTemp
+                      cls={selectedClass}
+                      semester={selectedSemester}
+                      student={student}
+                    />
+                  ) : (
+                    <p className="text-gray-500 italic">
+                      Please select a student to enter Score.
+                    </p>
+                  );
+                })()}
+              </>
+            )}
           </div>
         ) : (
           <div className="bg-white rounded-2xl shadow-md p-6">
@@ -575,7 +613,9 @@ const Score = () => {
               Please select{" "}
               {scoreType === "CCE"
                 ? "class, subject, and semester"
-                : "class, semester, and student"}{" "}
+                : scoreType === "Mentor"
+                ? "class, semester, and student"
+                : "class, and semester"}{" "}
               to {scoreType === "CCE" ? "view students" : "enter Score"}.
             </p>
           </div>

@@ -6,6 +6,7 @@ import programReducer from './programSlice.jsx'
 import itemReducer from './itemSlice.jsx'
 import themeReducer from './themeSlice.jsx'
 import leaderBoardReducer from './leaderBoardSlice.jsx'
+import pkvReducer from './PKVSlice.jsx'
 const store = configureStore({
     reducer:{
       class:classReducer,
@@ -14,7 +15,8 @@ const store = configureStore({
       program:programReducer,
       item:itemReducer,
       theme:themeReducer,
-      leaderboard:leaderBoardReducer
+      leaderboard:leaderBoardReducer,
+      PKV:pkvReducer,
     }
 })
 
