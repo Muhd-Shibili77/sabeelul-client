@@ -1,6 +1,17 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../services/api";
 
+export const fetchPhaseWisePKVByClass = createAsyncThunk(
+  "fetchPhaseWisePKVByClass",
+  async ({ classId }, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`/pkv/fetchByClass/${classId}`);
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
 export const fetchPKV = createAsyncThunk(
   "fetchPKV",
   async ({ id, semester }, { rejectWithValue }) => {
@@ -40,6 +51,7 @@ const PKVSlice = createSlice({
   name: "PKV",
   initialState: {
     PKVScores: [],
+    phaseWisePKVScores: [],
     loading: false,
     addLoading: false,
     editLoading: false,
@@ -56,6 +68,17 @@ const PKVSlice = createSlice({
         state.PKVScores = action.payload;
       })
       .addCase(fetchPKV.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(fetchPhaseWisePKVByClass.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchPhaseWisePKVByClass.fulfilled, (state, action) => {
+        state.loading = false;
+        state.phaseWisePKVScores = action.payload;
+      })
+      .addCase(fetchPhaseWisePKVByClass.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })
