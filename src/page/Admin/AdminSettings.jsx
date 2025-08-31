@@ -15,6 +15,7 @@ import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
 import { fetchTheme, updateTheme } from "../../redux/themeSlice";
 import TeacherToggle from "../../components/adminSettings/TeacherToggle";
+import SemesterToggle from "../../components/adminSettings/SemesterToggle";
 const AdminSettings = () => {
   const [levels, setLevels] = useState([]);
 
@@ -717,6 +718,8 @@ const AdminSettings = () => {
           </div>
           {/* 📦 Teacher toggle status */}
           <TeacherToggle/>
+          {/* 📦 Semester lock and unlock system */}
+          <SemesterToggle/>
         </div>
       </div>
       <ToastContainer

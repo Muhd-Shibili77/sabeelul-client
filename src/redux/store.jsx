@@ -7,6 +7,7 @@ import itemReducer from './itemSlice.jsx'
 import themeReducer from './themeSlice.jsx'
 import leaderBoardReducer from './leaderBoardSlice.jsx'
 import pkvReducer from './PKVSlice.jsx'
+import semesterReducer from './semesterSlice.jsx'
 const store = configureStore({
     reducer:{
       class:classReducer,
@@ -17,6 +18,7 @@ const store = configureStore({
       theme:themeReducer,
       leaderboard:leaderBoardReducer,
       PKV:pkvReducer,
+      semester:semesterReducer
     }
 })
 

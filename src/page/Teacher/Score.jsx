@@ -8,7 +8,7 @@ import { addCceMark, addMentorMark } from "../../redux/studentSlice";
 import useFetchStudents from "../../hooks/fetch/useFetchStudents";
 import { getCurrentAcademicYear } from "../../utils/academicYear";
 import PKVTemp from "../../components/teacherScore/PKVTemp";
-
+import { fetchUnlockedSemester } from "../../redux/semesterSlice";
 const Score = () => {
   const dispatch = useDispatch();
   const [subjects, setSubjects] = useState([]);
@@ -18,17 +18,16 @@ const Score = () => {
   const [selectedSemester, setSelectedSemester] = useState("");
   const [selectedStudent, setSelectedStudent] = useState("");
   const { classes } = useSelector((state) => state.class);
+  const { semesters } = useSelector((state) => state.semester);
   const { students } = useFetchStudents(selectedClass);
   const [marks, setMarks] = useState({});
   const [isSubmittingCCE, setIsSubmittingCCE] = useState(false);
   const [isSubmittingMentor, setIsSubmittingMentor] = useState(false);
   const academicYear = getCurrentAcademicYear();
 
-  // Semester options
-  const semesters = ["Rabee Semester", "Ramadan Semester"];
-
   useEffect(() => {
     dispatch(fetchClass({ search: "", page: 1, limit: 1000 }));
+    dispatch(fetchUnlockedSemester());
   }, [dispatch]);
 
   useEffect(() => {
@@ -341,13 +340,20 @@ const Score = () => {
             className="px-4 py-2 rounded-lg border border-gray-300 shadow-sm"
             value={selectedSemester}
             onChange={(e) => handleSemesterChange(e.target.value)}
+            disabled={semesters.length === 0} // ✅ disable if empty
           >
-            <option value="">Select Semester</option>
-            {semesters.map((semester) => (
-              <option key={semester} value={semester}>
-                {semester}
-              </option>
-            ))}
+            {semesters.length === 0 ? (
+              <option value="">All semesters are locked</option>
+            ) : (
+              <>
+                <option value="">Select Semester</option>
+                {semesters.map((semester) => (
+                  <option key={semester} value={semester}>
+                    {semester}
+                  </option>
+                ))}
+              </>
+            )}
           </select>
 
           {(scoreType === "Mentor" || scoreType === "PKV") && (
