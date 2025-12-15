@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
 import useUserLogout from "../../hooks/authentication/useLogout";
-import { FaThLarge, FaUserTie, FaSignOutAlt, FaBars } from "react-icons/fa";
+import { FaThLarge, FaUserTie, FaSignOutAlt, FaBars,FaCalendarCheck} from "react-icons/fa";
 import { MdGrade } from "react-icons/md";
 
 import logo from "../../assets/SabeelBlackLogo.png"; // Update if you have a separate teacher logo
@@ -16,6 +16,7 @@ const TeacherSideBar = ({ page }) => {
 
   const menuItems = [
     { name: "Score", route: "score", icon: <FaThLarge />, key: "Score" },
+    { name: "Attendance", route: "attendance", icon: <FaCalendarCheck />, key: "Attendance" },
     { name: "Profile", route: "profile", icon: <FaUserTie />, key: "Profile" },
     { name: "Logout", icon: <FaSignOutAlt />, key: "Logout" },
   ];

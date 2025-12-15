@@ -6,6 +6,7 @@ import {
   BarChart3,
   BookOpen,
   UserCheck,
+  CalendarCheck,
   Mic,
 } from "lucide-react";
 import SideBar from "../../components/sideBar/SideBar";
@@ -16,6 +17,7 @@ import RenderTeachers from "../../components/renderReport/RenderTeachers";
 import RenderStudents from "../../components/renderReport/RenderStudents";
 import RenderLeaderBoard from "../../components/renderReport/RenderLeaderBoard";
 import RenderPKVScore from "../../components/renderReport/RenderPKVScore";
+import RenderAttendanceReport from "../../components/renderReport/RenderAttendanceReport";
 
 const AdminReport = () => {
   const [activeSection, setActiveSection] = useState("Leaderboard");
@@ -28,6 +30,7 @@ const AdminReport = () => {
     { name: "CCE Score", icon: BookOpen },
     { name: "Mentor Score", icon: Award },
     { name: "PKV Score", icon: Mic },
+    { name: "Attendance", icon: CalendarCheck },
   ];
 
   const renderContent = () => {
@@ -46,6 +49,9 @@ const AdminReport = () => {
         return <RenderMentorScore />;
       case "PKV Score":
         return <RenderPKVScore />;
+      case "Attendance":
+        return <RenderAttendanceReport />;
+
       default:
         return <RenderLeaderBoard />;
     }

@@ -5,6 +5,8 @@ import "react-confirm-alert/src/react-confirm-alert.css";
 import { useNavigate } from "react-router";
 import { SiGoogleclassroom } from "react-icons/si";
 import useLogout from "../../hooks/authentication/adminLogout";
+import { UserCheck } from "lucide-react";
+
 import {
   FaUser,
   FaUsersCog,
@@ -12,13 +14,13 @@ import {
   FaSignOutAlt,
   FaThLarge,
   FaBars,
-  FaCog, 
+  FaCog,
 } from "react-icons/fa";
 import { TbReport } from "react-icons/tb";
 import { PiMicrophoneStageFill } from "react-icons/pi";
 
 function SideBar(props) {
-  const {logout} = useLogout()
+  const { logout } = useLogout();
   const navigate = useNavigate();
 
   const [active, setActive] = useState(props.page);
@@ -44,6 +46,13 @@ function SideBar(props) {
       icon: <SiGoogleclassroom />,
       key: "Classes",
     },
+    {
+      name: "Attendance",
+      route: "attendance",
+      icon: <UserCheck />,
+      key: "Attendance",
+    },
+
     { name: "Score", route: "score", icon: <FaCalendarAlt />, key: "Score" },
     {
       name: "Programs",
@@ -76,13 +85,13 @@ function SideBar(props) {
               <div className="flex justify-center mt-5 gap-4">
                 <button
                   onClick={async () => {
-                    const result = await logout()
-                    
+                    const result = await logout();
+
                     if (result.success) {
-                      setTimeout(()=>{
-                          navigate("/admin/login");
-                          onClose();
-                      },1000)
+                      setTimeout(() => {
+                        navigate("/admin/login");
+                        onClose();
+                      }, 1000);
                     }
                   }}
                   className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
