@@ -49,8 +49,22 @@ const RenderAttendanceReport = () => {
       }
 
       if (type === "exceeded") {
+        let from = start;
+        let to = end;
+
+        // ✅ fallback to default if dates not selected
+        if (!from || !to) {
+          const defaults = getDefaultRange();
+          from = defaults.start;
+          to = defaults.end;
+        }
+
         res = await api.get(`/attendance/exceeded/${classId}`, {
-          params: { start, end, limit: 6 },
+          params: {
+            start: from,
+            end: to,
+            limit: 6,
+          },
         });
       }
 
@@ -60,6 +74,17 @@ const RenderAttendanceReport = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const getDefaultRange = () => {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 1); // Jan 1
+    const end = now;
+
+    return {
+      start: start.toISOString().split("T")[0],
+      end: end.toISOString().split("T")[0],
+    };
   };
 
   useEffect(() => {
@@ -94,9 +119,7 @@ const RenderAttendanceReport = () => {
         header: "Absents",
         key: "totalAbsents",
         render: (row) => (
-          <span className="text-red-600 font-semibold">
-            {row.totalAbsents}
-          </span>
+          <span className="text-red-600 font-semibold">{row.totalAbsents}</span>
         ),
       },
     ];
