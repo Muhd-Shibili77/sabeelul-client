@@ -64,7 +64,7 @@ const AdminHajarClearance = () => {
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-100 to-[rgba(53,130,140,0.4)]">
-      <SideBar page="Hajar Clearance" />
+      <SideBar page="Attendance" />
 
       <div className="flex-1 p-8 md:ml-64">
         <h1 className="text-2xl font-bold mb-6 text-gray-800">
