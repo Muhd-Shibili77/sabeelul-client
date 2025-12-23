@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { CalendarCheck, AlertTriangle, Download } from "lucide-react";
 import FilterControls from "../Buttons/filterControls";
 import Select from "../Buttons/Select";
@@ -9,7 +11,7 @@ import api from "../../services/api";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchClass } from "../../redux/classSlice";
 import jsPDF from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 
 const RenderAttendanceReport = () => {
   const dispatch = useDispatch();
@@ -122,85 +124,140 @@ const RenderAttendanceReport = () => {
   };
 
   const exportToPDF = () => {
-    if (!data || data.length === 0) {
-      alert("No data to export");
-      return;
-    }
-
-    const doc = new jsPDF("l", "pt", "a4");
-    const title = `Attendance Sheet - ${classes.find((c) => c._id === classId)?.name} - ${month}/${year}`;
-
-    doc.text(title, 40, 30);
-
-    if (type === "sheet") {
-      const daysInMonth = new Date(year, month, 0).getDate();
-      const headers1 = ["", "", ""];
-      const headers2 = ["SI", "Adm No", "Name"];
-
-      for (let i = 1; i <= daysInMonth; i++) {
-        headers1.push(`${i}`, "");
-        headers2.push("FN", "AN");
+    try {
+      if (!data || data.length === 0) {
+        toast.error("No data available to export");
+        return;
       }
-      headers1.push("Total", "");
-      headers2.push("P", "A");
 
-      const rows = data.map((student, idx) => {
-        const row = [idx + 1, student.admissionNo, student.name];
-        let totalP = 0;
-        let totalA = 0;
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "pt",
+        format: type === "sheet" ? "a3" : "a4",
+      });
+
+      const className = classes.find((c) => c._id === classId)?.name || "Class";
+      const campusName = "SABEELUL HIDAYA ISLAMIC COLLEGE";
+      const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ];
+
+      // --- HEADER SECTION ---
+      doc.setFontSize(20);
+      doc.setTextColor(53, 130, 140);
+      doc.setFont("helvetica", "bold");
+      doc.text(campusName, doc.internal.pageSize.getWidth() / 2, 40, { align: "center" });
+
+      doc.setFontSize(16);
+      doc.setTextColor(0, 0, 0);
+      doc.text("MONTHLY ATTENDANCE SHEET", doc.internal.pageSize.getWidth() / 2, 65, { align: "center" });
+
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Class: ${className}`, 40, 90);
+      doc.text(`Month: ${monthNames[month - 1]} ${year}`, doc.internal.pageSize.getWidth() - 40, 90, { align: "right" });
+
+      if (type === "sheet") {
+        const daysInMonth = new Date(year, month, 0).getDate();
+        
+        // Headers
+        const headRow1 = [
+          { content: "SI", rowSpan: 2, styles: { halign: "center", valign: "middle" } },
+          { content: "Adm No", rowSpan: 2, styles: { halign: "center", valign: "middle" } },
+          { content: "Name", rowSpan: 2, styles: { halign: "left", valign: "middle" } },
+        ];
 
         for (let d = 1; d <= daysInMonth; d++) {
-          const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-          const fn = student.records.find((r) => r.date === dateStr && r.session === "FN");
-          const an = student.records.find((r) => r.date === dateStr && r.session === "AN");
-
-          let fnStatus = "-";
-          if (fn) {
-            fnStatus = fn.status === "present" ? "P" : "A";
-            if (fn.status === "present") totalP += 0.5;
-            else totalA += 0.5;
-          }
-
-          let anStatus = "-";
-          if (an) {
-            anStatus = an.status === "present" ? "P" : "A";
-            if (an.status === "present") totalP += 0.5;
-            else totalA += 0.5;
-          }
-
-          row.push(fnStatus, anStatus);
+          headRow1.push({ content: `${d}`, colSpan: 2, styles: { halign: "center" } });
         }
-        row.push(totalP, totalA);
-        return row;
-      });
+        headRow1.push({ content: "Total", colSpan: 2, styles: { halign: "center" } });
 
-      doc.autoTable({
-        head: [headers1, headers2],
-        body: rows,
-        startY: 50,
-        styles: { fontSize: 5, cellPadding: 1 },
-        headStyles: { fillColor: [53, 130, 140], halign: "center" },
-        columnStyles: {
-          0: { cellWidth: 20 },
-          1: { cellWidth: 35 },
-          2: { cellWidth: 70 },
-        },
-      });
-    } else {
-      // Default table export
-      const currentColumns = columns().filter((c) => c.header !== "SI No");
-      const headers = currentColumns.map((c) => c.header);
-      const rows = data.map((item) => currentColumns.map((c) => item[c.key]));
+        const headRow2 = [];
+        for (let d = 1; d <= daysInMonth; d++) { headRow2.push("FN", "AN"); }
+        headRow2.push("P", "A");
 
-      doc.autoTable({
-        head: [headers],
-        body: rows,
-        startY: 50,
-        headStyles: { fillColor: [53, 130, 140] },
-      });
+        // Data Rows
+        const rows = data.map((student, idx) => {
+          const rowData = [idx + 1, student.admissionNo || "-", student.name || "-"];
+          let p = 0; let a = 0;
+
+          for (let d = 1; d <= daysInMonth; d++) {
+            const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+            const fn = student.records?.find(r => r.date === dateStr && r.session === "FN");
+            const an = student.records?.find(r => r.date === dateStr && r.session === "AN");
+
+            const fnStat = fn ? (fn.status === "present" ? "P" : "A") : "-";
+            const anStat = an ? (an.status === "present" ? "P" : "A") : "-";
+
+            if (fn) { if (fn.status === "present") p += 0.5; else a += 0.5; }
+            if (an) { if (an.status === "present") p += 0.5; else a += 0.5; }
+
+            rowData.push(fnStat, anStat);
+          }
+          rowData.push(p, a);
+          return rowData;
+        });
+
+        // --- SIGNATURE ROW ---
+        const sigRow = ["", "", "DAILY SIGNATURE"];
+        for (let d = 1; d <= daysInMonth * 2; d++) { sigRow.push(""); }
+        sigRow.push("", "");
+        rows.push(sigRow);
+
+        autoTable(doc, {
+          head: [headRow1, headRow2],
+          body: rows,
+          startY: 110,
+          styles: { fontSize: 6, cellPadding: 2, textColor: [0, 0, 0] },
+          headStyles: { fillColor: [53, 130, 140], textColor: 255, fontStyle: "bold" },
+          columnStyles: {
+            0: { cellWidth: 20 },
+            1: { cellWidth: 40 },
+            2: { cellWidth: 90 },
+          },
+          didDrawCell: (data) => {
+            if (data.row.index === rows.length - 1) {
+              doc.setFont("helvetica", "bold");
+              if (data.column.index === 2) {
+                doc.setTextColor(53, 130, 140);
+              }
+            }
+          },
+          theme: "grid",
+        });
+
+        // --- FOOTER SIGNATURES ---
+        const finalY = (doc.lastAutoTable?.finalY || 105) + 40;
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "bold");
+        doc.text("CLASS TEACHER SIGNATURE", 40, finalY);
+        doc.text("PRINCIPAL / OFFICE SEAL", doc.internal.pageSize.getWidth() - 40, finalY, { align: "right" });
+      } else {
+        // Standard tables
+        const currentCols = columns().filter(c => c.header !== "SI No");
+        const headers = ["SI", ...currentCols.map(c => c.header)];
+        const bodyRows = data.map((item, idx) => [
+          idx + 1,
+          ...currentCols.map(c => item[c.key] ?? "-"),
+        ]);
+
+        autoTable(doc, {
+          head: [headers],
+          body: bodyRows,
+          startY: 110,
+          headStyles: { fillColor: [53, 130, 140], textColor: 255 },
+          styles: { fontSize: 9 },
+          theme: "grid",
+        });
+      }
+
+      doc.save(`Attendance_${type}_${className}_${month}_${year}.pdf`);
+      toast.success("PDF Downloaded Successfully");
+    } catch (err) {
+      console.error(err);
+      toast.error("Error generating PDF: " + err.message);
     }
-
-    doc.save(`attendance_${type}_${new Date().getTime()}.pdf`);
   };
 
   const getDefaultRange = () => {
@@ -424,6 +481,7 @@ const RenderAttendanceReport = () => {
           No data available
         </div>
       )}
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };
