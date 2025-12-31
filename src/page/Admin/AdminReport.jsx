@@ -63,7 +63,7 @@ const AdminReport = () => {
       <div className="flex-1 p-8 md:ml-64 md:mt-1 mt-10 transition-all duration-300 overflow-y-auto">
         <div className="max-w-7xl mx-auto">
           {/* Navigation Tabs */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-3 mb-8 bg-white p-2 rounded-xl shadow">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-8 bg-white p-2 rounded-xl shadow">
             {sections.map(({ name, icon: Icon }) => (
               <button
                 key={name}

@@ -101,6 +101,7 @@ const AdminHajarClearance = () => {
             <input
               value={admNo}
               onChange={(e) => setAdmNo(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && fetchAbsents()}
               className="flex-1 px-4 py-2 border rounded-lg"
               placeholder="Enter admission number"
             />

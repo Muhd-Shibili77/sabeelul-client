@@ -81,7 +81,14 @@ const RenderPKVScore = () => {
 
   const getTableData = () => {
     if (type === "out of 50") {
-      return [...students].sort((a, b) => a.admNo - b.admNo) || [];
+      return [...students].sort((a, b) => {
+        const rankA = a.rank || 0;
+        const rankB = b.rank || 0;
+        if (rankA === 0 && rankB === 0) return 0;
+        if (rankA === 0) return 1;
+        if (rankB === 0) return -1;
+        return rankA - rankB;
+      }) || [];
     } else if (type === "phase wise") {
       const filtered = phaseWisePKVScores.filter(
         (s) => s.semester === semester

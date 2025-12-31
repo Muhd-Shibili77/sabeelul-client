@@ -139,7 +139,15 @@ const RenderCCEScore = () => {
     if (cceViewType === "class") {
       return students
         .slice() // make a copy so we don’t mutate the original array
-        .sort((a, b) => a.admNo - b.admNo) // numeric sort by admission number
+        .sort((a, b) => {
+          const rankA = a.rank || 0;
+          const rankB = b.rank || 0;
+          if (rankA === 0 && rankB === 0) return 0;
+          if (rankA === 0) return 1;
+          if (rankB === 0) return -1;
+          return rankA - rankB;
+        }) // 🔹 Official Rank-based sort
+        .map((row, idx) => ({ ...row, si: idx + 1 })) // 🔹 Re-assign SI No after sort
         .map((student, index) => {
           // Create an object with subject marks based on selected subjects
           const subjectMarks = {};
@@ -518,7 +526,14 @@ const RenderCCEScore = () => {
             options={[
               ...students
                 .slice()
-                .sort((a, b) => a.admNo - b.admNo)
+                .sort((a, b) => {
+                  const rankA = a.rank || 0;
+                  const rankB = b.rank || 0;
+                  if (rankA === 0 && rankB === 0) return 0;
+                  if (rankA === 0) return 1;
+                  if (rankB === 0) return -1;
+                  return rankA - rankB;
+                }) // 🔹 Official Rank-based sort
                 .map((std) => ({
                   value: std._id,
                   label: `${std.admNo} - ${std.name}`,

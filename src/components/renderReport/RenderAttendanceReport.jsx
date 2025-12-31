@@ -78,7 +78,22 @@ const RenderAttendanceReport = () => {
         });
       }
 
-      setData(res.data.data || []);
+      let sortedData = res.data.data || [];
+
+      // ✅ Sorting based on Student Rank (1, 2, 3...)
+      // Students with rank 0 or undefined are moved to the end
+      sortedData.sort((a, b) => {
+        const rankA = a.rank || 0;
+        const rankB = b.rank || 0;
+
+        if (rankA === 0 && rankB === 0) return 0;
+        if (rankA === 0) return 1;
+        if (rankB === 0) return -1;
+        
+        return rankA - rankB;
+      });
+
+      setData(sortedData);
     } catch (err) {
       setError("Failed to fetch attendance report");
     } finally {
@@ -92,31 +107,56 @@ const RenderAttendanceReport = () => {
       return;
     }
 
-    const currentColumns = columns();
-    
-    // Create CSV header
-    const headers = currentColumns.map(col => col.header).join(",");
-    
-    // Create CSV rows
-    const rows = data.map((row, index) => {
-      return currentColumns.map(col => {
-        if (col.header === "SI No") return index + 1;
-        if (col.render && typeof col.render === "function") {
-          // Simple case: try to get the value directly if it's just a number/string
-          const val = row[col.key];
-          if (typeof val === "string" || typeof val === "number") return val;
-          return "";
-        }
-        return row[col.key] || "";
-      }).join(",");
-    });
+    let csvContent = "";
 
-    const csvContent = [headers, ...rows].join("\n");
+    if (type === "sheet") {
+      const daysInMonth = new Date(year, month, 0).getDate();
+      
+      // Header for sheet: Adm No, Name, Day1_FN, Day1_AN, ..., TotalP, TotalA
+      let headers = ["Adm No", "Name"];
+      for (let d = 1; d <= daysInMonth; d++) {
+        headers.push(`${d}_FN`, `${d}_AN`);
+      }
+      headers.push("Total P", "Total A");
+      csvContent += headers.join(",") + "\n";
+
+      // Rows for sheet
+      data.forEach(student => {
+        let row = [student.admissionNo || "-", `"${student.name || "-"}"`];
+        let p = 0; let a = 0;
+        for (let d = 1; d <= daysInMonth; d++) {
+          const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+          const fn = student.records?.find(r => r.date === dateStr && r.session === "FN");
+          const an = student.records?.find(r => r.date === dateStr && r.session === "AN");
+          
+          row.push(fn ? (fn.status === "present" ? "P" : "A") : "-");
+          row.push(an ? (an.status === "present" ? "P" : "A") : "-");
+          
+          if (fn) { if (fn.status === "present") p += 0.5; else a += 0.5; }
+          if (an) { if (an.status === "present") p += 0.5; else a += 0.5; }
+        }
+        row.push(p, a);
+        csvContent += row.join(",") + "\n";
+      });
+    } else {
+      const currentColumns = columns();
+      const headers = currentColumns.map(col => col.header).join(",");
+      const rows = data.map((row, index) => {
+        return currentColumns.map(col => {
+          if (col.header === "SI No") return index + 1;
+          const val = row[col.key];
+          if (typeof val === "string") return `"${val}"`;
+          return val ?? "";
+        }).join(",");
+      });
+      csvContent = [headers, ...rows].join("\n");
+    }
+
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `attendance_report_${type}_${new Date().getTime()}.csv`);
+    link.setAttribute("download", `attendance_${type}_${new Date().getTime()}.csv`);
     link.style.visibility = "hidden";
     document.body.appendChild(link);
     link.click();
@@ -219,16 +259,18 @@ const RenderAttendanceReport = () => {
           didDrawCell: (data) => {
             if (data.row.index === rows.length - 1) {
               doc.setFont("helvetica", "bold");
-              if (data.column.index === 2) {
-                doc.setTextColor(53, 130, 140);
-              }
+            }
+          },
+          willDrawCell: (data) => {
+            if (data.row.index === rows.length - 1 && data.column.index >= 2) {
+              doc.setFillColor(235, 250, 250); // Soft styling for signature row
             }
           },
           theme: "grid",
         });
 
         // --- FOOTER SIGNATURES ---
-        const finalY = (doc.lastAutoTable?.finalY || 105) + 40;
+        const finalY = (doc.lastAutoTable?.finalY || 105) + 30; // Reduce gap to avoid white space
         doc.setFontSize(10);
         doc.setFont("helvetica", "bold");
         doc.text("CLASS TEACHER SIGNATURE", 40, finalY);
@@ -325,7 +367,6 @@ const RenderAttendanceReport = () => {
           options={[
             { value: "monthly", label: "Monthly Report" },
             { value: "sheet", label: "Attendance Sheet" },
-            { value: "semester", label: "Semester Report" },
             { value: "exceeded", label: "Exceeded Absentees" },
           ]}
         />
