@@ -61,7 +61,7 @@ const Performance = () => {
   ];
   const subColumns = [
     { header: "Rabee", key: "rabee" },
-    { header: "Ramdan", key: "ramdan" },
+    { header: "Ramadan", key: "ramadan" },
   ];
   const getData = (student) => {
     const studentMarksMap = {};
@@ -76,15 +76,15 @@ const Performance = () => {
           studentMarksMap[subjectName] = {
             subjectName: subjectName,
             rabee: 0,
-            ramdan: 0,
+            ramadan: 0,
             total: 0,
           };
         }
 
         if (subject.semester === "Rabee Semester") {
           studentMarksMap[subjectName].rabee = subject.totalMark;
-        } else if (subject.semester === "Ramdan Semester") {
-          studentMarksMap[subjectName].ramdan = subject.totalMark;
+        } else if (subject.semester === "Ramadan Semester") {
+          studentMarksMap[subjectName].ramadan = subject.totalMark;
         }
 
         studentMarksMap[subjectName].total += subject.totalMark;
@@ -96,7 +96,7 @@ const Performance = () => {
           studentMarksMap[subjectName] = {
             subjectName: subjectName,
             rabee: 0,
-            ramdan: 0,
+            ramadan: 0,
             total: 0,
           };
         }
@@ -104,10 +104,10 @@ const Performance = () => {
         if (mark.semester === "Rabee" || mark.semester === "Rabee Semester") {
           studentMarksMap[subjectName].rabee = mark.totalMark || mark.mark;
         } else if (
-          mark.semester === "Ramdan" ||
-          mark.semester === "Ramdan Semester"
+          mark.semester === "Ramadan" ||
+          mark.semester === "Ramadan Semester"
         ) {
-          studentMarksMap[subjectName].ramdan = mark.totalMark || mark.mark;
+          studentMarksMap[subjectName].ramadan = mark.totalMark || mark.mark;
         }
 
         studentMarksMap[subjectName].total += mark.totalMark || mark.mark;
@@ -120,15 +120,15 @@ const Performance = () => {
           studentMarksMap[subjectName] = {
             subjectName: subjectName,
             rabee: 0,
-            ramdan: 0,
+            ramadan: 0,
             total: 0,
           };
         }
 
         if (subject.semester === "Rabee Semester") {
           studentMarksMap[subjectName].rabee = subject.totalMark;
-        } else if (subject.semester === "Ramdan Semester") {
-          studentMarksMap[subjectName].ramdan = subject.totalMark;
+        } else if (subject.semester === "Ramadan Semester") {
+          studentMarksMap[subjectName].ramadan = subject.totalMark;
         }
 
         studentMarksMap[subjectName].total += subject.totalMark;
@@ -140,7 +140,7 @@ const Performance = () => {
       const subjectData = studentMarksMap[subject] || {
         subjectName: subject,
         rabee: 0,
-        ramdan: 0,
+        ramadan: 0,
         total: 0,
       };
 
@@ -148,14 +148,14 @@ const Performance = () => {
         si: index + 1,
         subject: subjectData.subjectName,
         rabee: subjectData.rabee > 0 ? subjectData.rabee : 0,
-        ramdan: subjectData.ramdan > 0 ? subjectData.ramdan : 0,
+        ramadan: subjectData.ramadan > 0 ? subjectData.ramadan : 0,
         total: subjectData.total,
       };
     });
 
     // Calculate semester totals
     const rabeeTotal = tableData.reduce((acc, curr) => acc + curr.rabee, 0);
-    const ramdanTotal = tableData.reduce((acc, curr) => acc + curr.ramdan, 0);
+    const ramadanTotal = tableData.reduce((acc, curr) => acc + curr.ramadan, 0);
     const grandTotal = tableData.reduce((acc, curr) => acc + curr.total, 0);
 
     // Append total row
@@ -163,7 +163,7 @@ const Performance = () => {
       si: "",
       subject: "Total",
       rabee: rabeeTotal,
-      ramdan: ramdanTotal,
+      ramadan: ramadanTotal,
       total: grandTotal,
     });
 

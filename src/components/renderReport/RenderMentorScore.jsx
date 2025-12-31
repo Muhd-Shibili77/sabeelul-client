@@ -51,7 +51,7 @@ const RenderMentorScore = () => {
   ];
   const subColumns = [
     { header: "Rabee", key: "Rabee Semester" },
-    { header: "Ramdan", key: "Ramadan Semester" },
+    { header: "Ramadan", key: "Ramadan Semester" },
   ];
 
   if (loading) {
