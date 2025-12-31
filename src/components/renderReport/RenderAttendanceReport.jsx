@@ -375,10 +375,13 @@ const RenderAttendanceReport = () => {
           value={classId}
           onChange={setClassId}
           placeholder="Select Class"
-          options={classes.map((c) => ({
-            value: c._id,
-            label: c.name,
-          }))}
+          options={[
+            { value: "all", label: "All Classes" },
+            ...classes.map((c) => ({
+              value: c._id,
+              label: c.name,
+            })),
+          ]}
         />
 
         {type === "monthly" || type === "sheet" ? (
