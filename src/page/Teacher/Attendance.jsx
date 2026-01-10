@@ -38,7 +38,7 @@ const TeacherAttendance = () => {
   useEffect(() => {
     const diff =
       (new Date() - new Date(date)) / (1000 * 60 * 60 * 24);
-    setIsEditable(diff <= 30);
+    setIsEditable(diff <= 300);
   }, [date]);
 
   /* ---------------------------------------------
