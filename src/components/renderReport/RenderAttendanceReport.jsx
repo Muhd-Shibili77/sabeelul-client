@@ -315,7 +315,7 @@ const RenderAttendanceReport = () => {
 
   useEffect(() => {
     fetchReport();
-  }, [type, classId]);
+  }, [type, classId, year, month, start, end]);
 
   const columns = () => {
     if (type === "monthly") {
@@ -389,9 +389,12 @@ const RenderAttendanceReport = () => {
             <Select
               value={month}
               onChange={setMonth}
-              options={Array.from({ length: 12 }).map((_, i) => ({
+              options={[
+                "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+              ].map((name, i) => ({
                 value: i + 1,
-                label: `Month ${i + 1}`,
+                label: name,
               }))}
             />
             <Select
@@ -400,6 +403,7 @@ const RenderAttendanceReport = () => {
               options={[
                 { value: 2024, label: "2024" },
                 { value: 2025, label: "2025" },
+                { value: 2026, label: "2026" },
               ]}
             />
           </>

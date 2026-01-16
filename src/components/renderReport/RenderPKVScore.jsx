@@ -124,7 +124,14 @@ const RenderPKVScore = () => {
           }
           return row;
         })
-        .sort((a, b) => a.admissionNo - b.admissionNo);
+        .sort((a, b) => {
+          const rankA = a.rank || 0;
+          const rankB = b.rank || 0;
+          if (rankA === 0 && rankB === 0) return 0;
+          if (rankA === 0) return 1;
+          if (rankB === 0) return -1;
+          return rankA - rankB;
+        });
     }
     return [];
   };

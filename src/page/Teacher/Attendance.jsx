@@ -74,8 +74,17 @@ const TeacherAttendance = () => {
       const stuRes = await api.get(`/student/class/${classId}`);
       const students = stuRes.data.students || stuRes.data;
 
+      const sortedStudents = [...students].sort((a, b) => {
+        const rankA = a.rank || 0;
+        const rankB = b.rank || 0;
+        if (rankA === 0 && rankB === 0) return 0;
+        if (rankA === 0) return 1;
+        if (rankB === 0) return -1;
+        return rankA - rankB;
+      });
+
       setRecords(
-        students.map((s) => ({
+        sortedStudents.map((s) => ({
           attendanceId: null,
           studentId: s._id,
           name: s.name,
@@ -236,6 +245,7 @@ const TeacherAttendance = () => {
           <table className="w-full table-auto text-sm text-gray-800">
             <thead className="bg-[rgba(53,130,140,0.1)] text-gray-700">
               <tr>
+                <th className="px-4 py-3 text-left">SI No</th>
                 <th className="px-4 py-3 text-left">Name</th>
                 <th className="px-4 py-3 text-center">Adm No</th>
                 <th className="px-4 py-3 text-center">Status</th>
@@ -257,8 +267,9 @@ const TeacherAttendance = () => {
                   </td>
                 </tr>
               ) : (
-                records.map((r) => (
+                records.map((r, index) => (
                   <tr key={r.studentId} className="border-b hover:bg-gray-50">
+                    <td className="px-4 py-3 font-medium">{index + 1}</td>
                     <td className="px-4 py-3">{r.name}</td>
                     <td className="px-4 py-3 text-center">{r.admissionNo}</td>
                     <td className="px-4 py-3 text-center">

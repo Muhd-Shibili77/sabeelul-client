@@ -214,7 +214,12 @@ const RenderLeaderBoard = () => {
         iconColor="text-[rgba(53,130,140,0.9)]"
         headerColor="bg-[rgba(53,130,140,0.9)]"
         columns={getColumns()}
-        data={getLeaderboardData()}
+        data={[...getLeaderboardData()].sort((a, b) => {
+          if (leaderboardType === "ClassUnion") {
+            return (b.totalScore || 0) - (a.totalScore || 0);
+          }
+          return (b.score || 0) - (a.score || 0);
+        })}
       />
     </div>
   );

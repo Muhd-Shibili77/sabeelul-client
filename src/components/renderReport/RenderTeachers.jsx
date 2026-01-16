@@ -52,7 +52,7 @@ const RenderTeachers = () => {
       iconColor="text-[rgba(53,130,140,0.9)]"
       headerColor="bg-[rgba(53,130,140,0.9)]"
       columns={columns}
-      data={teachers}
+      data={[...teachers].sort((a, b) => a.name.localeCompare(b.name))}
     />
   );
 };

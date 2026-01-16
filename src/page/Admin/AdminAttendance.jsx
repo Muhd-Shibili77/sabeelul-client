@@ -11,6 +11,7 @@ const AdminHajarClearance = () => {
   const [loading, setLoading] = useState(false);
   const [clearingId, setClearingId] = useState(null);
   const [history, setHistory] = useState([]);
+  const [studentInfo, setStudentInfo] = useState(null);
 
   /* ------------------------------
      FETCH ABSENT DATES
@@ -24,8 +25,27 @@ const AdminHajarClearance = () => {
     try {
       setLoading(true);
       const res = await api.get(`/attendance/absent/${admNo}`);
-      setAbsents(res.data.data || []);
-      if (res.data.data.length === 0) {
+      const fetchedData = res.data.data || [];
+      setAbsents(fetchedData);
+
+      if (fetchedData.length > 0) {
+        setStudentInfo({
+          name: fetchedData[0].studentName,
+          className: fetchedData[0].className,
+        });
+      } else {
+        // If no absents, try to fetch student info anyway
+        try {
+          const studentRes = await api.get(`/student/${admNo}`);
+          if (studentRes.data.success && studentRes.data.data) {
+            setStudentInfo({
+              name: studentRes.data.data.name,
+              className: studentRes.data.data.class?.name || "N/A",
+            });
+          }
+        } catch (err) {
+          console.error("Student not found");
+        }
         toast.info("No uncleared absents found");
       }
     } catch (err) {
@@ -97,10 +117,14 @@ const AdminHajarClearance = () => {
           <label className="block text-sm font-medium mb-2">
             Admission Number
           </label>
-          <div className="flex gap-3">
+          <div className="flex gap-3 mb-4">
             <input
               value={admNo}
-              onChange={(e) => setAdmNo(e.target.value)}
+              onChange={(e) => {
+                setAdmNo(e.target.value);
+                setStudentInfo(null);
+                setAbsents([]);
+              }}
               onKeyDown={(e) => e.key === "Enter" && fetchAbsents()}
               className="flex-1 px-4 py-2 border rounded-lg"
               placeholder="Enter admission number"
@@ -112,6 +136,19 @@ const AdminHajarClearance = () => {
               Search
             </button>
           </div>
+
+          {studentInfo && (
+            <div className="flex gap-4 p-3 bg-teal-50 rounded-lg border border-teal-100">
+              <div>
+                <span className="text-xs text-teal-600 font-bold uppercase block">Student Name</span>
+                <span className="text-sm font-semibold text-gray-800">{studentInfo.name}</span>
+              </div>
+              <div className="border-l border-teal-200 pl-4">
+                <span className="text-xs text-teal-600 font-bold uppercase block">Class</span>
+                <span className="text-sm font-semibold text-gray-800">{studentInfo.className}</span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* ABSENT LIST */}
