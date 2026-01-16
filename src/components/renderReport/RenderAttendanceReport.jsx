@@ -52,30 +52,25 @@ const RenderAttendanceReport = () => {
         });
       }
 
-      if (type === "semester") {
-        res = await api.get(`/attendance/semester/${classId}`, {
-          params: { start, end },
-        });
-      }
-
-      if (type === "exceeded") {
+      if (type === "semester" || type === "exceeded") {
         let from = start;
         let to = end;
 
-        // ✅ fallback to default if dates not selected
         if (!from || !to) {
           const defaults = getDefaultRange();
           from = defaults.start;
           to = defaults.end;
         }
 
-        res = await api.get(`/attendance/exceeded/${classId}`, {
-          params: {
-            start: from,
-            end: to,
-            limit: 6,
-          },
-        });
+        if (type === "semester") {
+          res = await api.get(`/attendance/semester/${classId}`, {
+            params: { start: from, end: to },
+          });
+        } else {
+          res = await api.get(`/attendance/exceeded/${classId}`, {
+            params: { start: from, end: to, limit: 6 },
+          });
+        }
       }
 
       let sortedData = res.data.data || [];
@@ -143,7 +138,7 @@ const RenderAttendanceReport = () => {
       const headers = currentColumns.map(col => col.header).join(",");
       const rows = data.map((row, index) => {
         return currentColumns.map(col => {
-          if (col.header === "SI No") return index + 1;
+          if (col.header === "SI No") return row.rank || index + 1;
           const val = row[col.key];
           if (typeof val === "string") return `"${val}"`;
           return val ?? "";
@@ -280,7 +275,7 @@ const RenderAttendanceReport = () => {
         const currentCols = columns().filter(c => c.header !== "SI No");
         const headers = ["SI", ...currentCols.map(c => c.header)];
         const bodyRows = data.map((item, idx) => [
-          idx + 1,
+          item.rank || idx + 1,
           ...currentCols.map(c => item[c.key] ?? "-"),
         ]);
 
@@ -318,9 +313,9 @@ const RenderAttendanceReport = () => {
   }, [type, classId, year, month, start, end]);
 
   const columns = () => {
-    if (type === "monthly") {
+    if (type === "monthly" || type === "semester") {
       return [
-        { header: "SI No", render: (_, i) => i + 1 },
+        { header: "SI No", render: (row, i) => row.rank || i + 1 },
         { header: "Adm No", key: "admissionNo" },
         { header: "Name", key: "name" },
         { header: "Present", key: "totalPresent" },
@@ -328,17 +323,8 @@ const RenderAttendanceReport = () => {
       ];
     }
 
-    if (type === "semester") {
-      return [
-        { header: "SI No", render: (_, i) => i + 1 },
-        { header: "Adm No", key: "admissionNo" },
-        { header: "Name", key: "name" },
-        { header: "Total Absent", key: "totalAbsent" },
-      ];
-    }
-
     return [
-      { header: "SI No", render: (_, i) => i + 1 },
+      { header: "SI No", render: (row, i) => row.rank || i + 1 },
       { header: "Adm No", key: "admissionNo" },
       { header: "Name", key: "name" },
       {
@@ -366,6 +352,7 @@ const RenderAttendanceReport = () => {
           }}
           options={[
             { value: "monthly", label: "Monthly Report" },
+            { value: "semester", label: "Semester Report (Range)" },
             { value: "sheet", label: "Attendance Sheet" },
             { value: "exceeded", label: "Exceeded Absentees" },
           ]}

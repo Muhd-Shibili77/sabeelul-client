@@ -57,8 +57,17 @@ const TeacherAttendance = () => {
       });
 
       if (res.data?.success && res.data.data.length > 0) {
+        const sortedRecords = [...res.data.data].sort((a, b) => {
+          const rankA = a.rank || 0;
+          const rankB = b.rank || 0;
+          if (rankA === 0 && rankB === 0) return 0;
+          if (rankA === 0) return 1;
+          if (rankB === 0) return -1;
+          return rankA - rankB;
+        });
+
         setRecords(
-          res.data.data.map((r) => ({
+          sortedRecords.map((r) => ({
             attendanceId: r._id,
             studentId: r.studentId,
             name: r.studentName,
@@ -66,6 +75,7 @@ const TeacherAttendance = () => {
             status: r.status,
             hajar: r.hajar,
             cleared: r.cleared,
+            rank: r.rank,
           }))
         );
         return;
@@ -92,6 +102,7 @@ const TeacherAttendance = () => {
           status: "present",
           hajar: 0.5,
           cleared: false,
+          rank: s.rank,
         }))
       );
     } catch {
@@ -261,7 +272,7 @@ const TeacherAttendance = () => {
                 ) : (
                   records.map((r, index) => (
                     <tr key={r.studentId} className="border-b hover:bg-gray-50 transition-colors">
-                      <td className="px-4 py-3 font-medium text-gray-500">{index + 1}</td>
+                      <td className="px-4 py-3 font-medium text-gray-500">{r.rank || index + 1}</td>
                       <td className="px-4 py-3 font-semibold">{r.name}</td>
                       <td className="px-4 py-3 text-center text-gray-600">{r.admissionNo}</td>
                       <td className="px-4 py-3 text-center">
